@@ -1,1 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Revisão - TechPay</title>
+    <style>
+        :root { --accent: #22c55e; }
+        
+        body { 
+            margin: 0; 
+            font-family: 'Inter', sans-serif; 
+            background: #000; 
+            color: #fff; 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        h1 { font-size: 20px; font-weight: 700; margin: 0; }
+        p { color: #9CA3AF; font-size: 14px; margin-top: 5px; }
+
+        /* BLOCOS DE REVISÃO */
+        .review-card {
+            background: #111;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #222;
+        }
+
+        .info-row {
+            margin-bottom: 20px;
+        }
+
+        .info-row:last-child { margin-bottom: 0; }
+
+        .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #6B7280;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .value-amount {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        /* RODAPÉ FIXO */
+        .footer {
+            padding: 20px;
+            background: #000;
+            border-top: 1px solid #222;
+        }
+
+        .btn-confirm {
+            width: 100%;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-edit {
+            width: 100%;
+            background: transparent;
+            color: #fff;
+            border: none;
+            padding: 15px;
+            margin-top: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <svg onclick="window.history.back()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <h1>Revise os dados</h1>
+    </div>
+
+    <div class="content">
+        <p>Confira as informações antes de confirmar o pagamento.</p>
+
+        <div class="review-card">
+            <div class="info-row">
+                <span class="label">Valor a transferir</span>
+                <div class="value-amount" id="rev-val">R$ 0,00</div>
+            </div>
+
+            <div class="info-row">
+                <span class="label">Para</span>
+                <div class="value" id="rev-name">Leonardo Candido</div>
+            </div>
+
+            <div class="info-row">
+                <span class="label">Instituição</span>
+                <div class="value">Nu Pagamentos S.A.</div>
+            </div>
+            
+            <div class="info-row">
+                <span class="label">Data do pagamento</span>
+                <div class="value">Hoje, agora</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <button class="btn-confirm" onclick="irParaComprovante()">Confirmar Pagamento</button>
+        <button class="btn-edit" onclick="window.history.back()">Corrigir informações</button>
+    </div>
+
+    <script>
+        // Puxa os dados que foram digitados na tela anterior
+        window.onload = function() {
+            document.getElementById('rev-val').innerText = localStorage.getItem("ultimoValor") || "R$ 0,00";
+        };
+
+        function irParaComprovante() {
+            // Aqui você pode simular um "Carregando" antes de ir pro comprovante
+            window.location.href = 'comprovante.html';
+        }
+    </script>
+</body>
+</html>
 
