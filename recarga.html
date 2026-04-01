@@ -112,43 +112,31 @@
             v = (v/100).toFixed(2).replace(".", ",");
             i.value = "R$ " + v;
             finalValue = i.value;
-        }
-        function processar() {
+function processar() {
     const phone = document.getElementById('phone').value;
     if(!phone || phone.length < 14) return alert("Digite o telefone!");
     if(!selectedOperator) return alert("Escolha a operadora!");
 
-    // 1. Salva os dados para o cupom (o que você já tinha)
-    const dadosRecarga = {
-        telefone: phone,
-        valor: finalValue,
-        operadora: selectedOperator,
-        data: new Date().toLocaleDateString(),
-        hora: new Date().toLocaleTimeString()
-    };
-    localStorage.setItem('ultimaRecarga', JSON.stringify(dadosRecarga));
+    // 1. CONFIGURA O COMPROVANTE DINÂMICO
+    localStorage.setItem("tipoTransacao", "recarga");
+    localStorage.setItem("ultimoValor", finalValue);
+    localStorage.setItem("destinoNome", selectedOperator); // Nome da Operadora
+    localStorage.setItem("detalhesExtras", phone);         // Número do Celular
+    localStorage.setItem("instDestino", selectedOperator + " S.A.");
 
-    // 2. Salva no Extrato (Padronizado para aparecer junto com o Pix)
-    let extrato = JSON.parse(localStorage.getItem("transacoes")) || [];
-    extrato.unshift({
-        nome: `Recarga ${selectedOperator}`, // Ex: Recarga Vivo
-        tipo: "saida",
-        categoria: "recarga",
-        valor: finalValue,
-        data: new Date().toLocaleDateString('pt-BR')
-    });
-    localStorage.setItem("transacoes", JSON.stringify(extrato));
-
-    // 3. Atualiza o saldo global (importante!)
+    // 2. LOGICA DE SALDO (OPCIONAL SE JÁ TIVER)
     let saldoAtual = parseFloat(localStorage.getItem("saldo")) || 1250.00;
-    let valorRecarga = parseFloat(finalValue.replace("R$ ", "").replace(".", "").replace(",", "."));
-    localStorage.setItem("saldo", (saldoAtual - valorRecarga));
+    let valorNum = parseFloat(finalValue.replace("R$ ", "").replace(".", "").replace(",", "."));
+    localStorage.setItem("saldo", (saldoAtual - valorNum));
 
+    // 3. VAI PARA O COMPROVANTE ÚNICO
     const btn = document.querySelector('.btn-confirm');
     btn.innerText = "Validando saldo...";
-    setTimeout(() => { location.href = 'comprovante_recarga.html'; }, 1500);
+    setTimeout(() => { 
+        window.location.href = 'comprovante.html'; // Certifique-se que o nome é este
+    }, 1200);
         }
-        
+                
 
     </script>
 </body>
