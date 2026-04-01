@@ -145,10 +145,29 @@
             document.getElementById('rev-val').innerText = localStorage.getItem("ultimoValor") || "R$ 0,00";
         };
 
-        function irParaComprovante() {
-            // Aqui você pode simular um "Carregando" antes de ir pro comprovante
-            window.location.href = 'comprovante.html';
-        }
+        window.onload = function() {
+    const tipo = localStorage.getItem("tipoOperacao") || "Pix";
+    const valor = localStorage.getItem("ultimoValor") || "R$ 0,00";
+    
+    document.getElementById('rev-val').innerText = valor;
+
+    const campoNome = document.getElementById('rev-name');
+    const campoInst = document.querySelector('.info-row:nth-child(3) .value'); // Onde diz Nu Pagamentos
+
+    if (tipo === "Recarga") {
+        // Se for Recarga, mostra Operadora e o Número do Celular
+        campoNome.innerText = localStorage.getItem("operadora") + " Recargas";
+        campoInst.innerText = localStorage.getItem("telefone");
+        
+        // Opcional: mudar o label de "Para" para "Número"
+        document.querySelector('.info-row:nth-child(3) .label').innerText = "Número do Celular";
+    } else {
+        // Se for Pix, mantém o padrão
+        campoNome.innerText = "Leonardo Candido";
+        campoInst.innerText = "Nu Pagamentos S.A.";
+    }
+};
+        
     </script>
 </body>
 </html>
