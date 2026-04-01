@@ -6,91 +6,107 @@
     <title>Comprovante - TechPay Official</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root { 
-            --accent: #22c55e; 
-            --text-main: #000000;
-            --text-muted: #666666;
-            --border: #e5e7eb;
+/* 1. RESET E BODY FIXO */
+:root { 
+    --accent: #22c55e; 
+    --text-main: #000000;
+    --text-muted: #666666;
+    --border: #e5e7eb;
+}
+
+* { box-sizing: border-box; }
+
+body { 
+    margin: 0; 
+    font-family: 'Inter', -apple-system, sans-serif; 
+    background: #000; /* Fundo sólido para evitar bugs de gradient */
+    color: #FFF; 
+    height: 100vh; /* Trava a altura na tela do celular */
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; /* Não deixa a tela toda rolar, apenas o miolo */
+}
+
+/* 2. ÁREA DE ROLAGEM (O comprovante fica aqui) */
+.scroll-container {
+    flex: 1; /* Ocupa todo o espaço que sobrar acima do rodapé */
+    overflow-y: auto; /* Permite rolar apenas o comprovante */
+    -webkit-overflow-scrolling: touch; /* Rolagem suave no iPhone */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 3. O COMPROVANTE (PAPEL) */
+.document-paper { 
+    width: 100%; 
+    max-width: 350px; 
+    background: #FFFFFF; 
+    padding: 25px; 
+    border-radius: 4px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    color: var(--text-main);
+    margin-bottom: 20px; /* Espaço para não grudar no rodapé ao rolar */
+}
+
+/* Detalhes internos do comprovante */
+.doc-header { text-align: center; margin-bottom: 25px; }
+.brand { font-size: 18px; font-weight: 800; text-transform: uppercase; color: #000; }
+.brand span { color: var(--accent); }
+.doc-type { font-size: 14px; font-weight: 600; margin-top: 4px; display: block; }
+.doc-timestamp { font-size: 11px; color: var(--text-muted); }
+
+.line { border: 0; border-top: 1px solid var(--border); margin: 15px 0; }
+.section-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; display: block; }
+.data-row { margin-bottom: 12px; }
+.data-label { font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 2px; }
+.data-value { font-size: 13px; font-weight: 600; color: var(--text-main); }
+
+.amount-box { margin: 20px 0; }
+.amount-value { font-size: 28px; font-weight: 800; color: #000; }
+
+.auth-footer { margin-top: 25px; font-family: monospace; font-size: 9px; color: var(--text-muted); line-height: 1.4; }
+
+/* 4. RODAPÉ FIXO (ESTILO SANTANDER/NUBANK) */
+.fixed-actions {
+    background: #000; 
+    padding: 15px 20px 25px 20px; /* Mais espaço embaixo para não bater na barra do celular */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Espaço entre os dois botões */
+    width: 100%;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    z-index: 100; /* Garante que fique na frente de tudo */
+}
+
+.btn-style {
+    width: 100%;
+    height: 52px; /* Altura fixa para ser fácil de clicar */
+    background: #FFFFFF;
+    color: #000000;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.1s;
+}
+
+.btn-style:active { 
+    transform: scale(0.98); /* Efeito de clique */
+    background: #f3f4f6; 
+}
+
+/* Ajuste específico para o ícone da seta no botão */
+.btn-style svg {
+    flex-shrink: 0;
         }
-
-        body { 
-            margin: 0; 
-            font-family: 'Inter', -apple-system, sans-serif; 
-            background: linear-gradient(180deg, #0f172a 0%, #000000 100%); 
-            color: #FFF; 
-            height: 100vh;
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-        }
-
-        .scroll-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-bottom: 20px;
-        }
-
-        .document-paper { 
-            width: 100%; 
-            max-width: 360px; 
-            background: #FFFFFF; 
-            padding: 30px 25px; 
-            border-radius: 4px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            color: var(--text-main);
-            box-sizing: border-box;
-        }
-
-        .doc-header { text-align: center; margin-bottom: 30px; }
-        .brand { font-size: 18px; font-weight: 800; text-transform: uppercase; }
-        .brand span { color: var(--accent); }
-        .doc-type { font-size: 15px; font-weight: 600; margin-top: 5px; display: block; }
-        .doc-timestamp { font-size: 11px; color: var(--text-muted); }
-
-        .line { border: 0; border-top: 1px solid var(--border); margin: 15px 0; }
-        .section-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 10px; display: block; }
-        .data-row { margin-bottom: 10px; }
-        .data-label { font-size: 10px; color: var(--text-muted); display: block; }
-        .data-value { font-size: 13px; font-weight: 600; color: var(--text-main); }
-
-        .amount-box { margin: 20px 0; }
-        .amount-value { font-size: 26px; font-weight: 800; }
-
-        .auth-footer { margin-top: 30px; font-family: monospace; font-size: 9px; color: var(--text-muted); }
-
-        /* RODAPÉ AJUSTADO PARA CABER TUDO */
-        .fixed-actions {
-            background: #000;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
-            box-sizing: border-box;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .btn-style {
-            width: 100%;
-            background: #FFFFFF;
-            color: #000000;
-            border: none;
-            padding: 14px; /* Diminuído para dar espaço */
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-style:active { background: #e5e7eb; }
+        
     </style>
 </head>
 <body>
