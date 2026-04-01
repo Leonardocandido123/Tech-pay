@@ -136,7 +136,24 @@ function processar() {
         window.location.href = 'comprovante.html'; // Certifique-se que o nome é este
     }, 1200);
         }
-                
+            
+                // Cole isso no final da sua tela de preenchimento de recarga
+function finalizarRecarga() {
+    // Pega os valores dos inputs (exemplo: id="valor", id="tel")
+    const valorDigitado = document.getElementById('main-amount').value;
+    const telefoneDigitado = document.getElementById('input-telefone').value;
+    const operadoraSelecionada = document.getElementById('select-operadora').value;
+
+    // Salva na memória para o comprovante ler depois
+    localStorage.setItem("tipoOperacao", "Recarga");
+    localStorage.setItem("ultimoValor", valorDigitado);
+    localStorage.setItem("telefone", telefoneDigitado);
+    localStorage.setItem("operadora", operadoraSelecionada);
+    
+    // Manda o usuário para a tela do comprovante
+    window.location.href = "comprovante.html";
+        }
+        
 
     </script>
 </body>
