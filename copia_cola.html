@@ -82,10 +82,23 @@
       btn.disabled = input.value.trim().length < 10;
     });
 
-    function processarPagamento() {
-      // Lógica de saldo já ajustada por você
-      window.location.href = "processando.html";
+function processarPagamento() {
+    const codigo = document.getElementById('pixCode').value;
+    
+    // Configura o comprovante
+    localStorage.setItem("tipoTransacao", "qrcode"); // Usa o layout de QR Code/Copia e Cola
+    localStorage.setItem("ultimoValor", "R$ 150,00"); // Aqui você pode pedir o valor ou fixar
+    localStorage.setItem("destinoNome", "Estabelecimento Parceiro");
+    localStorage.setItem("detalhesExtras", "Copia e Cola: " + codigo.substring(0, 15) + "...");
+    localStorage.setItem("instDestino", "TechPay Gateway");
+
+    // Lógica de Saldo
+    let saldo = parseFloat(localStorage.getItem("saldo")) || 1250;
+    localStorage.setItem("saldo", (saldo - 150));
+
+    window.location.href = "comprovante.html";
     }
+    
   </script>
 </body>
 </html>
