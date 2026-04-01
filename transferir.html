@@ -116,33 +116,33 @@
       btn.classList.remove("active");
     }
   }
-
-  function realizarPix() {
-    if(!btn.classList.contains("active")) return;
+function realizarPix() {
+    const valorInput = document.getElementById("valorInput").value;
+    const chave = document.getElementById("chavePix").value;
     
-    const valorLimpo = valorInput.value.replace("R$ ", "").replace(/\./g, "").replace(",", ".");
-    const valorFinal = parseFloat(valorLimpo);
-    
-    if(valorFinal > saldoOriginal) { 
-        alert("Saldo insuficiente!"); 
-        return; 
-    }
+    if(!valorInput || valorInput === "R$ 0,00") return alert("Digite um valor!");
 
-    localStorage.setItem("saldo", (saldoOriginal - valorFinal));
-    localStorage.setItem("ultimoValor", valorInput.value);
+    // 1. CONFIGURA O COMPROVANTE DINÂMICO
+    localStorage.setItem("tipoTransacao", "pix");
+    localStorage.setItem("ultimoValor", valorInput);
+    localStorage.setItem("destinoNome", "Leonardo Candido"); // Nome que aparece no feedback
+    localStorage.setItem("detalhesExtras", chave);            // A chave que o cara digitou
+    localStorage.setItem("instDestino", "Nu Pagamentos - 001");
 
-    let extrato = JSON.parse(localStorage.getItem("transacoes")) || [];
-    extrato.unshift({
-        nome: "Leonardo Candido",
-        tipo: "saida",
-        categoria: "pix",
-        valor: valorInput.value,
-        data: new Date().toLocaleDateString('pt-BR')
-    });
-    localStorage.setItem("transacoes", JSON.stringify(extrato));
+    // 2. ATUALIZA SALDO
+    let saldoAtual = parseFloat(localStorage.getItem("saldo")) || 1250.00;
+    let valorLimpo = valorInput.replace("R$ ", "").replace(".", "").replace(",", ".");
+    localStorage.setItem("saldo", (saldoAtual - parseFloat(valorLimpo)));
 
-    window.location.href = "processando.html";
-  }
+    // 3. VAI PARA O COMPROVANTE ÚNICO
+    const btn = document.getElementById("btnProsseguir");
+    btn.innerHTML = "Enviando...";
+    setTimeout(() => { 
+        window.location.href = 'comprovante.html'; 
+    }, 1200);
+}
+  
+  
 </script>
 </body>
 </html>
