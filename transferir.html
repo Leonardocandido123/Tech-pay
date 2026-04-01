@@ -10,8 +10,22 @@
   .back-btn { width: 40px; height: 40px; border-radius: 50%; background: #22C55E; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(34,197,94,0.2); }
   .back-btn svg { stroke: #0B0F19; width: 20px; fill: none; stroke-width: 3; }
   .saldo-display { background: rgba(34, 197, 94, 0.1); padding: 8px 16px; border-radius: 20px; color: #22C55E; font-size: 13px; font-weight: 600; display: inline-block; margin-bottom: 30px; }
-  .main-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid #2A3441; color: #FFF; font-size: 24px; padding: 10px 0; outline: none; transition: .3s; }
-  .main-input:focus { border-bottom-color: #22C55E; }
+ input {
+    background: transparent !important; /* Remove o fundo branco */
+    border: none;
+    border-bottom: 2px solid #334155; /* Linha sutil embaixo */
+    color: #FFFFFF !important; /* Texto sempre branco */
+    font-size: 24px;
+    padding: 10px 0;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-bottom-color: #22c55e; /* Linha fica verde ao clicar */
+  }
+  
   #feedbackDestino { display: none; margin-top: 15px; margin-bottom: 30px; }
   .dest-name { display: block; font-weight: 600; color: #FFF; font-size: 16px; }
   .dest-bank { font-size: 12px; color: #6B7280; text-transform: uppercase; letter-spacing: 1px; }
