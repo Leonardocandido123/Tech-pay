@@ -1,1 +1,114 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Tech Pay - Extrato Detalhado</title>
+    <style>
+        :root { --bg: #000; --card: #121826; --border: #2A3441; --green: #22C55E; --red: #EF4444; --text-sec: #9CA3AF; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: white; padding: 20px; }
+
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; position: sticky; top: 0; background: var(--bg); padding: 10px 0; z-index: 10; }
+        .back-btn, .clear-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        
+        .balance-summary { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 30px; text-align: center; }
+        .balance-summary small { color: var(--text-sec); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .balance-summary h2 { margin: 5px 0 0; font-size: 28px; }
+
+        .item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 12px; position: relative; }
+        .item-left { display: flex; align-items: center; gap: 12px; }
+        .icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .info b { display: block; font-size: 14px; }
+        .info span { font-size: 11px; color: var(--text-sec); }
+        
+        .item-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .value { font-weight: 700; font-size: 14px; }
+        .share-icon { color: var(--primary); opacity: 0.6; cursor: pointer; }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--text-sec); }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="back-btn" onclick="location.href='home.html'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        </div>
+        <b style="font-size: 18px;">Extrato</b>
+        <div class="clear-btn" onclick="limparExtrato()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>
+        </div>
+    </header>
+
+    <div class="balance-summary">
+        <small>Saldo Disponível</small>
+        <h2 id="saldoTotal">R$ 0,00</h2>
+    </div>
+
+    <div id="listaExtrato"></div>
+
+    <script>
+        function carregarExtrato() {
+            const lista = document.getElementById('listaExtrato');
+            const saldoTxt = document.getElementById('saldoTotal');
+            
+            const saldo = parseFloat(localStorage.getItem("saldo")) || 1250.00;
+            const transacoes = JSON.parse(localStorage.getItem("transacoes")) || [];
+
+            saldoTxt.innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            if (transacoes.length === 0) {
+                lista.innerHTML = `<div class="empty-state">Nenhuma movimentação.</div>`;
+                return;
+            }
+
+            lista.innerHTML = "";
+            transacoes.forEach((t, index) => {
+                const isNeg = t.tipo === "saida" || t.tipo === "enviado";
+                const div = document.createElement('div');
+                div.className = 'item';
+                
+                div.innerHTML = `
+                    <div class="item-left">
+                        <div class="icon" style="background: rgba(255,255,255,0.05)">${t.categoria === 'recarga' ? '📱' : '💸'}</div>
+                        <div class="info">
+                            <b>${t.nome}</b>
+                            <span>${t.data}</span>
+                        </div>
+                    </div>
+                    <div class="item-right">
+                        <div class="value" style="color: ${isNeg ? '#FFF' : '#22C55E'}">
+                            ${isNeg ? '-' : '+'} ${t.valor}
+                        </div>
+                        <div class="share-icon" onclick="compartilhar('${t.nome}', '${t.valor}')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+                        </div>
+                    </div>
+                `;
+                lista.appendChild(div);
+            });
+        }
+
+        function compartilhar(nome, valor) {
+            const texto = `Comprovante Tech Pay\nPagamento para: ${nome}\nValor: ${valor}\nEnviado via App Tech Pay.`;
+            if (navigator.share) {
+                navigator.share({ title: 'Comprovante Tech Pay', text: texto });
+            } else {
+                alert("Texto copiado para a área de transferência!");
+            }
+        }
+
+        function limparExtrato() {
+            if(confirm("Deseja apagar todo o histórico de transações?")) {
+                localStorage.setItem("transacoes", JSON.stringify([]));
+                carregarExtrato();
+            }
+        }
+
+        window.onload = carregarExtrato;
+    </script>
+</body>
+</html>
