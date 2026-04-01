@@ -67,6 +67,44 @@
         margin-top: 4px; 
     }
     
+      .actions-grid-v2 { 
+        display: grid; 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 20px; 
+        margin-bottom: 30px; 
+    }
+    .action-item-v2 { text-decoration: none; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+    .action-icon-v2 { 
+        width: 65px; height: 65px; 
+        background: var(--bg-card); 
+        border: 1px solid var(--border); 
+        border-radius: 20px; 
+        display: flex; align-items: center; justify-content: center; 
+        color: #FFF; transition: 0.2s;
+    }
+    .action-item-v2:active .action-icon-v2 { transform: scale(0.9); background: #1f2937; }
+    .action-item-v2 span { font-size: 11px; font-weight: 500; color: var(--text-secondary); margin-top: 8px; }
+    
+    /* ESTEIRA DE CARDS HORIZONTAIS */
+    .scroll-container {
+        margin: 0 -20px 25px -20px; /* Estica até a borda da tela */
+        padding: 0 20px;
+        display: flex;
+        overflow-x: auto;
+        gap: 15px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .scroll-container::-webkit-scrollbar { display: none; }
+    
+    .smart-card-h { 
+        flex: 0 0 220px; 
+        background: var(--bg-card); 
+        border: 1px solid var(--border); 
+        border-radius: 24px; 
+        padding: 18px; 
+        position: relative;
+    }
     /* RESUMO DIÁRIO */
     .resumo-dia { display:flex; justify-content:space-between; background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:15px; margin-bottom:25px; }
     .resumo-dia div { display:flex; flex-direction:column; align-items:center; }
@@ -134,25 +172,61 @@
     <div class="pix-info"><b>Pix rápido ⚡</b><span>Envie e receba em segundos</span></div>
     <a href="pix.html" class="pix-btn">Usar Pix</a>
   </div>
-
-  <section class="actions-grid">
-    <a href="extrato.html" class="action-item">
-    <div class="action-icon">
-        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9h6m-6 4h6"/></svg>
-    </div>
-    <span>Extrato</span>
+class="actions-grid-v2">
+    <a href="extrato.html" class="action-item-v2">
+        <div class="action-icon-v2"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9h6m-6 4h6"/></svg></div>
+        <span>Extrato</span>
     </a>
-     <a href="cobrar.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><span>Cobrar</span></a>
-    <a href="clientes.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-3-3.87"/><path d="M7 21v-2a4 4 0 0 1 3-3.87"/><circle cx="12" cy="7" r="4"/></svg></div><span>Clientes</span></a>
-    <a href="cartao.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><span>Cartão</span></a>
-    <a href="recarga.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></div><span>Recarga</span></a>
-    <a href="metas.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><span>Metas</span></a>
+    <a href="cobrar.html" class="action-item-v2">
+        <div class="action-icon-v2"><svg viewBox="0 0 24 24" style="stroke: var(--primary);"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <span>Cobrar</span>
+    </a>
+    <a href="contas.html" class="action-item-v2">
+        <div class="action-icon-v2"><svg viewBox="0 0 24 24"><path d="M20 12V8H4v4M2 4h20v16H2V4zm2 4h16v10H4V8z"/></svg></div>
+        <span>Contas</span>
+    </a>
+    <a href="cartao.html" class="action-item-v2">
+        <div class="action-icon-v2"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+        <span>Cartão</span>
+    </a>
+    <a href="recarga.html" class="action-item-v2">
+        <div class="action-icon-v2"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></div>
+        <span>Recarga</span>
+    </a>
+    <a href="metas.html" class="action-item-v2">
+        <div class="action-icon-v2"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+        <span>Metas</span>
+    </a>
   </section>
+
+  <div class="scroll-container">
+    <div class="smart-card-h" style="border-style: dashed; border-color: var(--primary); text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div style="font-size: 30px; color: var(--primary); line-height: 1;">+</div>
+        <b style="font-size: 13px; color: #FFF; margin-top: 5px;">Novo Cliente</b>
+        <p style="font-size: 10px; color: var(--text-secondary);">Cadastre e agende</p>
+    </div>
+
+    <div class="smart-card-h" style="border-color: #ef4444;">
+        <span style="font-size: 9px; background: #ef4444; color: white; padding: 2px 6px; border-radius: 6px; position: absolute; top: 15px; right: 15px; font-weight: 800;">VENCIDO</span>
+        <b style="font-size: 14px; color: #FFF; display: block; margin-top: 5px;">João (Mecânica)</b>
+        <p style="font-size: 11px; color: var(--text-secondary); margin: 8px 0;">Pendente: <b>R$ 150,00</b></p>
+        <button onclick="location.href='cobrar.html'" style="width: 100%; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; border-radius: 10px; font-size: 11px; padding: 8px; font-weight: 700;">Cobrar Agora</button>
+    </div>
+
+    <div class="smart-card-h" style="border-color: #f59e0b;">
+        <b style="font-size: 14px; color: #FFF; display: block;">Conta de Luz</b>
+        <p style="font-size: 11px; color: var(--text-secondary); margin: 8px 0;">Vencimento: <b>05/05/26</b></p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+            <span style="color: #f59e0b; font-weight: 700;">R$ 240,00</span>
+            <button style="background: #f59e0b; color: #000; border: none; border-radius: 8px; font-size: 10px; padding: 6px 12px; font-weight: 700;">Pagar</button>
+        </div>
+    </div>
+  </div>
 
   <div class="smart-card">
     <div class="card-header">
-        <span class="card-title">🚀 Controle de Março</span>
-        <b style="color: var(--primary); font-size: 12px;">+12% que fev</b>
+        <span class="card-title">🚀 Evolução de Março</span>
+        <b style="color: var(--primary); font-size: 12px;">+12%</b>
     </div>
     <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; color: #FFF;">
         <span>R$ 2.500,00</span>
@@ -162,7 +236,6 @@
         <div class="progress-bar" style="width: 83%;"></div>
     </div>
   </div>
-
   <div class="smart-card">
     <div class="card-header">
         <span class="card-title">💸 Cobranças Pendentes</span>
