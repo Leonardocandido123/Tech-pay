@@ -2,112 +2,125 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body{ margin:0; font-family:'Inter', sans-serif; background:#000000; color:#E5E7EB; padding: 20px; }
-  .header { display: flex; align-items: center; gap: 15px; margin-bottom: 40px; }
-  .back-btn { width: 40px; height: 40px; border-radius: 50%; background: #22C55E; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(34,197,94,0.2); }
-  .back-btn svg { stroke: #0B0F19; width: 20px; fill: none; stroke-width: 3; }
-  .saldo-display { background: rgba(34, 197, 94, 0.1); padding: 8px 16px; border-radius: 20px; color: #22C55E; font-size: 13px; font-weight: 600; display: inline-block; margin-bottom: 30px; }
- input {
-    background: transparent !important; /* Remove o fundo branco */
+  :root { --primary: #22C55E; --bg: #000000; }
+  body { margin:0; font-family:'Inter', sans-serif; background: var(--bg); color:#FFF; padding: 20px; overflow: hidden; }
+  
+  .header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
+  .back-btn { background: none; border: none; color: white; cursor: pointer; padding: 0; }
+  
+  .saldo-badge { background: rgba(34, 197, 94, 0.15); padding: 8px 15px; border-radius: 30px; color: var(--primary); font-size: 13px; font-weight: 700; display: inline-block; margin-bottom: 35px; }
+
+  .input-group { margin-bottom: 30px; }
+  .label-input { color: #9CA3AF; font-size: 14px; display: block; margin-bottom: 8px; }
+  
+  /* INPUTS 100% LIMPOS E SEM FUNDO BRANCO */
+  input {
+    background: transparent !important;
     border: none;
-    border-bottom: 2px solid #334155; /* Linha sutil embaixo */
-    color: #FFFFFF !important; /* Texto sempre branco */
-    font-size: 24px;
-    padding: 10px 0;
+    border-bottom: 2px solid #2A3441;
+    color: #FFFFFF !important;
+    font-size: 20px;
+    font-weight: 500;
+    padding: 12px 0;
     width: 100%;
     outline: none;
-    transition: border-color 0.3s;
-}
-
-input:focus {
-    border-bottom-color: #22c55e; /* Linha fica verde ao clicar */
+    border-radius: 0; /* Remove arredondamento de alguns navegadores */
+    -webkit-appearance: none;
   }
+  input:focus { border-bottom-color: var(--primary); }
   
-  #feedbackDestino { display: none; margin-top: 15px; margin-bottom: 30px; }
-  .dest-name { display: block; font-weight: 600; color: #FFF; font-size: 16px; }
-  .dest-bank { font-size: 12px; color: #6B7280; text-transform: uppercase; letter-spacing: 1px; }
-  .valor-area { margin-top: 20px; display: none; }
-  .valor-input { background: transparent; border: none; color: #22C55E; font-size: 48px; font-weight: 700; width: 100%; outline: none; }
-  .confirm-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: #1F2937; display: flex; align-items: center; justify-content: center; border: none; cursor: not-allowed; transition: .3s; opacity: 0.5; }
-  .confirm-btn.active { background: #22C55E; cursor: pointer; transform: scale(1.1); opacity: 1; }
-  .confirm-btn svg { stroke: #0B0F19; width: 28px; fill: none; stroke-width: 2.5; }
+  #feedbackDestino { display: none; background: #111827; padding: 15px; border-radius: 12px; margin-top: -15px; margin-bottom: 25px; border: 1px solid #1F2937; }
+  .dest-name { display: block; font-weight: 700; color: #FFF; font-size: 15px; }
+  .dest-bank { font-size: 11px; color: #6B7280; text-transform: uppercase; margin-top: 2px; }
+
+  .valor-input { font-size: 42px !important; font-weight: 800 !important; color: var(--primary) !important; }
+
+  .footer-action { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px; background: #000; }
+  .confirm-btn { 
+    width: 100%; 
+    background: #27272a; 
+    color: #71717a; 
+    border: none; 
+    padding: 18px; 
+    border-radius: 15px; 
+    font-weight: 700; 
+    font-size: 16px; 
+  }
+  .confirm-btn.active { background: var(--primary); color: #000; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="back-btn" onclick="location.href='pix.html'"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
-  <b style="font-size: 18px;">Transferir Pix</b>
+  <button class="back-btn" onclick="location.href='pix.html'">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  </button>
+  <h2 style="margin:0; font-size:18px;">Transferir</h2>
 </div>
 
-<div class="saldo-display">Saldo: <span id="saldoAtual">R$ 0,00</span></div>
+<div class="saldo-badge">Saldo disponível: <span id="saldoAtual">R$ 0,00</span></div>
 
-<div class="transfer-flow">
-  <span style="color:#9CA3AF; font-size:14px;">Para quem você quer transferir?</span>
-  <input type="text" id="chavePix" class="main-input" placeholder="Chave Pix, CPF ou celular" maxlength="18">
+<div class="input-group">
+  <span class="label-input">Chave Pix (CPF, Celular ou CNPJ)</span>
+  <input type="text" id="chavePix" placeholder="000.000.000-00" inputmode="numeric">
+</div>
 
-  <div id="feedbackDestino">
+<div id="feedbackDestino">
     <span class="dest-name">Leonardo Candido</span>
     <span class="dest-bank">Nu Pagamentos - 001</span>
-  </div>
-
-  <div class="valor-area" id="valorArea">
-    <div style="color:#9CA3AF; font-size:12px;">Quanto você quer enviar?</div>
-    <input type="text" id="valorInput" class="valor-input" placeholder="R$ 0,00">
-  </div>
 </div>
 
-<button class="confirm-btn" id="btnProsseguir" onclick="realizarPix()">
-  <svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-</button>
+<div class="input-group">
+  <span class="label-input">Valor do Pix</span>
+  <input type="text" id="valorInput" class="valor-input" placeholder="R$ 0,00" inputmode="numeric">
+</div>
+
+<div class="footer-action">
+    <button class="confirm-btn" id="btnProsseguir" onclick="irParaRevisao()" disabled>Continuar</button>
+</div>
 
 <script>
   const chaveInput = document.getElementById("chavePix");
   const valorInput = document.getElementById("valorInput");
   const btn = document.getElementById("btnProsseguir");
   const feedback = document.getElementById("feedbackDestino");
-  const valorArea = document.getElementById("valorArea");
 
+  // Saldo
   const saldoOriginal = parseFloat(localStorage.getItem("saldo")) || 1250.00;
   document.getElementById("saldoAtual").innerText = saldoOriginal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-  // MÁSCARAS CORRIGIDAS
+  // MÁSCARA INTELIGENTE: CPF / CELULAR / CNPJ
   chaveInput.addEventListener("input", (e) => {
-    let v = e.target.value.replace(/\D/g, '');
-    let formatado = v;
-
+    let v = e.target.value.replace(/\D/g, ""); // Remove tudo que não é número
+    
     if (v.length <= 11) {
-        // Celular ou CPF
-        if (v.length > 10) { 
-            // Formato Celular: (00) 00000-0000
-            formatado = v.replace(/^(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-        } else if (v.length > 0) {
-            // Formato CPF: 000.000.000-00
-            formatado = v.replace(/(\d{3})(\d)/, "$1.$2")
-                         .replace(/(\d{3})(\d)/, "$1.$2")
-                         .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-        }
+      // CPF ou Celular?
+      if (v.length > 10) {
+        // Celular: (00) 00000-0000
+        v = v.replace(/^(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+      } else {
+        // CPF: 000.000.000-00
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+      }
     } else {
-        // Formato CNPJ: 00.000.000/0001-00
-        formatado = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+      // CNPJ: 00.000.000/0000-00
+      v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+      v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+      v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+      v = v.replace(/(\d{4})(\d)/, "$1-$2");
     }
-
-    e.target.value = formatado;
-
-    // Lógica de exibição dos campos
-    if (v.length >= 11) {
-      feedback.style.display = "block";
-      valorArea.style.display = "block";
-    } else {
-      feedback.style.display = "none";
-      valorArea.style.display = "none";
-    }
+    
+    e.target.value = v;
+    feedback.style.display = v.length >= 14 ? "block" : "none"; // Só mostra o nome se a chave estiver quase completa
     validar();
   });
 
+  // MÁSCARA DE DINHEIRO (R$ 0,00)
   valorInput.addEventListener("input", (e) => {
     let v = e.target.value.replace(/\D/g,'');
     if (v === "") v = "0";
@@ -121,42 +134,23 @@ input:focus {
   function validar() {
     const valorLimpo = valorInput.value.replace("R$ ", "").replace(/\./g, "").replace(",", ".");
     const valorNum = parseFloat(valorLimpo) || 0;
-    const apenasNumeros = chaveInput.value.replace(/\D/g, '');
-    const chaveOk = apenasNumeros.length >= 11;
-
-    if(chaveOk && valorNum > 0) {
+    const chaveLimpa = chaveInput.value.replace(/\D/g, "");
+    
+    if(chaveLimpa.length >= 11 && valorNum > 0) {
       btn.classList.add("active");
+      btn.disabled = false;
     } else {
       btn.classList.remove("active");
+      btn.disabled = true;
     }
   }
-function realizarPix() {
-    const valorInput = document.getElementById("valorInput").value;
-    const chave = document.getElementById("chavePix").value;
-    
-    if(!valorInput || valorInput === "R$ 0,00") return alert("Digite um valor!");
 
-    // 1. CONFIGURA O COMPROVANTE DINÂMICO
-    localStorage.setItem("tipoTransacao", "pix");
-    localStorage.setItem("ultimoValor", valorInput);
-    localStorage.setItem("destinoNome", "Leonardo Candido"); // Nome que aparece no feedback
-    localStorage.setItem("detalhesExtras", chave);            // A chave que o cara digitou
-    localStorage.setItem("instDestino", "Nu Pagamentos - 001");
-
-    // 2. ATUALIZA SALDO
-    let saldoAtual = parseFloat(localStorage.getItem("saldo")) || 1250.00;
-    let valorLimpo = valorInput.replace("R$ ", "").replace(".", "").replace(",", ".");
-    localStorage.setItem("saldo", (saldoAtual - parseFloat(valorLimpo)));
-
-    function irParaRevisao() {
-    const valor = document.getElementById('input-valor').value;
-    localStorage.setItem("ultimoValor", "R$ " + valor);
+  function irParaRevisao() {
     localStorage.setItem("tipoOperacao", "Pix");
-    window.location.href = 'revisao.html'; // Manda para a revisão
-    }
-  
-  
-  
+    localStorage.setItem("ultimoValor", valorInput.value);
+    localStorage.setItem("chaveDigitada", chaveInput.value);
+    window.location.href = 'revisao.html';
+  }
 </script>
 </body>
 </html>
