@@ -47,6 +47,36 @@
         box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
     .action-item span { font-size: 11px; font-weight: 500; color: #FFF; margin-top: 8px; }
+    .techtap-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #ff5f1f, #ff8c00); /* mantém seu laranja */
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 25px;
+}
+
+.techtap-info b {
+  font-size: 14px;
+  color: #000;
+}
+
+.techtap-info span {
+  font-size: 11px;
+  color: rgba(0,0,0,0.7);
+}
+
+.techtap-btn {
+  background: #fff;
+  color: #000;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
 
     .banner-wrapper { width: 100%; margin-bottom: 25px; position: relative; overflow: hidden; }
     .banner-container { display: flex; transition: transform 0.5s ease-in-out; width: 100%; }
@@ -131,41 +161,16 @@
         <span>Recarga</span>
     </a>
   </section>
-  
-<div style="
-  background: linear-gradient(135deg, #ff5f1f 0%, #ff8c00 100%);
-  margin: 15px 25px;
-  padding: 8px 14px; /* igual ao Pix */
-  border-radius: 20px; /* igual ao Pix */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 8px 15px rgba(255, 95, 31, 0.15);
-">
-
-  <div>
-    <b style="color:#000; font-size:14px;">
-      TECHTAP ⚡
-    </b><br>
-    <span style="font-size:11px; color:rgba(0,0,0,0.7);">
-      Venda por aproximação
-    </span>
+  <div class="techtap-card">
+  <div class="techtap-info">
+    <b>TECHTAP ⚡</b><br>
+    <span>Venda por aproximação</span>
   </div>
 
-  <button onclick="abrirPDV()" style="
-    background:#fff;
-    color:#000;
-    border:none;
-    padding:8px 16px;
-    border-radius:12px;
-    font-weight:700;
-    font-size:12px;
-    cursor:pointer;
-  ">
+  <button onclick="abrirPDV()" class="techtap-btn">
     Cobrar
   </button>
-
-</div>
+  </div>
   <div class="banner-wrapper">
     <div class="banner-container" id="banner-slider"></div>
     <div class="banner-dots" id="banner-dots"></div>
