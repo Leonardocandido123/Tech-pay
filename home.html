@@ -37,16 +37,56 @@
     .pix-card { display:flex; justify-content:space-between; align-items:center; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius:20px; padding:16px; margin-bottom:25px; }
     .pix-info b { font-size:14px; color:#fff; }
     .pix-btn { background:#fff; color:#16a34a; padding:8px 14px; border-radius:12px; font-size:12px; font-weight:700; text-decoration:none; }
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 30px;
+}
 
-    .actions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
-    .action-item { text-decoration: none; display: flex; flex-direction: column; align-items: center; }
-    .action-icon { 
-        width: 62px; height: 62px; background: var(--bg-card); 
-        border: 1px solid rgba(255, 255, 255, 0.4); 
-        border-radius: 20px; display: flex; align-items: center; justify-content: center; color: #FFF; 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+.action-item {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.action-icon { 
+  width: 54px;
+  height: 54px;
+  background: var(--bg-card); 
+  border: 1px solid rgba(255, 255, 255, 0.12); /* mais suave */
+  border-radius: 16px; /* menos arredondado */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFF;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.25); /* sombra mais leve */
+}
+
+/* PADRÃO PRA TODOS SVG */
+.action-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: #fff;
+  stroke-width: 1.8;
+  fill: none;
+}
+
+.action-item span {
+  font-size: 11px;
+  font-weight: 500;
+  color: #FFF;
+  margin-top: 6px;
+  opacity: 0.85;
+}
+    .action-icon:hover {
+  transform: scale(1.05);
+  transition: 0.2s;
     }
-    .action-item span { font-size: 11px; font-weight: 500; color: #FFF; margin-top: 8px; }
+  .action-icon:active {
+  transform: scale(0.95);
+  }  
     .techtap-card {
   display: flex;
   justify-content: space-between;
@@ -143,10 +183,14 @@
         <div class="action-icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></div>
         <span>Links</span>
     </a>
-
-    <a href="cobrar.html" class="action-item">
-        <div class="action-icon"><svg viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-        <span>Cobrar</span>
+<a href="cobrar.html" class="action-item">
+  <div class="action-icon">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+    </svg>
+  </div>
+  <span>Cobrar</span>
+</a>
     </a>
     <a href="contas.html" class="action-item">
         <div class="action-icon"><svg viewBox="0 0 24 24"><path d="M20 12V8H4v4M2 4h20v16H2V4zm2 4h16v10H4V8z"/></svg></div>
