@@ -1,11 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
-  
   <title>Tech Pay - Home Premium</title>
   <style>
     :root { 
@@ -64,42 +63,9 @@
     .progress-container { height: 6px; background: #1f2937; border-radius: 10px; margin: 10px 0; overflow: hidden; }
     .progress-bar { height: 100%; background: var(--primary); border-radius: 10px; }
 
-    .nav-bar { 
-    position: fixed; 
-    bottom: 0; left: 0; right: 0; 
-    background: rgba(10, 10, 10, 0.98); 
-    backdrop-filter: blur(15px); 
-    border-top: 1px solid rgba(255, 255, 255, 0.08); 
-    display: flex; 
-    justify-content: space-around; 
-    padding: 10px 0 25px; 
-    z-index: 1000; 
-}
-
-.nav-btn { 
-    background: none; 
-    border: none; 
-    color: #9CA3AF; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    gap: 5px; 
-    font-size: 11px; 
-    cursor: pointer;
-    flex: 1;
-}
-
-/* Tamanho e traço do ícone */
-.nav-btn i { 
-    width: 22px; 
-    height: 22px; 
-    stroke-width: 2px; /* Aqui controla a finura do traço */
-}
-
-.nav-btn.active { 
-    color: #22c55e !important; 
-}
-    
+    .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 0 25px; z-index: 1000; }
+    .nav-btn { background: none; border: none; color: #9CA3AF; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; }
+    svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; }
   </style>
 </head>
 <body>
@@ -182,28 +148,12 @@
 </div>
 
 <nav class="nav-bar">
-  <button class="nav-btn" onclick="location.href='home.html'">
-    <i data-lucide="home"></i>
-    <span>Início</span>
-  </button>
-
-  <button class="nav-btn active" onclick="location.href='metas.html'">
-    <i data-lucide="bar-chart-3"></i>
-    <span>Metas</span>
-  </button>
-
-  <button class="nav-btn" onclick="location.href='ajustes.html'">
-    <i data-lucide="settings"></i>
-    <span>Ajustes</span>
-  </button>
-
-  <button class="nav-btn" onclick="logout()">
-    <i data-lucide="log-out"></i>
-    <span>Sair</span>
-  </button>
+  <button class="nav-btn active"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Início</button>
+  <button class="nav-btn"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Metas</button>
+  <button class="nav-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Ajustes</button>
+  <button class="nav-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sair</button>
 </nav>
-  
-  
+
 <script>
 let saldoOculto = false;
 let currentSlide = 0;
@@ -337,9 +287,5 @@ window.onload = () => {
     atualizarResumo(); 
     carregarBanners(); 
 };
-  // Coloque isso no final do seu script para "ativar" os ícones
-lucide.createIcons();
-  
 </script>
 </body>   </html>
-                                                                                    
