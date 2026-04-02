@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -14,10 +13,13 @@
         --text-secondary: #9CA3AF; 
     }
     
-    body { margin:0; font-family:'Inter',sans-serif; background: #000; color: #fff; padding: 20px; }
-    .header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
-    .back-btn { background: var(--bg-card); border: 1px solid var(--border); color: #fff; border-radius: 12px; padding: 10px; cursor: pointer; }
+    body { margin:0; font-family:'Inter',sans-serif; background: #000; color: #fff; padding: 20px; padding-bottom: 50px; }
     
+    /* HEADER */
+    .header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
+    .back-btn { background: var(--bg-card); border: 1px solid var(--border); color: #fff; border-radius: 12px; padding: 10px; cursor: pointer; display: flex; align-items: center; }
+    
+    /* FORMULÁRIO */
     .card-gerador { background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; padding: 25px; }
     .input-group { margin-bottom: 20px; }
     .input-group label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
@@ -25,29 +27,29 @@
         width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); 
         border-radius: 12px; padding: 15px; color: #fff; font-size: 16px; box-sizing: border-box;
     }
-    .input-group input:focus { border-color: var(--primary); outline: none; }
-
     .btn-gerar { 
         width: 100%; background: var(--primary); color: #000; border: none; 
         border-radius: 15px; padding: 18px; font-weight: 700; font-size: 16px; cursor: pointer;
-        transition: 0.3s; margin-top: 10px;
     }
     
-    /* ÁREA DO LINK GERADO */
-    #resultado { display: none; margin-top: 30px; animation: fadeIn 0.5s ease; }
-    .link-box { 
-        background: #064e3b; border: 1px dashed var(--primary); border-radius: 15px; 
-        padding: 15px; text-align: center; margin-bottom: 20px;
-    }
-    .link-text { font-size: 12px; color: #fff; word-break: break-all; opacity: 0.8; }
-    
+    /* RESULTADO */
+    #resultado { display: none; margin-top: 30px; animation: fadeIn 0.4s ease; }
+    .link-box { background: #064e3b; border: 1px dashed var(--primary); border-radius: 15px; padding: 15px; text-align: center; margin-bottom: 15px; }
     .actions-share { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .btn-share { 
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-        padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; border: none;
-    }
+    .btn-share { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; }
     .btn-copy { background: var(--bg-card); color: #fff; border: 1px solid var(--border); }
     .btn-whatsapp { background: #25D366; color: #fff; }
+
+    /* HISTÓRICO (O QUE VOCÊ ADICIONOU AGORA) */
+    .historico-titulo { margin-top: 40px; font-size: 14px; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; }
+    .lista-links { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+    .item-link { 
+        background: var(--bg-card); border: 1px solid var(--border); 
+        padding: 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .item-info b { display: block; font-size: 14px; color: #fff; }
+    .item-info span { font-size: 11px; color: var(--text-secondary); }
+    .status-badge { font-size: 9px; padding: 4px 8px; border-radius: 6px; background: rgba(34, 197, 94, 0.1); color: var(--primary); font-weight: 700; }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
@@ -58,40 +60,42 @@
     <button class="back-btn" onclick="location.href='home.html'">
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
-    <h2 style="margin:0; font-size: 18px;">Link de Pagamento</h2>
+    <h2 style="margin:0; font-size: 18px;">Gerar Link de Venda</h2>
 </div>
 
 <div class="card-gerador">
     <div class="input-group">
-        <label>Quanto você quer cobrar?</label>
+        <label>Valor da venda</label>
         <input type="text" id="valor" placeholder="R$ 0,00" oninput="mascaraMoeda(this)">
     </div>
-
     <div class="input-group">
-        <label>Descrição do serviço/produto</label>
-        <input type="text" id="descricao" placeholder="Ex: Manutenção de Ar-condicionado">
+        <label>Descrição (opcional)</label>
+        <input type="text" id="descricao" placeholder="Ex: Venda de Camiseta">
     </div>
-
-    <button class="btn-gerar" onclick="gerarLink()">Gerar Link de Venda</button>
+    <button class="btn-gerar" onclick="gerarLink()">Gerar e Salvar</button>
 </div>
 
 <div id="resultado">
     <div class="link-box">
-        <span style="display:block; font-size: 10px; text-transform: uppercase; margin-bottom: 5px; font-weight: 800;">Link pronto para envio:</span>
-        <div class="link-text" id="link-gerado">techpay.me/pagar/leo-782b92</div>
+        <span style="display:block; font-size: 10px; color: var(--primary); margin-bottom: 5px; font-weight: 800;">LINK GERADO</span>
+        <div id="link-gerado" style="font-size: 12px; word-break: break-all;"></div>
     </div>
-
     <div class="actions-share">
-        <button class="btn-share btn-copy" onclick="copiar()">
-            Copiar
-        </button>
-        <button class="btn-share btn-whatsapp" onclick="compartilharZap()">
-            WhatsApp
-        </button>
+        <button class="btn-share btn-copy" onclick="copiar()">Copiar</button>
+        <button class="btn-share btn-whatsapp" onclick="compartilharZap()">WhatsApp</button>
     </div>
 </div>
 
+<div class="historico-titulo">
+    <span>Histórico de Cobranças</span>
+    <span onclick="limparHistorico()" style="color: #ef4444; font-size: 11px; cursor:pointer;">Limpar tudo</span>
+</div>
+
+<div class="lista-links" id="lista-links">
+    </div>
+
 <script>
+// O SEU NOVO JS VAI AQUI
 function mascaraMoeda(i) {
     let v = i.value.replace(/\D/g,'');
     v = (v/100).toFixed(2) + '';
@@ -103,31 +107,76 @@ function mascaraMoeda(i) {
 
 function gerarLink() {
     const valor = document.getElementById('valor').value;
+    const desc = document.getElementById('descricao').value || "Venda sem descrição";
+    
     if(valor === "" || valor === "R$ 0,00") {
         alert("Digite um valor válido");
         return;
     }
     
-    // Simulação de geração de link único
     const hash = Math.random().toString(36).substring(7);
-    document.getElementById('link-gerado').innerText = `techpay.me/venda/${hash}`;
+    const novoLink = `techpay.me/venda/${hash}`;
     
+    const linkObj = {
+        id: Date.now(),
+        valor: valor,
+        descricao: desc,
+        url: novoLink,
+        data: new Date().toLocaleDateString('pt-BR')
+    };
+    
+    let historico = JSON.parse(localStorage.getItem("links_gerados") || "[]");
+    historico.unshift(linkObj); 
+    localStorage.setItem("links_gerados", JSON.stringify(historico));
+
+    document.getElementById('link-gerado').innerText = novoLink;
     document.getElementById('resultado').style.display = 'block';
+    
+    renderizarLinks();
+}
+
+function renderizarLinks() {
+    const lista = document.getElementById('lista-links');
+    const historico = JSON.parse(localStorage.getItem("links_gerados") || "[]");
+    
+    if(historico.length === 0) {
+        lista.innerHTML = '<p style="text-align:center; font-size:12px; color:gray; margin-top:20px;">Nenhum link gerado ainda.</p>';
+        return;
+    }
+
+    lista.innerHTML = historico.map(link => `
+        <div class="item-link">
+            <div class="item-info">
+                <b>${link.valor}</b>
+                <span>${link.descricao} • ${link.data}</span>
+            </div>
+            <div class="status-badge">ENVIADO</div>
+        </div>
+    `).join('');
+}
+
+function limparHistorico() {
+    if(confirm("Deseja limpar seu histórico de cobranças?")) {
+        localStorage.setItem("links_gerados", "[]");
+        renderizarLinks();
+    }
 }
 
 function copiar() {
     const link = document.getElementById('link-gerado').innerText;
     navigator.clipboard.writeText(link);
-    alert("Link copiado!");
+    alert("Copiado com sucesso!");
 }
 
 function compartilharZap() {
     const link = document.getElementById('link-gerado').innerText;
-    const desc = document.getElementById('descricao').value;
+    const desc = document.getElementById('descricao').value || "venda";
     const valor = document.getElementById('valor').value;
-    const texto = `Olá! Segue o link para pagamento de ${desc} no valor de ${valor}: ${link}`;
+    const texto = `Olá! Segue o link para pagamento de *${desc}* no valor de *${valor}*: \n\n🔗 ${link}`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`);
 }
+
+window.onload = renderizarLinks;
 </script>
 
 </body>
