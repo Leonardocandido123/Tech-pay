@@ -88,13 +88,15 @@
   transform: scale(0.95);
   }  
     .techtap-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(135deg, #ff5f1f, #ff8c00); /* mantém seu laranja */
+  background: linear-gradient(135deg, #ff5f1f, #ff8c00);
   border-radius: 20px;
   padding: 16px;
   margin-bottom: 25px;
+  transition: 0.2s;
+}
+
+.techtap-card:active {
+  transform: scale(0.98);
 }
 
 .techtap-info b {
@@ -116,26 +118,124 @@
   font-weight: 700;
   border: none;
   cursor: pointer;
+  transition: 0.2s;
 }
 
-    .banner-wrapper { width: 100%; margin-bottom: 25px; position: relative; overflow: hidden; }
-    .banner-container { display: flex; transition: transform 0.5s ease-in-out; width: 100%; }
-    .smart-banner {
-        min-width: 100%; background: var(--bg-card); border: 1px solid var(--border); 
-        border-radius: 22px; padding: 18px; box-sizing: border-box; 
-        display: flex; flex-direction: column; justify-content: center; min-height: 125px; position: relative;
-    }
-    .banner-dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
-    .dot { width: 6px; height: 6px; background: #374151; border-radius: 50%; transition: 0.3s; }
-    .dot.active { background: var(--primary); width: 16px; border-radius: 10px; }
+.techtap-btn:active {
+  transform: scale(0.95);
+}
 
-    .smart-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; }
-    .progress-container { height: 6px; background: #1f2937; border-radius: 10px; margin: 10px 0; overflow: hidden; }
-    .progress-bar { height: 100%; background: var(--primary); border-radius: 10px; }
+/* BANNER */
+.banner-wrapper {
+  width: 100%;
+  margin-bottom: 25px;
+  position: relative;
+  overflow: hidden;
+}
 
-    .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 0 25px; z-index: 1000; }
-    .nav-btn { background: none; border: none; color: #9CA3AF; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; }
-    svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; }
+.banner-container {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  width: 100%;
+}
+
+.smart-banner {
+  min-width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 18px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 125px;
+  position: relative;
+}
+
+.banner-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  background: #374151;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.dot.active {
+  background: var(--primary);
+  width: 16px;
+  border-radius: 10px;
+}
+
+/* CARD PADRÃO */
+.smart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+}
+
+/* PROGRESSO */
+.progress-container {
+  height: 6px;
+  background: #1f2937;
+  border-radius: 10px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 10px;
+}
+
+/* NAV BAR */
+.nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0 25px;
+  z-index: 1000;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: #9CA3AF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  transition: 0.2s;
+}
+
+.nav-btn:active {
+  transform: scale(0.9);
+}
+
+/* SVG PADRÃO */
+svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  }
   </style>
 </head>
 <body>
