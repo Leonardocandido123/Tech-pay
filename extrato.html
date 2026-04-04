@@ -1,198 +1,285 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <title>Tech Pay - Extrato Detalhado</title>
-    <style>
-        :root { --bg: radial-gradient(circle at 20% 0%, #0f172a, #000 65%);--card: #121826; --border: #2A3441; --green: #22C55E; --red: #EF4444; --text-sec: #9CA3AF; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: white; padding: 20px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<title>Extrato - Tech Pay</title>
+
+<style>
+:root {
+  --primary: #22C55E;
+  --bg: radial-gradient(circle at 20% 0%, #0f172a, #000 70%);
+  --card: rgba(18,24,38,0.9);
+  --border: rgba(255,255,255,0.05);
+  --text-sec: #9CA3AF;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: white;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+/* HEADER */
 .header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 30px;
+  align-items: center;
+  margin-bottom: 25px;
+
   position: sticky;
   top: 0;
-  background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(20px);
-  padding: 10px 0;
-  z-index: 10;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
-        .back-btn, .clear-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        
-        .balance-summary {background: linear-gradient(145deg, #121826, #0f172a);
-box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
-        .balance-summary small { color: var(--text-sec); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
-        .balance-summary h2 { margin: 5px 0 0; font-size: 28px; }
 
-        .item {
+.back {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--card);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  background: linear-gradient(145deg, #121826, #0f172a);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  margin-bottom: 12px;
-  position: relative;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-        }
-        .item-left { display: flex; align-items: center; gap: 12px; }
-        .icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .info b { display: block; font-size: 14px; }
-        .info span { font-size: 11px; color: var(--text-sec); }
-        
-        .item-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
-        .value { font-weight: 700; font-size: 14px; }
-        .share-icon { color: var(--primary); opacity: 0.6; cursor: pointer; }
+  justify-content: center;
+  cursor: pointer;
+}
 
-        .empty-state { text-align: center; padding: 50px 20px; color: var(--text-sec); }
-    </style>
+/* SALDO */
+.balance {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 25px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+
+.balance h1 {
+  margin: 5px 0;
+}
+
+/* FILTRO */
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.filter {
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.active {
+  background: var(--primary);
+  color: black;
+}
+
+/* GRUPOS */
+.group-title {
+  margin: 20px 0 10px;
+  font-size: 12px;
+  color: var(--text-sec);
+  font-weight: 700;
+}
+
+/* ITEM */
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card);
+  padding: 16px;
+  border-radius: 18px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.item:active {
+  transform: scale(0.97);
+}
+
+.left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.right {
+  text-align: right;
+}
+
+.value-pos { color: #22C55E; font-weight: 700; }
+.value-neg { color: #EF4444; font-weight: 700; }
+
+.small {
+  font-size: 11px;
+  color: var(--text-sec);
+}
+
+/* EMPTY */
+.empty {
+  text-align: center;
+  margin-top: 50px;
+  color: var(--text-sec);
+}
+</style>
 </head>
+
 <body>
 
-    <header class="header">
-        <div class="back-btn" onclick="location.href='home.html'">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-        </div>
-        <b style="font-size: 18px;">Extrato</b>
-        <div class="clear-btn" onclick="limparExtrato()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>
-        </div>
-    </header>
+<div class="header">
+  <div class="back" onclick="history.back()">←</div>
+  <b>Extrato</b>
+  <div></div>
+</div>
 
-    <div class="balance-summary">
-        <small>Saldo Disponível</small>
-        <h2 id="saldoTotal">R$ 0,00</h2>
-    </div>
+<div class="balance">
+  <small>Saldo disponível</small>
+  <h1 id="saldo">R$ 0,00</h1>
+</div>
 
-    <div id="listaExtrato"></div>
+<div class="filters">
+  <div class="filter active" onclick="filtrar('todos')">Tudo</div>
+  <div class="filter" onclick="filtrar('entrada')">Entradas</div>
+  <div class="filter" onclick="filtrar('saida')">Saídas</div>
+</div>
 
-    <script>
-        function carregarExtrato() {
-    const lista = document.getElementById('listaExtrato');
-    const saldoTxt = document.getElementById('saldoTotal');
-    
-    const saldo = parseFloat(localStorage.getItem("saldo")) || 1250.00;
-    const transacoes = JSON.parse(localStorage.getItem("transacoes")) || [];
+<div id="lista"></div>
 
-    saldoTxt.innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+<script>
 
-    if (transacoes.length === 0) {
-        lista.innerHTML = `<div class="empty-state">Nenhuma movimentação.</div>`;
-        return;
+let transacoes = JSON.parse(localStorage.getItem("transacoes")) || [];
+
+// 🔥 CALCULAR SALDO
+function atualizarSaldo(lista){
+  let total = 0;
+
+  lista.forEach(t=>{
+    const valor = parseFloat(t.valor.replace(/[^\d,]/g,'').replace(',','.'));
+    if(t.tipo === "entrada" || t.tipo === "recebido"){
+      total += valor;
+    } else {
+      total -= valor;
     }
+  });
 
-    lista.innerHTML = "";
+  document.getElementById("saldo").innerText =
+    total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+}
 
-    // 📅 DATA HOJE / ONTEM
-    const hoje = new Date();
-    const ontem = new Date();
-    ontem.setDate(hoje.getDate() - 1);
+// 🔥 FILTRO
+function filtrar(tipo){
 
-    const formatarData = (dataStr) => {
-        const d = new Date(dataStr);
-        if (d.toDateString() === hoje.toDateString()) return "Hoje";
-        if (d.toDateString() === ontem.toDateString()) return "Ontem";
-        return "Antigos";
-    };
+  document.querySelectorAll('.filter').forEach(f=>f.classList.remove('active'));
+  event.target.classList.add('active');
 
-    // 📦 AGRUPAR
-    const grupos = {
-        "Hoje": [],
-        "Ontem": [],
-        "Antigos": []
-    };
+  let filtradas = transacoes;
 
-    transacoes.forEach(t => {
-        const grupo = formatarData(t.dataISO || new Date());
-        grupos[grupo].push(t);
-    });
+  if(tipo === "entrada"){
+    filtradas = transacoes.filter(t => t.tipo === "entrada" || t.tipo === "recebido");
+  }
 
-    // 🔄 RENDER
-    Object.keys(grupos).forEach(grupo => {
-        if (grupos[grupo].length === 0) return;
+  if(tipo === "saida"){
+    filtradas = transacoes.filter(t => t.tipo === "saida" || t.tipo === "enviado");
+  }
 
-        // TÍTULO
-        const titulo = document.createElement('div');
-        titulo.innerHTML = `
-            <div style="margin:20px 0 10px; font-size:12px; color:#9CA3AF; font-weight:600;">
-                ${grupo}
-            </div>
-        `;
-        lista.appendChild(titulo);
+  render(filtradas);
+}
 
-        // ITENS
-        grupos[grupo].forEach((t, index) => {
-            const isNeg = t.tipo === "saida" || t.tipo === "enviado";
+// 🔥 RENDER
+function render(lista){
 
-            const div = document.createElement('div');
-            div.className = 'item';
-            div.style.opacity = "0";
-            div.style.transform = "translateY(10px)";
+  const container = document.getElementById("lista");
+  container.innerHTML = "";
 
-            div.innerHTML = `
-                <div class="item-left">
-                    <div class="icon" style="background: rgba(255,255,255,0.05)">
-                        ${t.categoria === 'recarga' ? '📱' : isNeg ? '💸' : '💰'}
-                    </div>
+  if(lista.length === 0){
+    container.innerHTML = `<div class="empty">Nenhuma movimentação</div>`;
+    return;
+  }
 
-                    <div class="info">
-                        <b>${t.nome}</b>
-                        <span>${t.data}</span>
-                        <small style="color:${isNeg ? '#EF4444' : '#22C55E'}; font-size:10px;">
-                            ${isNeg ? 'SAÍDA' : 'ENTRADA'}
-                        </small>
-                    </div>
-                </div>
+  atualizarSaldo(lista);
 
-                <div class="item-right">
-                    <div class="value" style="color: ${isNeg ? '#EF4444' : '#22C55E'}">
-                        ${isNeg ? '-' : '+'} ${t.valor}
-                    </div>
+  lista.forEach(t => {
 
-                    <div class="share-icon" onclick="compartilhar('${t.nome}', '${t.valor}')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/>
-                        </svg>
-                    </div>
-                </div>
-            `;
+    const isNeg = t.tipo === "saida" || t.tipo === "enviado";
 
-            lista.appendChild(div);
+    const div = document.createElement("div");
+    div.className = "item";
 
-            // ✨ ANIMAÇÃO
-            setTimeout(() => {
-                div.style.transition = "0.4s";
-                div.style.opacity = "1";
-                div.style.transform = "translateY(0)";
-            }, index * 80);
-        });
-    });
-        }
+    div.innerHTML = `
+      <div class="left">
+        <div class="icon" style="background: rgba(255,255,255,0.05)">
+          ${t.categoria === 'recarga' ? '📱' : isNeg ? '💸' : '💰'}
+        </div>
 
-        function compartilhar(nome, valor) {
-            const texto = `Comprovante Tech Pay\nPagamento para: ${nome}\nValor: ${valor}\nEnviado via App Tech Pay.`;
-            if (navigator.share) {
-                navigator.share({ title: 'Comprovante Tech Pay', text: texto });
-            } else {
-                alert("Texto copiado para a área de transferência!");
-            }
-        }
+        <div>
+          <b>${t.nome}</b>
+          <div class="small">${t.data}</div>
+        </div>
+      </div>
 
-        function limparExtrato() {
-            if(confirm("Deseja apagar todo o histórico de transações?")) {
-                localStorage.setItem("transacoes", JSON.stringify([]));
-                carregarExtrato();
-            }
-        }
+      <div class="right">
+        <div class="${isNeg ? 'value-neg' : 'value-pos'}">
+          ${isNeg ? '-' : '+'} ${t.valor}
+        </div>
+      </div>
+    `;
 
-        window.onload = carregarExtrato;
-    </script>
+    // 🔗 INTEGRAÇÃO COM COMPROVANTE
+    div.onclick = () => abrirComprovante(t);
+
+    container.appendChild(div);
+  });
+}
+
+// 🔥 ABRIR COMPROVANTE
+function abrirComprovante(t){
+
+  const tipoMap = {
+    enviado: "pix",
+    recebido: "entrada",
+    recarga: "recarga",
+    saida: "pagamento"
+  };
+
+  const dados = {
+    tipo: tipoMap[t.tipo] || "pix",
+    nome: t.nome,
+    valor: t.valor,
+    detalhe: t.banco || t.categoria || "Tech Pay"
+  };
+
+  localStorage.setItem("comprovante", JSON.stringify(dados));
+
+  window.location.href = "comprovante.html";
+}
+
+// 🔥 INIT
+render(transacoes);
+
+</script>
+
 </body>
 </html>
