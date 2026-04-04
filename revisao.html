@@ -183,6 +183,40 @@
     }, 1200);
         }
         
+function confirmarPix(){
+
+  const nome = localStorage.getItem("chaveDigitada") || "Destinatário";
+  const valor = localStorage.getItem("ultimoValor") || "R$ 0,00";
+
+  const agora = new Date().toLocaleString();
+
+  // COMPROVANTE (PADRÃO ÚNICO)
+  localStorage.setItem("comprovante", JSON.stringify({
+    tipo: "pix",
+    nome: nome,
+    valor: valor,
+    banco: "TechPay",
+    data: agora,
+    status: "aprovado"
+  }));
+
+  // EXTRATO
+  let historico = JSON.parse(localStorage.getItem("transacoes")) || [];
+
+  historico.unshift({
+    tipo: "enviado",
+    nome: nome,
+    valor: valor,
+    data: agora,
+    categoria: "pix"
+  });
+
+  localStorage.setItem("transacoes", JSON.stringify(historico));
+
+  // REDIRECIONA
+  window.location.href = "comprovante.html";
+}
+
     </script>
 </body>
 </html>
