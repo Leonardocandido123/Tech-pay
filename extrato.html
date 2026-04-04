@@ -3,11 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
 <title>Extrato - Tech Pay</title>
-
 <style>
 :root {
   --primary: #22C55E;
@@ -16,7 +13,6 @@
   --border: rgba(255,255,255,0.05);
   --text-sec: #9CA3AF;
 }
-
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -25,128 +21,46 @@ body {
   padding: 20px;
   min-height: 100vh;
 }
-
-/* HEADER */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 25px;
-
   position: sticky;
   top: 0;
   backdrop-filter: blur(20px);
 }
-
 .back {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--card);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 40px; height: 40px; border-radius: 12px;
+  background: var(--card); display: flex; align-items: center; justify-content: center;
   cursor: pointer;
 }
-
-/* SALDO */
 .balance {
-  background: var(--card);
-  border-radius: 24px;
-  padding: 25px;
-  margin-bottom: 20px;
-  border: 1px solid var(--border);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  background: var(--card); border-radius: 24px; padding: 25px; margin-bottom: 20px;
+  border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.4);
 }
-
-.balance h1 {
-  margin: 5px 0;
-}
-
-/* FILTRO */
+.balance h1 { margin: 5px 0; }
 .filters {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  overflow-x: auto;
+  display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto;
 }
-
-.filter {
-  padding: 8px 14px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  font-size: 12px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.active {
-  background: var(--primary);
-  color: black;
-}
-
-/* GRUPOS */
-.group-title {
-  margin: 20px 0 10px;
-  font-size: 12px;
-  color: var(--text-sec);
-  font-weight: 700;
-}
-
-/* ITEM */
+.filter { padding: 8px 14px; border-radius: 12px; border: 1px solid var(--border); font-size: 12px; cursor: pointer; white-space: nowrap; }
+.active { background: var(--primary); color: black; }
+.group-title { margin: 20px 0 10px; font-size: 12px; color: var(--text-sec); font-weight: 700; }
 .item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--card);
-  padding: 16px;
-  border-radius: 18px;
-  margin-bottom: 10px;
-  border: 1px solid var(--border);
-  cursor: pointer;
-  transition: 0.2s;
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--card); padding: 16px; border-radius: 18px; margin-bottom: 10px;
+  border: 1px solid var(--border); cursor: pointer; transition: 0.2s;
 }
-
-.item:active {
-  transform: scale(0.97);
-}
-
-.left {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.right {
-  text-align: right;
-}
-
+.item:active { transform: scale(0.97); }
+.left { display: flex; gap: 12px; align-items: center; }
+.icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.right { text-align: right; }
 .value-pos { color: #22C55E; font-weight: 700; }
 .value-neg { color: #EF4444; font-weight: 700; }
-
-.small {
-  font-size: 11px;
-  color: var(--text-sec);
-}
-
-/* EMPTY */
-.empty {
-  text-align: center;
-  margin-top: 50px;
-  color: var(--text-sec);
-}
+.small { font-size: 11px; color: var(--text-sec); }
+.empty { text-align: center; margin-top: 50px; color: var(--text-sec); }
 </style>
 </head>
-
 <body>
 
 <div class="header">
@@ -169,135 +83,77 @@ body {
 <div id="lista"></div>
 
 <script>
-  localStorage.setItem("transacoes", JSON.stringify([
-  {
-    tipo: "enviado",
-    nome: "João",
-    valor: "R$ 50,00",
-    data: "Hoje",
-    categoria: "pix",
-    banco: "Nubank"
-  },
-  {
-    tipo: "recebido",
-    nome: "Maria",
-    valor: "R$ 120,00",
-    data: "Hoje",
-    categoria: "pix",
-    banco: "Inter"
-  }
-]));
+const transacoes = [
+  {tipo:"enviado", nome:"João", valor:"R$ 50,00", data:"Hoje", categoria:"pix", banco:"Nubank"},
+  {tipo:"recebido", nome:"Maria", valor:"R$ 120,00", data:"Hoje", categoria:"pix", banco:"Inter"},
+  {tipo:"recarga", nome:"Leo", valor:"R$ 30,00", data:"Ontem", categoria:"recarga", numero:"(18)99999-9999", operadora:"Vivo"}
+];
 
-let transacoes = JSON.parse(localStorage.getItem("transacoes")) || [];
-
-// 🔥 CALCULAR SALDO
 function atualizarSaldo(lista){
-  let total = 0;
-
+  let total=0;
   lista.forEach(t=>{
-    const valor = parseFloat(t.valor.replace(/[^\d,]/g,'').replace(',','.'));
-    if(t.tipo === "entrada" || t.tipo === "recebido"){
-      total += valor;
-    } else {
-      total -= valor;
-    }
+    const valor=parseFloat(t.valor.replace(/[^\d,]/g,'').replace(',','.'));
+    if(t.tipo==="entrada"||t.tipo==="recebido") total+=valor;
+    else total-=valor;
   });
-
-  document.getElementById("saldo").innerText =
-    total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  document.getElementById("saldo").innerText=total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 }
 
-// 🔥 FILTRO
 function filtrar(tipo){
-
   document.querySelectorAll('.filter').forEach(f=>f.classList.remove('active'));
   event.target.classList.add('active');
-
-  let filtradas = transacoes;
-
-  if(tipo === "entrada"){
-    filtradas = transacoes.filter(t => t.tipo === "entrada" || t.tipo === "recebido");
-  }
-
-  if(tipo === "saida"){
-    filtradas = transacoes.filter(t => t.tipo === "saida" || t.tipo === "enviado");
-  }
-
+  let filtradas=transacoes;
+  if(tipo==="entrada") filtradas=transacoes.filter(t=>t.tipo==="entrada"||t.tipo==="recebido");
+  if(tipo==="saida") filtradas=transacoes.filter(t=>t.tipo==="saida"||t.tipo==="enviado");
   render(filtradas);
 }
 
-// 🔥 RENDER
 function render(lista){
-
-  const container = document.getElementById("lista");
-  container.innerHTML = "";
-
-  if(lista.length === 0){
-    container.innerHTML = `<div class="empty">Nenhuma movimentação</div>`;
-    return;
-  }
-
+  const container=document.getElementById("lista");
+  container.innerHTML="";
+  if(lista.length===0){container.innerHTML=`<div class="empty">Nenhuma movimentação</div>`; return;}
   atualizarSaldo(lista);
-
-  lista.forEach(t => {
-
-    const isNeg = t.tipo === "saida" || t.tipo === "enviado";
-
-    const div = document.createElement("div");
-    div.className = "item";
-
-    div.innerHTML = `
+  lista.forEach(t=>{
+    const isNeg=t.tipo==="saida"||t.tipo==="enviado";
+    const div=document.createElement("div");
+    div.className="item";
+    div.innerHTML=`
       <div class="left">
         <div class="icon" style="background: rgba(255,255,255,0.05)">
-          ${t.categoria === 'recarga' ? '📱' : isNeg ? '💸' : '💰'}
+          ${t.categoria==='recarga'?'📱':isNeg?'💸':'💰'}
         </div>
-
         <div>
           <b>${t.nome}</b>
           <div class="small">${t.data}</div>
         </div>
       </div>
-
       <div class="right">
-        <div class="${isNeg ? 'value-neg' : 'value-pos'}">
-          ${isNeg ? '-' : '+'} ${t.valor}
-        </div>
-      </div>
-    `;
-
-    // 🔗 INTEGRAÇÃO COM COMPROVANTE
-    div.onclick = () => abrirComprovante(t);
-
+        <div class="${isNeg?'value-neg':'value-pos'}">${isNeg?'-':'+'} ${t.valor}</div>
+      </div>`;
+    div.onclick=()=>abrirComprovante(t);
     container.appendChild(div);
   });
 }
 
-// 🔥 ABRIR COMPROVANTE
 function abrirComprovante(t){
-
-  const tipoMap = {
-    enviado: "pix",
-    recebido: "entrada",
-    recarga: "recarga",
-    saida: "pagamento"
+  const tipoMap={enviado:"pix",recebido:"pix",recarga:"recarga",saida:"pagamento"};
+  const dados={
+    tipo:tipoMap[t.tipo]||"pix",
+    nome:t.nome,
+    valor:t.valor,
+    banco:t.banco||"-",
+    categoria:t.categoria||"-",
+    numero:t.numero||"",
+    operadora:t.operadora||"",
+    data:t.data||new Date().toLocaleString(),
+    id:"TP"+Date.now()
   };
-
-  const dados = {
-    tipo: tipoMap[t.tipo] || "pix",
-    nome: t.nome,
-    valor: t.valor,
-    detalhe: t.banco || t.categoria || "Tech Pay"
-  };
-
-  localStorage.setItem("comprovante", JSON.stringify(dados));
-
-  window.location.href = "comprovante.html";
+  localStorage.setItem("comprovante",JSON.stringify(dados));
+  window.location.href="comprovante.html";
 }
 
-// 🔥 INIT
+// INIT
 render(transacoes);
-
 </script>
-
 </body>
 </html>
