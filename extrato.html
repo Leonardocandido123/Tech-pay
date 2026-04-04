@@ -169,6 +169,24 @@ body {
 <div id="lista"></div>
 
 <script>
+  localStorage.setItem("transacoes", JSON.stringify([
+  {
+    tipo: "enviado",
+    nome: "João",
+    valor: "R$ 50,00",
+    data: "Hoje",
+    categoria: "pix",
+    banco: "Nubank"
+  },
+  {
+    tipo: "recebido",
+    nome: "Maria",
+    valor: "R$ 120,00",
+    data: "Hoje",
+    categoria: "pix",
+    banco: "Inter"
+  }
+]));
 
 let transacoes = JSON.parse(localStorage.getItem("transacoes")) || [];
 
