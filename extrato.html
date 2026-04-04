@@ -74,8 +74,7 @@ box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
     <div id="listaExtrato"></div>
 
     <script>
-        
-function carregarExtrato() {
+        function carregarExtrato() {
     const lista = document.getElementById('listaExtrato');
     const saldoTxt = document.getElementById('saldoTotal');
     
@@ -91,42 +90,92 @@ function carregarExtrato() {
 
     lista.innerHTML = "";
 
-    transacoes.forEach((t, index) => {
-        const isNeg = t.tipo === "saida" || t.tipo === "enviado";
-        const div = document.createElement('div');
-        div.className = 'item';
-        
-        div.innerHTML = `
-            <div class="item-left">
-                <div class="icon" style="background: rgba(255,255,255,0.05)">
-                    ${t.categoria === 'recarga' ? '📱' : '💸'}
-                </div>
+    // 📅 DATA HOJE / ONTEM
+    const hoje = new Date();
+    const ontem = new Date();
+    ontem.setDate(hoje.getDate() - 1);
 
-                <div class="info">
-                    <b>${t.nome}</b>
-                    <span>${t.data}</span>
-                    <small style="color:${isNeg ? '#EF4444' : '#22C55E'}; font-size:10px;">
-                        ${isNeg ? 'SAÍDA' : 'ENTRADA'}
-                    </small>
-                </div>
-            </div>
+    const formatarData = (dataStr) => {
+        const d = new Date(dataStr);
+        if (d.toDateString() === hoje.toDateString()) return "Hoje";
+        if (d.toDateString() === ontem.toDateString()) return "Ontem";
+        return "Antigos";
+    };
 
-            <div class="item-right">
-                <div class="value" style="color: ${isNeg ? '#EF4444' : '#22C55E'}">
-                    ${isNeg ? '-' : '+'} ${t.valor}
-                </div>
+    // 📦 AGRUPAR
+    const grupos = {
+        "Hoje": [],
+        "Ontem": [],
+        "Antigos": []
+    };
 
-                <div class="share-icon" onclick="compartilhar('${t.nome}', '${t.valor}')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/>
-                    </svg>
-                </div>
+    transacoes.forEach(t => {
+        const grupo = formatarData(t.dataISO || new Date());
+        grupos[grupo].push(t);
+    });
+
+    // 🔄 RENDER
+    Object.keys(grupos).forEach(grupo => {
+        if (grupos[grupo].length === 0) return;
+
+        // TÍTULO
+        const titulo = document.createElement('div');
+        titulo.innerHTML = `
+            <div style="margin:20px 0 10px; font-size:12px; color:#9CA3AF; font-weight:600;">
+                ${grupo}
             </div>
         `;
-        
-        lista.appendChild(div);
+        lista.appendChild(titulo);
+
+        // ITENS
+        grupos[grupo].forEach((t, index) => {
+            const isNeg = t.tipo === "saida" || t.tipo === "enviado";
+
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.style.opacity = "0";
+            div.style.transform = "translateY(10px)";
+
+            div.innerHTML = `
+                <div class="item-left">
+                    <div class="icon" style="background: rgba(255,255,255,0.05)">
+                        ${t.categoria === 'recarga' ? '📱' : isNeg ? '💸' : '💰'}
+                    </div>
+
+                    <div class="info">
+                        <b>${t.nome}</b>
+                        <span>${t.data}</span>
+                        <small style="color:${isNeg ? '#EF4444' : '#22C55E'}; font-size:10px;">
+                            ${isNeg ? 'SAÍDA' : 'ENTRADA'}
+                        </small>
+                    </div>
+                </div>
+
+                <div class="item-right">
+                    <div class="value" style="color: ${isNeg ? '#EF4444' : '#22C55E'}">
+                        ${isNeg ? '-' : '+'} ${t.valor}
+                    </div>
+
+                    <div class="share-icon" onclick="compartilhar('${t.nome}', '${t.valor}')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/>
+                        </svg>
+                    </div>
+                </div>
+            `;
+
+            lista.appendChild(div);
+
+            // ✨ ANIMAÇÃO
+            setTimeout(() => {
+                div.style.transition = "0.4s";
+                div.style.opacity = "1";
+                div.style.transform = "translateY(0)";
+            }, index * 80);
+        });
     });
-}
+        }
+
         function compartilhar(nome, valor) {
             const texto = `Comprovante Tech Pay\nPagamento para: ${nome}\nValor: ${valor}\nEnviado via App Tech Pay.`;
             if (navigator.share) {
