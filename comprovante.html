@@ -4,230 +4,294 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-<title>Comprovante Pix - Techpay</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+<title>Comprovante - TechPay</title>
+
 <style>
+:root{
+  --bg: radial-gradient(circle at 20% 0%, #0f172a, #000 70%);
+  --card: rgba(18,24,38,0.95);
+  --green:#22C55E;
+  --red:#EF4444;
+}
+
 body{
   margin:0;
-  font-family:'Inter', sans-serif;
-  background:#F3F4F6;
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:#fff;
   display:flex;
-  flex-direction:column;
-  align-items:center;
+  justify-content:center;
   padding:20px;
 }
 
-/* CARD */
-.receipt-container{
+.card{
   width:100%;
-  max-width:400px;
-  background:#FFFFFF;
-  border-radius:20px;
-  padding:28px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+  max-width:420px;
+  border-radius:28px;
+  padding:30px 20px;
+  backdrop-filter:blur(20px);
+  background:var(--card);
+  box-shadow:0 20px 50px rgba(0,0,0,0.5);
 }
 
-/* STATUS */
-.status-icon{
-  width:60px;
-  height:60px;
-  background:#22C55E;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+/* CHECK */
+.check{
+  width:80px;
+  height:80px;
   margin:0 auto 20px;
 }
-.status-icon svg{
-  width:30px;
-  stroke:#fff;
+
+circle{
   fill:none;
+  stroke:var(--green);
+  stroke-width:2;
+  stroke-dasharray:200;
+  stroke-dashoffset:200;
+  animation:circle 0.6s forwards;
+}
+
+path{
+  fill:none;
+  stroke:var(--green);
   stroke-width:3;
+  stroke-dasharray:50;
+  stroke-dashoffset:50;
+  animation:check 0.4s 0.6s forwards;
 }
 
-.title{
-  text-align:center;
-  font-size:20px;
+@keyframes circle{to{stroke-dashoffset:0}}
+@keyframes check{to{stroke-dashoffset:0}}
+
+.valor{
+  font-size:34px;
   font-weight:700;
-  margin-bottom:6px;
-  color:#111;
-}
-
-.subtitle{
   text-align:center;
-  font-size:14px;
-  color:#6B7280;
-  margin-bottom:30px;
 }
 
-/* INFO */
-.info-group{ margin-bottom:20px; }
-
-.label{
-  font-size:12px;
-  color:#6B7280;
-  margin-bottom:3px;
-  display:block;
+.status{
+  text-align:center;
+  color:var(--green);
+  margin-bottom:25px;
 }
 
-.value{
-  font-size:15px;
-  font-weight:600;
-  color:#111;
-}
-
-.sub-value{
+/* LINHAS */
+.linha{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:12px;
   font-size:13px;
-  color:#6B7280;
-}
-
-.divider{
-  height:1px;
-  background:#E5E7EB;
-  margin:18px 0;
 }
 
 /* BOTÕES */
-.btn-share{
-  width:100%;
-  max-width:400px;
-  padding:16px;
-  border-radius:12px;
-  border:none;
-  background:#111;
-  color:#fff;
-  font-weight:600;
-  font-size:15px;
-  margin-top:20px;
+.actions{
+  margin-top:25px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
-.btn-close{
-  background:transparent;
+button{
+  padding:14px;
+  border-radius:14px;
   border:none;
-  color:#6B7280;
-  margin-top:15px;
+  font-weight:600;
+}
+
+.primary{
+  background:var(--green);
+  color:#000;
+}
+
+.secondary{
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.1);
+  color:#fff;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:30px;
+  background:#111;
+  padding:12px 20px;
+  border-radius:12px;
+  opacity:0;
+  transition:.3s;
+}
+/* MODO COMPARTILHAMENTO */
+.export-mode {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+
+.export-mode .card {
+  background: #ffffff !important;
+  color: #000 !important;
+  box-shadow: none !important;
+}
+
+.export-mode .status {
+  color: #16a34a !important;
 }
 </style>
 </head>
 
 <body>
 
-<div class="receipt-container" id="comprovanteConteudo">
+<div class="card" id="card">
 
-<div class="status-icon">
-<svg viewBox="0 0 24 24">
-<path d="M20 6L9 17l-5-5"/>
+<div class="check">
+<svg viewBox="0 0 52 52">
+  <circle cx="26" cy="26" r="25"/>
+  <path d="M14 27 L22 34 L38 18"/>
 </svg>
 </div>
 
-<h1 class="title">Pix enviado</h1>
-<p class="subtitle">Transferência realizada com sucesso</p>
+<div class="valor" id="valor"></div>
+<div class="status" id="status"></div>
 
-<div class="info-group">
-<span class="label">Valor</span>
-<span class="value" id="valorFinal" style="font-size:26px;color:#22C55E;">R$ 0,00</span>
-</div>
+<div id="conteudo"></div>
 
-<div class="divider"></div>
-
-<div class="info-group">
-<span class="label">Para</span>
-<span class="value" id="destinoNome">---</span>
-<span class="sub-value" id="destinoBanco">---</span>
-</div>
-
-<div class="info-group">
-<span class="label">Origem</span>
-<span class="value" id="nomeOrigem">---</span>
-<span class="sub-value">Techpay</span>
-</div>
-
-<div class="divider"></div>
-
-<div class="info-group">
-<span class="label">Tipo</span>
-<span class="value">Pix</span>
-</div>
-
-<div class="info-group">
-<span class="label">Data e hora</span>
-<span class="value" id="dataHora"></span>
-</div>
-
-<div class="info-group">
-<span class="label">ID da transação</span>
-<span class="value" id="idTransacao" style="font-family:monospace;font-size:12px;"></span>
+<div class="actions">
+<button class="primary" onclick="compartilhar()">Compartilhar</button>
+<button class="secondary" onclick="baixar()">Salvar imagem</button>
+<button class="secondary" onclick="copiar()">Copiar</button>
+<button class="secondary" onclick="voltar()">Voltar</button>
 </div>
 
 </div>
 
-<button class="btn-share" onclick="compartilharNativo()">
-Compartilhar comprovante
-</button>
-
-<button class="btn-close" onclick="location.href='home.html'">
-Concluir
-</button>
+<div class="toast" id="toast">Copiado!</div>
 
 <script>
 
-// DADOS
-const valor = localStorage.getItem("ultimoValor") || "R$ 0,00";
-const nomeUsuario = localStorage.getItem("usuarioNome") || "Você";
-const destino = localStorage.getItem("destinoNome") || "Destinatário";
-const banco = localStorage.getItem("destinoBanco") || "Banco desconhecido";
+// 🔥 PEGA DADOS DINÂMICOS
+const dados = JSON.parse(localStorage.getItem("comprovante")) || {};
 
-// DATA BONITA
-const agora = new Date();
-const dataFormatada = agora.toLocaleDateString('pt-BR', {
-  day:'2-digit', month:'long', year:'numeric'
-}) + " às " + agora.toLocaleTimeString('pt-BR', {
-  hour:'2-digit', minute:'2-digit'
-});
+// DEFAULT
+const tipo = dados.tipo || "Pix";
+const valor = dados.valor || "R$ 0,00";
+const nome = dados.nome || "-";
+const banco = dados.banco || "-";
+const data = dados.data || new Date().toLocaleString();
 
-// ID BONITO
-const idTrans = "E" + Date.now() + Math.random().toString(36).substring(2,8).toUpperCase();
+// ID
+const id = dados.id || "TP" + Date.now();
 
-// MOSTRAR
-document.getElementById("valorFinal").innerText = valor;
-document.getElementById("nomeOrigem").innerText = nomeUsuario;
-document.getElementById("destinoNome").innerText = destino;
-document.getElementById("destinoBanco").innerText = banco;
-document.getElementById("dataHora").innerText = dataFormatada;
-document.getElementById("idTransacao").innerText = idTrans;
+// TOPO
+document.getElementById("valor").innerText = valor;
+document.getElementById("status").innerText = tipo + " realizado";
 
-// SALVAR TRANSAÇÃO (CORRETO)
-const transacao = {
-  id: idTrans,
-  tipo: "enviado",
-  valor: valor,
-  nome: destino,
-  banco: banco,
-  data: dataFormatada
-};
+// 🧠 CONTEÚDO DINÂMICO
+let html = "";
 
-let historico = JSON.parse(localStorage.getItem("transacoes")) || [];
-historico.unshift(transacao);
-localStorage.setItem("transacoes", JSON.stringify(historico));
+// PIX / TRANSFERÊNCIA
+if(tipo === "pix" || tipo === "transferencia"){
+  html += `
+  <div class="linha"><span>Destinatário</span><span>${nome}</span></div>
+  <div class="linha"><span>Banco</span><span>${banco}</span></div>
+  `;
+}
 
-// COMPARTILHAR
-async function compartilharNativo(){
+// RECARGA
+if(tipo === "recarga"){
+  html += `
+  <div class="linha"><span>Número</span><span>${dados.numero}</span></div>
+  <div class="linha"><span>Operadora</span><span>${dados.operadora}</span></div>
+  `;
+}
 
-  const canvas = await html2canvas(document.getElementById("comprovanteConteudo"), {
-    backgroundColor:"#FFFFFF",
-    scale:3
+// TECHTAP
+if(tipo === "techtap"){
+  html += `
+  <div class="linha"><span>Pagamento</span><span>Contactless</span></div>
+  `;
+}
+
+// COMUM PRA TODOS
+html += `
+<div class="linha"><span>Data</span><span>${data}</span></div>
+<div class="linha"><span>ID</span><span>${id}</span></div>
+`;
+
+document.getElementById("conteudo").innerHTML = html;
+
+// 📤 COMPARTILHAR
+async function compartilhar(){
+
+  const card = document.getElementById("card");
+
+  // 👉 ativa modo branco
+  document.body.classList.add("export-mode");
+
+  const canvas = await html2canvas(card, {
+    backgroundColor: "#ffffff",
+    scale: 3
   });
+
+  document.body.classList.remove("export-mode");
 
   const blob = await (await fetch(canvas.toDataURL())).blob();
   const file = new File([blob], "comprovante.png", {type:"image/png"});
 
   if(navigator.canShare && navigator.canShare({files:[file]})){
     navigator.share({files:[file]});
+  } else {
+    baixarImagem(canvas);
   }
+}
+
+// 📥 BAIXAR
+function baixar(){
+
+  const card = document.getElementById("card");
+
+  document.body.classList.add("export-mode");
+
+  html2canvas(card, {
+    backgroundColor: "#ffffff",
+    scale: 3
+  }).then(canvas => {
+
+    document.body.classList.remove("export-mode");
+
+    baixarImagem(canvas);
+  });
+}
+
+function baixarImagem(canvas){
+  const link = document.createElement("a");
+  link.download = "comprovante.png";
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
+// 📋 COPIAR
+function copiar(){
+  navigator.clipboard.writeText(valor+" "+nome);
+  toast("Copiado!");
+}
+
+// 🔔 TOAST
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.style.opacity=1;
+  setTimeout(()=>t.style.opacity=0,2000);
+}
+
+// VOLTAR
+function voltar(){
+  history.back();
+}
+
+// VIBRAÇÃO
+if(navigator.vibrate){
+  navigator.vibrate([100,50,100]);
 }
 
 </script>
