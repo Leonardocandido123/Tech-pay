@@ -227,7 +227,7 @@ function renderizarClientes(){
 }
 
 // Substitua a função enviarLink anterior por esta:
-async function enviarLink() {
+function enviarLink() {
     const nome = document.getElementById('link-nome').value;
     const valor = document.getElementById('link-valor').value;
     const desc = document.getElementById('link-desc').value;
@@ -237,41 +237,55 @@ async function enviarLink() {
     }
 
     const vClean = valor.replace(/\D/g, '');
-    const linkFinal = `https://techpay.me/checkout.html?v=${vClean}&d=${encodeURIComponent(desc)}&n=${encodeURIComponent(nome)}`;
+    const id = "TP" + Date.now();
+    const data = new Date().toLocaleString();
 
+    // 🔗 LINK DO CHECKOUT
+    const linkFinal = `checkout.html?id=${id}&v=${vClean}&d=${encodeURIComponent(desc)}&n=${encodeURIComponent(nome)}`;
+
+    // 🔥 SALVAR COBRANÇA (BASE DO APP)
+    let cobrancas = JSON.parse(localStorage.getItem("cobrancas") || "[]");
+
+    cobrancas.unshift({
+        id: id,
+        nome: nome,
+        valor: valor,
+        desc: desc,
+        status: "pendente",
+        data: data,
+        link: linkFinal
+    });
+
+    localStorage.setItem("cobrancas", JSON.stringify(cobrancas));
+
+    // 🔥 INTEGRA COM HOME (card rotativo usa "transacoes")
+    let transacoes = JSON.parse(localStorage.getItem("transacoes") || "[]");
+
+    transacoes.unshift({
+        tipo: "entrada",
+        valor: valor,
+        descricao: nome,
+        status: "pendente",
+        data: new Date().toISOString()
+    });
+
+    localStorage.setItem("transacoes", JSON.stringify(transacoes));
+
+    // 📲 MENSAGEM
     const mensagemTexto = 
-`Tech Pay - Ordem de Cobrança
+`💳 Tech Pay - Cobrança
 
-Sr(a). ${nome},
-constatamos uma pendência em seu nome.
-
+Cliente: ${nome}
 Valor: ${valor}
-Referente a: ${desc}
+Referente: ${desc}
 
 Pagar agora:
 ${linkFinal}`;
 
-    try {
-        if (navigator.share) {
-            await navigator.share({
-                title: 'Cobrança Tech Pay',
-                text: mensagemTexto
-            });
-        } else {
-            window.open(
-                `https://api.whatsapp.com/send?text=${encodeURIComponent(mensagemTexto)}`,
-                '_blank'
-            );
-        }
-    } catch (err) {
-        console.error("Erro:", err);
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensagemTexto)}`, '_blank');
 
-        window.open(
-            `https://api.whatsapp.com/send?text=${encodeURIComponent(mensagemTexto)}`,
-            '_blank'
-        );
-    }
-}
+    alert("Cobrança criada com sucesso!");
+        }
 </script>
 </body>
 </html>
