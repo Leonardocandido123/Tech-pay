@@ -143,24 +143,17 @@ body {
   width: 100%;
   margin-bottom: 25px;
   position: relative;
-  overflow: hidden;
-  padding: 5px 0;
+  overflow: hidden; /* Esconde o que vaza da tela */
 }
 
 .banner-container {
   display: flex;
-  gap: 12px; /* Espaço entre os cards */
-  overflow-x: auto; /* Permite scroll manual se o JS falhar */
-  scroll-snap-type: x mandatory;
-  padding: 0 20px; /* Respiro lateral para o primeiro e último card */
-  scrollbar-width: none;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); /* Transição mais suave */
+  width: 100%;
 }
 
-.banner-container::-webkit-scrollbar { display: none; }
-
 .smart-banner {
-  min-width: 88%; /* Ajustado para mostrar uma "beirinha" do próximo card */
-  scroll-snap-align: center;
+  min-width: 100%; /* Cada slide ocupa a tela toda para o cálculo de 100% bater */
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 22px;
@@ -173,29 +166,26 @@ body {
   position: relative;
 }
 
-/* O BOTÃO QUE VAI SALVAR A ESTÉTICA */
-.banner-action-btn {
+/* PADRONIZAÇÃO DOS BOTÕES DENTRO DO BANNER */
+.smart-banner button {
   width: 100%;
-  background: #22c55e; /* Verde piscina/marinho que você queria */
-  color: #000;
   border: none;
-  padding: 10px;
   border-radius: 12px;
-  font-weight: 800;
   font-size: 13px;
+  padding: 10px;
+  font-weight: 700;
   cursor: pointer;
-  margin-top: 12px;
+  margin-top: 10px;
   transition: 0.2s;
 }
 
-.banner-action-btn:active { transform: scale(0.96); }
-
-.banner-dots {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 10px;
+/* Cor específica para o Aluguel/Contas seguir o padrão verde piscina */
+.btn-pagar {
+  background: #22c55e !important;
+  color: #000 !important;
 }
+    
+
     
 /* CARD PADRÃO */
 .smart-card {
@@ -530,6 +520,9 @@ function carregarBanners() {
     const bannerDots = document.getElementById('banner-dots');
     if(!bannerSlider) return;
 
+    // Limpa o slider antes de começar para não duplicar
+    bannerSlider.innerHTML = '';
+
     const contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
     const cobrancas = JSON.parse(localStorage.getItem("cobrancas") || "[]");
     const hoje = new Date().toISOString().split('T')[0];
@@ -537,75 +530,59 @@ function carregarBanners() {
     let listaSlides = [];
 
     // CARD 1: CARTÃO
-    listaSlides.push(`<div class="smart-banner" onclick="location.href='cartao.html'" style="cursor:pointer; border-left: 5px solid var(--primary);">
-        <b style="font-size: 15px; color: #fff;">Cartão Virtual TECH</b>
-        <p style="font-size: 12px; color: var(--text-secondary); margin: 8px 0;">Peça já o seu e faça compras online com segurança.</p>
-        <button style="background: var(--primary); color: #000; border: none; border-radius: 8px; font-size: 10px; padding: 6px 12px; font-weight: 700;">Ativar Agora</button>
-    </div>`);
+    listaSlides.push(`
+        <div class="smart-banner" onclick="location.href='cartao.html'" style="border-left: 5px solid var(--primary);">
+            <b style="font-size: 15px; color: #fff;">Cartão Virtual TECH</b>
+            <p style="font-size: 12px; color: var(--text-secondary);">Peça já o seu e faça compras online com segurança.</p>
+            <button style="background: var(--primary); color: #000;">Ativar Agora</button>
+        </div>
+    `);
 
     // CARD 2: LINK DE PAGAMENTO
-    listaSlides.push(`<div class="smart-banner" onclick="location.href='links-pagamento.html'" style="cursor:pointer; background: linear-gradient(135deg, #064e3b, #111827); border-left: 5px solid #10b981;">
-        <b style="font-size: 15px; color: #fff;">Venda por Link 🔗</b>
-        <p style="font-size: 12px; color: var(--text-secondary); margin: 8px 0;">Crie cobranças rápidas e envie para seus clientes via WhatsApp.</p>
-        <button style="background: #10b981; color: #fff; border: none; border-radius: 8px; font-size: 10px; padding: 6px 12px; font-weight: 700;">Gerar Link</button>
-    </div>`);
+    listaSlides.push(`
+        <div class="smart-banner" onclick="location.href='links-pagamento.html'" style="background: linear-gradient(135deg, #064e3b, #111827); border-left: 5px solid #10b981;">
+            <b style="font-size: 15px; color: #fff;">Venda por Link 🔗</b>
+            <p style="font-size: 12px; color: var(--text-secondary);">Crie cobranças rápidas e envie via WhatsApp.</p>
+            <button style="background: #10b981; color: #fff;">Gerar Link</button>
+        </div>
+    `);
 
-    // CARD 3: COBRANÇAS
-    if(cobrancas.length > 0) {
-        cobrancas.forEach(c => {
-            listaSlides.push(`<div class="smart-banner" style="border-left: 5px solid #ef4444;">
-                <span style="font-size: 8px; background: #ef4444; color: white; padding: 2px 6px; border-radius: 6px; position: absolute; top: 15px; right: 15px; font-weight: 800;">PENDENTE</span>
-                <b style="font-size: 15px; color: #fff;">${c.descricao || 'Cliente'}</b>
-                <p style="font-size: 12px; color: var(--text-secondary); margin: 8px 0;">Valor a receber: <b style="color:#fff;">${c.valor}</b></p>
-                <button onclick="location.href='cobrar.html'" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; border-radius: 8px; font-size: 10px; padding: 6px 12px; font-weight: 700;">Cobrar Agora</button>
-            </div>`);
-        });
-    }
-
-    // CARD 4: CONTAS
+    // CARD 3: CONTAS (ALUGUEL) - AQUI ESTAVA O PROBLEMA
     const contasPendentes = contas.filter(c => !c.pago);
     contasPendentes.forEach(c => {
-        let cor = "#22c55e";
-        if(c.data < hoje) cor = "#ef4444"; // vencida
-        else if(c.data === hoje) cor = "#f59e0b"; // hoje
+        let cor = "#22c55e"; // Verde Marinho/Piscina
+        if(c.data < hoje) cor = "#ef4444"; // Vermelho se atrasado
+        
         listaSlides.push(`
         <div class="smart-banner" style="border-left: 5px solid ${cor};">
             <b style="font-size: 15px;">${c.descricao}</b>
-            <p style="font-size: 12px;">Pagar ${c.valor}</p>
-            <button onclick="location.href='contas.html'">Pagar</button>
+            <p style="font-size: 12px; color: var(--text-secondary);">Valor: <span style="color:#fff; font-weight:700;">${c.valor}</span></p>
+            <button class="btn-pagar" onclick="location.href='contas.html'">Pagar Agora</button>
         </div>`);
     });
 
-    // CARD 5: RECARGA
-    listaSlides.push(`<div class="smart-banner" onclick="location.href='recarga.html'" style="cursor:pointer; border-left: 5px solid #3b82f6;">
-        <b style="font-size: 15px; color: #fff;">Recarga de Celular</b>
-        <p style="font-size: 12px; color: var(--text-secondary); margin: 8px 0;">Evite o bloqueio da sua linha. Recarregue agora.</p>
-        <button style="background: #3b82f6; color: #fff; border: none; border-radius: 8px; font-size: 10px; padding: 6px 12px; font-weight: 700;">Recarregar</button>
-    </div>`);
+    // CARD 4: RECARGA
+    listaSlides.push(`
+        <div class="smart-banner" onclick="location.href='recarga.html'" style="border-left: 5px solid #3b82f6;">
+            <b style="font-size: 15px; color: #fff;">Recarga de Celular</b>
+            <p style="font-size: 12px; color: var(--text-secondary);">Evite o bloqueio da sua linha.</p>
+            <button style="background: #3b82f6; color: #fff;">Recarregar</button>
+        </div>
+    `);
 
+    // Monta o HTML final
     bannerSlider.innerHTML = listaSlides.join('');
 
-    // BANNERS DOTS
-    let dotsHTML = "";
-    listaSlides.forEach((_, i) => dotsHTML += `<div class="dot ${i === 0 ? 'active' : ''}"></div>`);
-    if(bannerDots) bannerDots.innerHTML = dotsHTML;
+    // Atualiza os Dots
+    if(bannerDots) {
+        bannerDots.innerHTML = listaSlides.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}"></div>`).join('');
+    }
 
+    // Reinicia a rotação
     currentSlide = 0;
     iniciarRotacao(listaSlides.length);
 }
-
-function iniciarRotacao(total) {
-    if(total <= 1) return;
-    if(slideInterval) clearInterval(slideInterval);
-
-    slideInterval = setInterval(() => {
-        currentSlide = (currentSlide + 1) % total;
-        const slider = document.getElementById('banner-slider');
-        const dots = document.querySelectorAll('.dot');
-        if(slider) slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-        dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
-    }, 4000);
-}
+  
 
 // =======================
 // LOGOUT
