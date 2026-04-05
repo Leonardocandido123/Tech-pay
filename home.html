@@ -138,49 +138,22 @@ body {
 }
 
 /* BANNER 
-/* BANNER - VERSÃO CORRIGIDA */
-.
-    /* Container Principal (A cura para o vazamento e sumiço) */
-.banner-wrapper {
+    .banner-wrapper {
     width: 100%;
+    overflow: hidden; /* impede scroll manual */
     margin-bottom: 25px;
     position: relative;
-    
-    /* REMOVA paddings laterais grandes daqui se houver */
-    padding: 10px 0; /* Apenas respiro superior/inferior */
-    
-    /* ISSO AQUI PREVINE O VAZAMENTO PARA FORA DA TELA */
-    scroll-snap-type: x mandatory;
-    box-sizing: border-box; 
-    
-    /* Esconde a barra de rolagem (opcional para estética premium) */
-    -ms-overflow-style: none; /* IE e Edge */
-    scrollbar-width: none; /* Firefox */
+    padding: 10px 0;
 }
 
-/* Tira a barra de rolagem no Chrome/Safari */
-.banner-wrapper::-webkit-scrollbar {
-    display: none;
-}
-
-/* Container Interno (Garanta que ele seja um flexbox) */
 .banner-container {
     display: flex;
     transition: transform 0.5s ease-in-out;
-    width: 100%;
 }
 
-/* O Estilo Pastilha individual de cada slide (Cartão, Link, etc.) */
 .smart-banner {
-    /* Define quanto do slide anterior/seguinte aparece */
-    min-width: 85%; 
-    scroll-snap-align: center; /* Centraliza o slide ao rolar */
-    
-    /* USE margens laterais pequenas para criar respiro entre os slides */
+    min-width: 85%;
     margin: 0 10px;
-    
-    background: var(--bg-card);
-    border: 1px solid var(--border);
     border-radius: 20px;
     padding: 18px;
     box-sizing: border-box;
@@ -189,11 +162,8 @@ body {
     justify-content: center;
     min-height: 125px;
     position: relative;
-    
-    /* Garante que o conteúdo interno não quebre */
     flex-shrink: 0;
 }
-    
 /* CARD PADRÃO */
 .smart-card {
   background: var(--bg-card);
@@ -522,18 +492,18 @@ function abrirPDV() {
 // =======================
 // BANNER ROTATIVO DINÂMICO
 // =======================
+
 function carregarBanners() {
+    const bannerWrapper = document.getElementById('banner-wrapper');
     const bannerSlider = document.getElementById('banner-slider');
     const bannerDots = document.getElementById('banner-dots');
-    if(!bannerSlider) return;
+    if (!bannerSlider) return;
 
-    // Limpa o slider antes de começar para não duplicar
+    // Limpa o slider
     bannerSlider.innerHTML = '';
 
     const contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
-    const cobrancas = JSON.parse(localStorage.getItem("cobrancas") || "[]");
     const hoje = new Date().toISOString().split('T')[0];
-
     let listaSlides = [];
 
     // CARD 1: CARTÃO
@@ -545,7 +515,7 @@ function carregarBanners() {
         </div>
     `);
 
-    // CARD 2: LINK DE PAGAMENTO
+    // CARD 2: COBRAR POR LINK
     listaSlides.push(`
         <div class="smart-banner" onclick="location.href='links-pagamento.html'" style="background: linear-gradient(135deg, #064e3b, #111827); border-left: 5px solid #10b981;">
             <b style="font-size: 15px; color: #fff;">Venda por Link 🔗</b>
@@ -554,18 +524,20 @@ function carregarBanners() {
         </div>
     `);
 
-    // CARD 3: CONTAS (ALUGUEL) - AQUI ESTAVA O PROBLEMA
+    // CARD 3: CONTAS
     const contasPendentes = contas.filter(c => !c.pago);
     contasPendentes.forEach(c => {
-        let cor = "#22c55e"; // Verde Marinho/Piscina
-        if(c.data < hoje) cor = "#ef4444"; // Vermelho se atrasado
-        
+        let cor = "#22c55e"; // Verde normal
+        if (c.data < hoje) cor = "#ef4444"; // vermelho atrasado
+        else if (c.data === hoje) cor = "#f59e0b"; // laranja hoje
+
         listaSlides.push(`
-        <div class="smart-banner" style="border-left: 5px solid ${cor};">
-            <b style="font-size: 15px;">${c.descricao}</b>
-            <p style="font-size: 12px; color: var(--text-secondary);">Valor: <span style="color:#fff; font-weight:700;">${c.valor}</span></p>
-            <button class="btn-pagar" onclick="location.href='contas.html'">Pagar Agora</button>
-        </div>`);
+            <div class="smart-banner" style="border-left: 5px solid ${cor};">
+                <b style="font-size: 15px;">${c.descricao}</b>
+                <p style="font-size: 12px; color: var(--text-secondary);">Valor: <span style="color:#fff; font-weight:700;">${c.valor}</span></p>
+                <button onclick="location.href='contas.html'" style="background: ${cor}; color: #000;">Pagar Agora</button>
+            </div>
+        `);
     });
 
     // CARD 4: RECARGA
@@ -577,20 +549,19 @@ function carregarBanners() {
         </div>
     `);
 
-    // Monta o HTML final
+    // Coloca os slides no slider
     bannerSlider.innerHTML = listaSlides.join('');
 
-    // Atualiza os Dots
-    if(bannerDots) {
+    // Cria dots
+    if (bannerDots) {
         bannerDots.innerHTML = listaSlides.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}"></div>`).join('');
     }
 
-    // Reinicia a rotação
+    // Ajusta container para rotativo automático
+    if (bannerWrapper) bannerWrapper.style.overflow = "hidden"; // fundamental pro rotativo
     currentSlide = 0;
     iniciarRotacao(listaSlides.length);
 }
-  
-
 // =======================
 // LOGOUT
 // =======================
