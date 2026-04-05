@@ -1,214 +1,265 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <title>Tech Pay - Minhas Contas</title>
-  <style>
-    *{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minhas Contas - Tech Pay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #22c55e;
+            --blue: #3b82f6;
+            --yellow: #eab308;
+            --red: #ef4444;
+            --card-bg: #111827;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-secondary: #9CA3AF;
+        }
 
-body{
-  font-family:'Inter', sans-serif;
-  background: radial-gradient(circle at 20% 0%, #0f172a, #000 70%);
-  color:#FFFFFF;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  overflow:hidden;
-}
-    .header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
-    .back-btn { background: var(--bg-card); border: 1px solid var(--border); color: #fff; border-radius: 12px; padding: 10px; cursor: pointer; display: flex; }
+        html, body {
+            margin: 0; padding: 0; min-height: 100%;
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top, #1e293b 0%, #0f172a 40%, #000000 100%) no-repeat fixed;
+            color: #fff; box-sizing: border-box;
+        }
 
-    .add-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 30px; }
-    .input-group { margin-bottom: 15px; }
-    .input-group label { display: block; font-size: 11px; color: var(--text-secondary); margin-bottom: 5px; }
-    .input-group input { 
-        width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); 
-        border-radius: 12px; padding: 12px; color: #fff; font-size: 14px; box-sizing: border-box;
-    }
-    .btn-add { width: 100%; background: #fff; color: #000; border: none; border-radius: 12px; padding: 14px; font-weight: 700; cursor: pointer; }
+        body { padding: 20px; }
 
-    .lista-contas { display: flex; flex-direction: column; gap: 12px; }
-    .conta-item { background: var(--bg-card); border: 1px solid var(--border); padding: 16px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--primary); }
-    .vencida { border-left-color: #ef4444; }
-    
-    .btn-pay { background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: #fff; padding: 8px 16px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
-    .btn-pay.pago { background: var(--primary); color: #000; border: none; opacity: 0.5; }
+        .header { display: flex; align-items: center; margin-bottom: 25px; }
+        .back-btn { background: none; border: none; color: #fff; font-size: 38px; cursor: pointer; margin-right: 12px; line-height: 1; }
+        h1 { font-size: 22px; font-weight: 700; margin: 0; }
 
-    /* MODAL DE PAGAMENTO */
-    .modal-overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: flex-end; z-index: 1000; }
-    .modal-content { background: #111827; width: 100%; padding: 30px 20px 40px; border-radius: 30px 30px 0 0; animation: slideUp 0.3s ease; }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        /* Form Card Ajustado para não vazar */
+        .input-group {
+            background: var(--card-bg); border-radius: 28px; padding: 24px;
+            margin-bottom: 30px; border: 1px solid var(--border-color);
+            box-sizing: border-box; width: 100%;
+        }
+        
+        .input-field { margin-bottom: 18px; width: 100%; }
+        label { display: block; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+        
+        input {
+            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 14px; color: #fff; outline: none; font-size: 16px;
+            box-sizing: border-box; /* Garante que o padding não estufe o campo */
+        }
 
-    .pay-option { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 15px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
-    .pay-option:active { background: var(--primary); color: #000; }
-    .pay-option b { font-size: 14px; }
-    .hoje {
-  border-left-color: #f59e0b;
-}
+        /* Grid de Valor e Vencimento Corrigida */
+        .row { 
+            display: flex; 
+            gap: 12px; 
+            width: 100%;
+            margin-bottom: 18px;
+        }
+        
+        .row .input-field { 
+            flex: 1; 
+            margin-bottom: 0; 
+            min-width: 0; /* Essencial para flexbox não vazar */
+        }
 
-.vencida {
-  border-left-color: #ef4444;
-}
-  </style>
+        .btn-add {
+            width: 100%; background: var(--primary); color: #000; border: none;
+            padding: 16px; border-radius: 16px; font-weight: 800; cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-add:active { opacity: 0.8; }
+
+        /* Lista de Contas */
+        .list-header { font-size: 12px; color: var(--text-secondary); margin-bottom: 15px; font-weight: 800; text-transform: uppercase; }
+        
+        .conta-item {
+            background: var(--card-bg); border-radius: 20px; padding: 18px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; border: 1px solid var(--border-color);
+            position: relative; overflow: hidden;
+            cursor: pointer;
+        }
+
+        /* Cores de Status Dinâmicas */
+        .status-amanha { border-left: 5px solid var(--blue); }
+        .status-hoje { border-left: 5px solid var(--yellow); }
+        .status-atrasado { border-left: 5px solid var(--red); animation: pulse-red 1.5s infinite; }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .info b { display: block; font-size: 15px; }
+        .info span { font-size: 12px; color: var(--text-secondary); }
+        .valor-area { text-align: right; }
+        .valor-area b { color: var(--primary); display: block; font-size: 16px; margin-bottom: 8px; }
+        .btn-pagar { background: #fff; color: #000; border: none; padding: 6px 14px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; }
+
+        /* Modais */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: var(--card-bg); width: 85%; padding: 30px; border-radius: 30px;
+            text-align: center; border: 1px solid var(--border-color);
+        }
+        .modal-content h2 { color: var(--primary); margin-top: 0; }
+        .comp-info { text-align: left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; margin: 20px 0; }
+        .comp-info p { margin: 8px 0; font-size: 14px; color: var(--text-secondary); }
+        .comp-info span { color: #fff; float: right; font-weight: 600; }
+        .btn-acao { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: 800; cursor: pointer; margin-top: 10px; }
+    </style>
 </head>
 <body>
 
-<div class="header">
-    <button class="back-btn" onclick="location.href='home.html'"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
-    <h2 style="margin:0; font-size: 18px;">Minhas Contas</h2>
-</div>
-
-<div class="add-card">
-    <div class="input-group"><label>Descrição</label><input type="text" id="desc-conta" placeholder="Ex: Internet"></div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <div class="input-group"><label>Valor</label><input type="text" id="valor-conta" placeholder="R$ 0,00" oninput="mascaraMoeda(this)"></div>
-        <div class="input-group"><label>Vencimento</label><input type="date" id="data-conta"></div>
+    <div class="header">
+        <button class="back-btn" onclick="history.back()">‹</button>
+        <h1>Minhas Contas</h1>
     </div>
-    <button class="btn-add" onclick="salvarConta()">Adicionar Conta</button>
-</div>
 
-<div id="lista-contas" class="lista-contas"></div>
-
-<div class="modal-overlay" id="modalPay">
-    <div class="modal-content">
-        <h3 style="margin-top:0;">Como deseja pagar?</h3>
-        <p id="info-pagamento" style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px;"></p>
-        
-        <div class="pay-option" onclick="confirmarPagamento('Pix (Saldo)')">
-            <div style="font-size: 20px;">⚡</div>
-            <div><b>Pix / Saldo Tech Pay</b><br><small>Desconta do seu saldo na hora</small></div>
+    <div class="input-group">
+        <div class="input-field">
+            <label>Descrição</label>
+            <input type="text" id="desc" placeholder="Ex: Aluguel">
         </div>
-
-        <div class="pay-option" onclick="confirmarPagamento('Cartão de Crédito')">
-            <div style="font-size: 20px;">💳</div>
-            <div><b>Cartão de Crédito</b><br><small>Pagar usando cartão cadastrado</small></div>
-        </div>
-
-        <button class="btn-add" style="background: transparent; color: #ef4444; margin-top: 10px;" onclick="fecharModal()">Cancelar</button>
-    </div>
-</div>
-  <script>
-let contaSendoPaga = null;
-
-// ================= SALVAR =================
-function salvarConta() {
-    const desc = document.getElementById('desc-conta').value;
-    const valor = document.getElementById('valor-conta').value;
-    const data = document.getElementById('data-conta').value;
-
-    if(!desc || valor === "R$ 0,00" || !data) return alert("Preencha tudo!");
-
-    let contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
-
-    contas.push({
-        id: Date.now(),
-        descricao: desc,
-        valor: valor,
-        data: data,
-        pago: false
-    });
-
-    localStorage.setItem("minhasContas", JSON.stringify(contas));
-    renderizarContas();
-}
-
-// ================= LISTAR =================
-function renderizarContas() {
-    const container = document.getElementById('lista-contas');
-    let contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
-
-    const hoje = new Date().toISOString().split('T')[0];
-
-    contas = contas.sort((a,b)=> new Date(a.data) - new Date(b.data));
-
-    container.innerHTML = contas.map(c => {
-
-        let classe = "";
-        if (!c.pago && c.data < hoje) classe = "vencida";
-        else if (!c.pago && c.data === hoje) classe = "hoje";
-
-        return `
-        <div class="conta-item ${classe}">
-            <div>
-                <b>${c.descricao}</b>
-                <span>Vence ${c.data.split('-').reverse().join('/')} • ${c.valor}</span>
+        <div class="row">
+            <div class="input-field">
+                <label>Valor (R$)</label>
+                <input type="text" id="valor" placeholder="R$ 0,00" oninput="mascaraMoeda(this)">
             </div>
-            <button class="btn-pay ${c.pago ? 'pago' : ''}" onclick="abrirPagamento(${c.id})">
-                ${c.pago ? 'Pago ✓' : 'Pagar'}
-            </button>
+            <div class="input-field">
+                <label>Vencimento</label>
+                <input type="date" id="data">
+            </div>
         </div>
-        `;
-    }).join('');
-}
+        <button class="btn-add" id="main-btn" onclick="adicionarOuEditar()">Adicionar Conta</button>
+    </div>
 
-// ================= PAGAMENTO =================
-function abrirPagamento(id) {
-    let contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
+    <div class="list-header">Pendências Ativas</div>
+    <div id="lista-contas"></div>
 
-    contaSendoPaga = contas.find(c => c.id === id);
-    if(contaSendoPaga.pago) return;
+    <div id="modalPagamento" class="modal">
+        <div class="modal-content">
+            <h2>Confirmar Pagamento</h2>
+            <div id="detalhesPagamento" class="comp-info"></div>
+            <button class="btn-acao" style="background: var(--primary); color: #000;" onclick="confirmarPagamento()">Pagar Agora</button>
+            <button class="btn-acao" style="background: transparent; color: #fff;" onclick="fecharModal()">Cancelar</button>
+        </div>
+    </div>
 
-    document.getElementById('info-pagamento').innerText =
-        `Pagando ${contaSendoPaga.descricao} - ${contaSendoPaga.valor}`;
+    <div id="modalComprovante" class="modal">
+        <div class="modal-content">
+            <div style="font-size: 50px; margin-bottom: 10px;">✅</div>
+            <h2>Sucesso!</h2>
+            <div id="dadosComprovante" class="comp-info"></div>
+            <button class="btn-acao" style="background: #fff; color: #000;" onclick="fecharComprovante()">Fechar Comprovante</button>
+        </div>
+    </div>
 
-    document.getElementById('modalPay').style.display = 'flex';
-}
+    <script>
+        let editIndex = null;
+        let indexPagamento = null;
 
-function fecharModal() {
-    document.getElementById('modalPay').style.display = 'none';
-}
+        function mascaraMoeda(i) {
+            let v = i.value.replace(/\D/g,'');
+            v = (v/100).toFixed(2) + '';
+            v = v.replace(".", ",");
+            v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
+            i.value = v !== 'NaN' ? 'R$ ' + v : '';
+        }
 
-// ================= CONFIRMAR =================
-function confirmarPagamento() {
-    let contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
+        function renderizarContas() {
+            const contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
+            const container = document.getElementById("lista-contas");
+            container.innerHTML = "";
+            const hoje = new Date().setHours(0,0,0,0);
 
-    contas = contas.map(c => {
-        if(c.id === contaSendoPaga.id) c.pago = true;
-        return c;
-    });
+            contas.forEach((c, index) => {
+                const dataVenc = new Date(c.data + "T12:00:00").setHours(0,0,0,0);
+                const diffDays = Math.ceil((dataVenc - hoje) / (1000 * 60 * 60 * 24));
 
-    localStorage.setItem("minhasContas", JSON.stringify(contas));
+                let statusClass = "";
+                let statusTxt = `Vence em ${new Date(c.data + "T12:00:00").toLocaleDateString('pt-BR')}`;
 
-    // 🔥 ATUALIZA SALDO
-    let saldo = parseFloat(localStorage.getItem("saldo") || "0");
+                if (diffDays === 1) statusClass = "status-amanha";
+                else if (diffDays === 0) { statusClass = "status-hoje"; statusTxt = "Vence HOJE!"; }
+                else if (diffDays < 0) { statusClass = "status-atrasado"; statusTxt = "CONTA ATRASADA!"; }
 
-    let valor = parseFloat(
-        contaSendoPaga.valor.replace("R$ ", "").replace(/\./g, "").replace(",", ".")
-    );
+                container.innerHTML += `
+                    <div class="conta-item ${statusClass}" onclick="subirCampos(${index})">
+                        <div class="info">
+                            <b>${c.descricao}</b>
+                            <span>${statusTxt}</span>
+                        </div>
+                        <div class="valor-area">
+                            <b>${c.valor}</b>
+                            <button class="btn-pagar" onclick="event.stopPropagation(); abrirPagamento(${index})">Pagar</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
 
-    saldo -= valor;
-    localStorage.setItem("saldo", saldo);
+        function subirCampos(index) {
+            const contas = JSON.parse(localStorage.getItem("minhasContas"));
+            const c = contas[index];
+            document.getElementById("desc").value = c.descricao;
+            document.getElementById("valor").value = c.valor;
+            document.getElementById("data").value = c.data;
+            editIndex = index;
+            document.getElementById("main-btn").innerText = "Atualizar Conta";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-    // 🔥 SALVA NO HISTÓRICO
-    let transacoes = JSON.parse(localStorage.getItem("transacoes") || "[]");
+        function adicionarOuEditar() {
+            const d = document.getElementById("desc").value;
+            const v = document.getElementById("valor").value;
+            const t = document.getElementById("data").value;
+            if(!d || !v || v === "R$ 0,00" || !t) return alert("Preencha tudo!");
 
-    transacoes.unshift({
-        id: Date.now(),
-        tipo: "saida",
-        valor: contaSendoPaga.valor,
-        descricao: contaSendoPaga.descricao,
-        data: new Date().toLocaleString()
-    });
+            let contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
+            if(editIndex !== null) {
+                contas[editIndex] = { descricao: d, valor: v, data: t };
+                editIndex = null;
+                document.getElementById("main-btn").innerText = "Adicionar Conta";
+            } else {
+                contas.push({ descricao: d, valor: v, data: t });
+            }
 
-    localStorage.setItem("transacoes", JSON.stringify(transacoes));
+            localStorage.setItem("minhasContas", JSON.stringify(contas));
+            location.reload();
+        }
 
-    alert("Pagamento realizado ✅");
+        function abrirPagamento(index) {
+            indexPagamento = index;
+            const conta = JSON.parse(localStorage.getItem("minhasContas"))[index];
+            document.getElementById("detalhesPagamento").innerHTML = `
+                <p>Descrição: <span>${conta.descricao}</span></p>
+                <p>Valor total: <span>${conta.valor}</span></p>
+                <p>Vencimento: <span>${conta.data}</span></p>
+            `;
+            document.getElementById("modalPagamento").style.display = "flex";
+        }
 
-    fecharModal();
-    renderizarContas();
-}
+        function confirmarPagamento() {
+            const contas = JSON.parse(localStorage.getItem("minhasContas"));
+            const paga = contas[indexPagamento];
+            document.getElementById("dadosComprovante").innerHTML = `
+                <p>ID: <span>#TX${Math.floor(Math.random()*99999)}</span></p>
+                <p>Beneficiário: <span>Tech Pay S.A.</span></p>
+                <p>Valor: <span>${paga.valor}</span></p>
+                <p>Data: <span>${new Date().toLocaleString()}</span></p>
+            `;
+            contas.splice(indexPagamento, 1);
+            localStorage.setItem("minhasContas", JSON.stringify(contas));
+            document.getElementById("modalPagamento").style.display = "none";
+            document.getElementById("modalComprovante").style.display = "flex";
+        }
 
-window.onload = renderizarContas;
-  </script>
+        function fecharComprovante() { location.reload(); }
+        function fecharModal() { document.getElementById("modalPagamento").style.display = "none"; }
 
-
-
+        window.onload = renderizarContas;
+    </script>
 </body>
 </html>
