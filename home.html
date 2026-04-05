@@ -137,22 +137,30 @@ body {
   transform: scale(0.95);
 }
 
-/* BANNER */
+/* BANNER 
+/* BANNER - VERSÃO CORRIGIDA */
 .banner-wrapper {
   width: 100%;
   margin-bottom: 25px;
   position: relative;
   overflow: hidden;
+  padding: 5px 0;
 }
 
 .banner-container {
   display: flex;
-  transition: transform 0.5s ease-in-out;
-  width: 100%;
+  gap: 12px; /* Espaço entre os cards */
+  overflow-x: auto; /* Permite scroll manual se o JS falhar */
+  scroll-snap-type: x mandatory;
+  padding: 0 20px; /* Respiro lateral para o primeiro e último card */
+  scrollbar-width: none;
 }
 
+.banner-container::-webkit-scrollbar { display: none; }
+
 .smart-banner {
-  min-width: 100%;
+  min-width: 88%; /* Ajustado para mostrar uma "beirinha" do próximo card */
+  scroll-snap-align: center;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 22px;
@@ -160,10 +168,27 @@ body {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  min-height: 125px;
+  justify-content: space-between;
+  min-height: 140px;
   position: relative;
 }
+
+/* O BOTÃO QUE VAI SALVAR A ESTÉTICA */
+.banner-action-btn {
+  width: 100%;
+  background: #22c55e; /* Verde piscina/marinho que você queria */
+  color: #000;
+  border: none;
+  padding: 10px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: 0.2s;
+}
+
+.banner-action-btn:active { transform: scale(0.96); }
 
 .banner-dots {
   display: flex;
@@ -171,21 +196,7 @@ body {
   gap: 6px;
   margin-top: 10px;
 }
-
-.dot {
-  width: 6px;
-  height: 6px;
-  background: #374151;
-  border-radius: 50%;
-  transition: 0.3s;
-}
-
-.dot.active {
-  background: var(--primary);
-  width: 16px;
-  border-radius: 10px;
-}
-
+    
 /* CARD PADRÃO */
 .smart-card {
   background: var(--bg-card);
