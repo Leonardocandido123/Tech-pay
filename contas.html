@@ -42,6 +42,13 @@
     .pay-option { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 15px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
     .pay-option:active { background: var(--primary); color: #000; }
     .pay-option b { font-size: 14px; }
+    .hoje {
+  border-left-color: #f59e0b;
+}
+
+.vencida {
+  border-left-color: #ef4444;
+}
   </style>
 </head>
 <body>
@@ -80,70 +87,121 @@
         <button class="btn-add" style="background: transparent; color: #ef4444; margin-top: 10px;" onclick="fecharModal()">Cancelar</button>
     </div>
 </div>
-
-<script>
+  <script>
 let contaSendoPaga = null;
 
-function mascaraMoeda(i) {
-    let v = i.value.replace(/\D/g,'');
-    v = (v/100).toFixed(2) + '';
-    v = v.replace(".", ",");
-    v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
-    v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
-    i.value = "R$ " + v;
-}
-
+// ================= SALVAR =================
 function salvarConta() {
     const desc = document.getElementById('desc-conta').value;
     const valor = document.getElementById('valor-conta').value;
     const data = document.getElementById('data-conta').value;
+
     if(!desc || valor === "R$ 0,00" || !data) return alert("Preencha tudo!");
 
-    const nova = { id: Date.now(), descricao: desc, valor: valor, data: data, pago: false };
     let contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
-    contas.push(nova);
+
+    contas.push({
+        id: Date.now(),
+        descricao: desc,
+        valor: valor,
+        data: data,
+        pago: false
+    });
+
     localStorage.setItem("minhasContas", JSON.stringify(contas));
     renderizarContas();
 }
 
+// ================= LISTAR =================
 function renderizarContas() {
     const container = document.getElementById('lista-contas');
-    const contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
-    if(contas.length === 0) { container.innerHTML = '<p style="text-align:center; color:gray;">Vazio.</p>'; return; }
+    let contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
 
-    container.innerHTML = contas.map(c => `
-        <div class="conta-item ${new Date(c.data) < new Date() && !c.pago ? 'vencida' : ''}">
-            <div><b>${c.descricao}</b><span style="font-size:12px; color:gray;">Vence ${c.data.split('-').reverse().join('/')} • ${c.valor}</span></div>
-            <button class="btn-pay ${c.pago ? 'pago' : ''}" onclick="abrirPagamento(${c.id})">${c.pago ? 'Pago ✓' : 'Pagar'}</button>
+    const hoje = new Date().toISOString().split('T')[0];
+
+    contas = contas.sort((a,b)=> new Date(a.data) - new Date(b.data));
+
+    container.innerHTML = contas.map(c => {
+
+        let classe = "";
+        if (!c.pago && c.data < hoje) classe = "vencida";
+        else if (!c.pago && c.data === hoje) classe = "hoje";
+
+        return `
+        <div class="conta-item ${classe}">
+            <div>
+                <b>${c.descricao}</b>
+                <span>Vence ${c.data.split('-').reverse().join('/')} • ${c.valor}</span>
+            </div>
+            <button class="btn-pay ${c.pago ? 'pago' : ''}" onclick="abrirPagamento(${c.id})">
+                ${c.pago ? 'Pago ✓' : 'Pagar'}
+            </button>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
+// ================= PAGAMENTO =================
 function abrirPagamento(id) {
-    const contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
+    let contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
+
     contaSendoPaga = contas.find(c => c.id === id);
     if(contaSendoPaga.pago) return;
 
-    document.getElementById('info-pagamento').innerText = `Pagando ${contaSendoPaga.descricao} no valor de ${contaSendoPaga.valor}`;
+    document.getElementById('info-pagamento').innerText =
+        `Pagando ${contaSendoPaga.descricao} - ${contaSendoPaga.valor}`;
+
     document.getElementById('modalPay').style.display = 'flex';
 }
 
-function fecharModal() { document.getElementById('modalPay').style.display = 'none'; }
+function fecharModal() {
+    document.getElementById('modalPay').style.display = 'none';
+}
 
-function confirmarPagamento(metodo) {
+// ================= CONFIRMAR =================
+function confirmarPagamento() {
     let contas = JSON.parse(localStorage.getItem("minhasContas") || "[]");
+
     contas = contas.map(c => {
         if(c.id === contaSendoPaga.id) c.pago = true;
         return c;
     });
+
     localStorage.setItem("minhasContas", JSON.stringify(contas));
-    
-    alert(`Sucesso! Conta paga via ${metodo}`);
+
+    // 🔥 ATUALIZA SALDO
+    let saldo = parseFloat(localStorage.getItem("saldo") || "0");
+
+    let valor = parseFloat(
+        contaSendoPaga.valor.replace("R$ ", "").replace(/\./g, "").replace(",", ".")
+    );
+
+    saldo -= valor;
+    localStorage.setItem("saldo", saldo);
+
+    // 🔥 SALVA NO HISTÓRICO
+    let transacoes = JSON.parse(localStorage.getItem("transacoes") || "[]");
+
+    transacoes.unshift({
+        id: Date.now(),
+        tipo: "saida",
+        valor: contaSendoPaga.valor,
+        descricao: contaSendoPaga.descricao,
+        data: new Date().toLocaleString()
+    });
+
+    localStorage.setItem("transacoes", JSON.stringify(transacoes));
+
+    alert("Pagamento realizado ✅");
+
     fecharModal();
     renderizarContas();
 }
 
 window.onload = renderizarContas;
-</script>
+  </script>
+
+
+
 </body>
 </html>
