@@ -583,6 +583,7 @@ function carregarBanners() {
     const bannerSlider = document.getElementById('banner-slider');
     const bannerDots = document.getElementById('banner-dots');
     if (!bannerSlider) return;
+  console.log("BANNERS CARREGADOS");
 
     // Limpa o slider
     bannerSlider.innerHTML = '';
@@ -616,7 +617,8 @@ function carregarBanners() {
     ];
 
     // Inserir no HTML
-    bannerSlider.innerHTML = listaSlides.join('');
+    if (!bannerSlider) return;
+bannerSlider.innerHTML = listaSlides.join('');
 
     // Dots
     bannerDots.innerHTML = listaSlides.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}"></div>`).join('');
