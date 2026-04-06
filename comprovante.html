@@ -13,10 +13,20 @@
   --green:#22C55E;
   --red:#EF4444;
 }
-body{
+  body {
   margin:0; font-family:'Inter',sans-serif; background:var(--bg); color:#fff;
-  display:flex; justify-content:center; padding:20px;
+  display:flex; flex-direction:column; align-items:center; /* Mudamos para coluna */
+  padding:20px; min-height: 100vh;
 }
+
+.actions {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%; /* Ocupa a largura do card */
+}
+  
 .card{
   width:100%; max-width:420px; border-radius:28px; padding:30px 20px;
   backdrop-filter:blur(20px); background:var(--card); box-shadow:0 20px 50px rgba(0,0,0,0.5);
@@ -42,7 +52,6 @@ button{ padding:14px; border-radius:14px; border:none; font-weight:600;}
 </style>
 </head>
 <body>
-
 <div class="card" id="card">
   <div class="check">
     <svg viewBox="0 0 52 52">
@@ -55,14 +64,13 @@ button{ padding:14px; border-radius:14px; border:none; font-weight:600;}
   <div class="status" id="status"></div>
 
   <div id="conteudo"></div>
-
-  <div class="actions">
+</div> <div class="actions" style="width: 100%; max-width: 420px; margin: 0 auto;">
     <button class="primary" onclick="compartilhar()">Compartilhar</button>
     <button class="secondary" onclick="baixar()">Salvar imagem</button>
-    <button class="secondary" onclick="copiar()">Copiar</button>
-    <button class="secondary" onclick="voltar()">Voltar</button>
-  </div>
+    <button class="secondary" onclick="copiar()">Copiar dados</button>
+    <button class="secondary" onclick="voltar()">Sair</button>
 </div>
+  
 
 <div class="toast" id="toast">Copiado!</div>
 
@@ -90,15 +98,23 @@ html+=`<div class="linha"><span>Data</span><span>${data}</span></div><div class=
 document.getElementById("conteudo").innerHTML=html;
 
 async function compartilhar(){
-  const card=document.getElementById("card");
+  const card = document.getElementById("card");
+  
+  // Ativa modo exportação (fundo branco/texto preto)
   document.body.classList.add("export-mode");
-  const canvas=await html2canvas(card,{backgroundColor:"#fff",scale:3});
+  
+  // Tira a foto APENAS do elemento 'card' (que agora está sem botões)
+  const canvas = await html2canvas(card, {
+    backgroundColor: "#ffffff",
+    scale: 3, // Alta qualidade
+    useCORS: true
+  });
+  
   document.body.classList.remove("export-mode");
-  const blob=await(await fetch(canvas.toDataURL())).blob();
-  const file=new File([blob],"comprovante.png",{type:"image/png"});
-  if(navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file]});} 
-  else{baixarImagem(canvas);}
+  
+  // ... resto do seu código de envio ...
 }
+  
 
 function baixar(){ 
   const card=document.getElementById("card");
