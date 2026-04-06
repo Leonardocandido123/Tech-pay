@@ -406,7 +406,38 @@ svg {
   /* Removendo o badge antigo caso ele ainda esteja no seu CSS */
   .badge-lucro { display: none; }
 
-  
+  /* --- ADICIONE ISSO PARA O GRÁFICO APARECER --- */
+.resumo-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.resumo-header small {
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.grafico-container { 
+    width: 100%; 
+    height: 100px; /* IMPORTANTE: Sem isso ele não aparece */
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+.grafico-svg { 
+    width: 100%; 
+    height: 80px; 
+    overflow: visible; 
+}
+/* ------------------------------------------- */
+      
   
   </style>
 </head>
@@ -450,22 +481,21 @@ svg {
     </svg>
   </div>
 
-  <div class="resumo-footer-compacto">
-    <div class="status-item">
+<div class="resumo-footer-compacto">
+    <div class="status-item" style="text-align: left;">
       <small>Entrou</small>
       <strong style="color:#3B82F6">R$ 1.200</strong>
     </div>
-    <div class="status-item">
+    <div class="status-item" style="text-align: center;">
       <small>Saiu</small>
       <strong style="color:#FBBF24">R$ 350</strong>
     </div>
-    <div class="status-item">
+    <div class="status-item" style="text-align: right;">
       <small>Lucro</small>
       <strong style="color:var(--primary)">R$ 850</strong>
     </div>
-  </div>
-  </div>
-  
+</div>
+    
 
   <div class="pix-card">
     <div class="pix-info"><b>Pix rápido ⚡</b><br><span style="font-size: 11px; opacity: 0.8;">Mande dinheiro agora</span></div>
