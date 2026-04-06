@@ -324,6 +324,57 @@ svg {
     box-sizing: border-box;
 }
     
+    /* ========================= */
+/* EMPRÉSTIMO PREMIUM */
+/* ========================= */
+
+.premium-icon {
+  position: relative;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  box-shadow: 
+    0 0 10px rgba(34, 197, 94, 0.25),
+    inset 0 0 5px rgba(34, 197, 94, 0.15);
+  animation: pulseGlow 2.5s infinite;
+}
+
+/* Glow animado */
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 5px rgba(34, 197, 94, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(34, 197, 94, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(34, 197, 94, 0.2);
+  }
+}
+
+/* Badge */
+.badge-premium {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #22c55e;
+  color: #000;
+  font-size: 8px;
+  font-weight: 900;
+  padding: 3px 6px;
+  border-radius: 6px;
+  animation: bounceBadge 1.8s infinite;
+}
+
+/* Animação do badge */
+@keyframes bounceBadge {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Hover toque */
+.emprestimo-premium:active .premium-icon {
+  transform: scale(0.92);
+  transition: 0.15s;
+}
   </style>
 </head>
 <body>
@@ -372,16 +423,20 @@ svg {
     <span>Extrato</span>
   </a>
 
-  <a href="links-pagamento.html" class="action-item">
-    <div class="action-icon">
-      <svg viewBox="0 0 24 24">
-        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-      </svg>
-    </div>
-    <span>Links</span>
-  </a>
+<a href="#" onclick="alert('Disponível em breve')" class="action-item emprestimo-premium">
+  
+  <div class="action-icon premium-icon">
 
+    <div class="badge-premium">EM BREVE</div>
+
+    <svg viewBox="0 0 24 24">
+      <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+    </svg>
+
+  </div>
+
+  <span>Empréstimo</span>
+</a>
   <a href="cobrar.html" class="action-item">
     <div class="action-icon">
       <svg viewBox="0 0 24 24">
