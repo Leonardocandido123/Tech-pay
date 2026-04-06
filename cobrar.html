@@ -98,21 +98,26 @@
     </div>
 
     <div id="tab-cadastro" class="card">
-        <h3 style="font-size:16px; margin-bottom:15px;">Novo Cadastro</h3>
-        <div class="input-group">
-            <label>NOME COMPLETO</label>
-            <input type="text" id="cad-nome" placeholder="Ex: Ricardo Frete">
-        </div>
-        <div class="input-group">
-            <label>VALOR PADRÃO</label>
-            <input type="text" id="cad-valor" placeholder="R$ 0,00" oninput="mascaraMoeda(this)">
-        </div>
-        <div class="input-group">
-            <label>SERVIÇO RECORRENTE</label>
-            <input type="text" id="cad-desc" placeholder="Ex: Mensalidade Frete">
-        </div>
-        <button class="btn-main" style="background:white; color:black;" onclick="salvarCliente()">Salvar no Banco</button>
+    <h3 style="font-size:16px; margin-bottom:15px;">Novo Cadastro</h3>
+    <div class="input-group">
+        <label>NOME COMPLETO</label>
+        <input type="text" id="cad-nome" placeholder="Ex: Ricardo Frete">
     </div>
+    <div class="input-group">
+        <label>VALOR PADRÃO</label>
+        <input type="text" id="cad-valor" placeholder="R$ 0,00" oninput="mascaraMoeda(this)">
+    </div>
+    <div class="input-group">
+        <label>SERVIÇO RECORRENTE</label>
+        <input type="text" id="cad-desc" placeholder="Ex: Mensalidade Frete">
+    </div>
+    <div class="input-group">
+        <label>DATA DE VENCIMENTO / COBRANÇA</label>
+        <input type="date" id="cad-data" style="color-scheme: dark;">
+    </div>
+    <button class="btn-main" style="background:white; color:black;" onclick="salvarCliente()">Salvar no Banco</button>
+    </div>
+    
 
     <div class="section-title">SELECIONE PARA PREENCHER</div>
     <div id="lista-clientes"></div>
@@ -180,34 +185,72 @@ function mascaraMoeda(i){
 }
 
 // Salvar Cliente (CORRIGIDO PARA ATUALIZAR A LISTA NA HORA)
+
 function salvarCliente(){
     const nome = document.getElementById('cad-nome').value;
     const valor = document.getElementById('cad-valor').value;
     const desc = document.getElementById('cad-desc').value;
+    const dataVenc = document.getElementById('cad-data').value; // Pega a data
 
     if(!nome || valor === "R$ 0,00") {
         return alert("Preencha nome e valor!");
     }
 
     let clientes = JSON.parse(localStorage.getItem("tp_clientes") || "[]");
-    clientes.unshift({ nome, valor, desc });
+    
+    // Adiciona a data no objeto do cliente
+    clientes.unshift({ 
+        nome, 
+        valor, 
+        desc, 
+        dataVenc: dataVenc || "Não definida" 
+    });
+    
     localStorage.setItem("tp_clientes", JSON.stringify(clientes));
 
-    // Limpa campos
+    // Limpa os campos
     document.getElementById('cad-nome').value = "";
     document.getElementById('cad-valor').value = "";
     document.getElementById('cad-desc').value = "";
+    document.getElementById('cad-data').value = "";
     
     alert("Cliente cadastrado com sucesso!");
-    
-    // Atualiza a lista lá embaixo
     renderizarClientes();
     
-    // Volta para a aba de Gerar Link automaticamente
     const tabGerar = document.querySelector('.tab-btn:first-child');
     switchTab({currentTarget: tabGerar}, 'gerar');
 }
 
+function renderizarClientes(){
+    const clientes = JSON.parse(localStorage.getItem("tp_clientes") || "[]");
+    const lista = document.getElementById('lista-clientes');
+    
+    if(clientes.length === 0) {
+        lista.innerHTML = '<p style="text-align:center; font-size:12px; color:gray; margin-top:10px;">Nenhum cliente cadastrado.</p>';
+        return;
+    }
+
+    lista.innerHTML = clientes.map(c => {
+        // Formata a data para o padrão brasileiro (DD/MM/AAAA)
+        let dataFormatada = "---";
+        if(c.dataVenc && c.dataVenc !== "Não definida") {
+            const [ano, mes, dia] = c.dataVenc.split('-');
+            dataFormatada = `${dia}/${mes}/${ano}`;
+        }
+
+        return `
+            <div class="item-cliente" onclick="selecionarCliente('${c.nome}', '${c.valor}', '${c.desc}')">
+                <div class="item-info">
+                    <b>${c.nome}</b>
+                    <span>${c.desc} • ${c.valor}</span>
+                    <span style="display:block; color:var(--primary); font-size:10px; margin-top:4px;">📅 Vence dia: ${dataFormatada}</span>
+                </div>
+                <div class="badge-ativo">CADASTRADO</div>
+            </div>
+        `;
+    }).join('');
+}
+    
 // Clicar no cliente e os dados subirem
 function selecionarCliente(nome, valor, desc){
     document.getElementById('link-nome').value = nome;
