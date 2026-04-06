@@ -5,40 +5,84 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --primary: #22C55E; --bg: #000000; }
-  body { margin:0; font-family:'Inter', sans-serif; background: var(--bg); color:#FFF; padding: 20px; overflow: hidden; }
+  :root { 
+    --primary: #22C55E; 
+    --bg: #000000; 
+    --border-input: #2A3441;
+  }
+
+  /* 1. Removido overflow: hidden para permitir rolagem quando o teclado abre */
+  body { 
+    margin:0; 
+    font-family:'Inter', sans-serif; 
+    background: var(--bg); 
+    color:#FFF; 
+    padding: 20px; 
+    padding-bottom: 120px; /* 2. Espaço importante para o conteúdo não ficar atrás do botão */
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
   
   .header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
-  .back-btn { background: none; border: none; color: white; cursor: pointer; padding: 0; }
+  .back-btn { background: none; border: none; color: white; cursor: pointer; padding: 0; display: flex; align-items: center; }
   
-  .saldo-badge { background: rgba(34, 197, 94, 0.15); padding: 8px 15px; border-radius: 30px; color: var(--primary); font-size: 13px; font-weight: 700; display: inline-block; margin-bottom: 35px; }
+  .saldo-badge { 
+    background: rgba(34, 197, 94, 0.15); 
+    padding: 8px 15px; 
+    border-radius: 30px; 
+    color: var(--primary); 
+    font-size: 13px; 
+    font-weight: 700; 
+    display: inline-block; 
+    margin-bottom: 35px; 
+  }
 
   .input-group { margin-bottom: 30px; }
   .label-input { color: #9CA3AF; font-size: 14px; display: block; margin-bottom: 8px; }
   
-  /* INPUTS 100% LIMPOS E SEM FUNDO BRANCO */
   input {
     background: transparent !important;
     border: none;
-    border-bottom: 2px solid #2A3441;
+    border-bottom: 2px solid var(--border-input);
     color: #FFFFFF !important;
     font-size: 20px;
     font-weight: 500;
     padding: 12px 0;
     width: 100%;
     outline: none;
-    border-radius: 0; /* Remove arredondamento de alguns navegadores */
+    border-radius: 0;
     -webkit-appearance: none;
+    transition: border-color 0.3s;
   }
   input:focus { border-bottom-color: var(--primary); }
   
-  #feedbackDestino { display: none; background: #111827; padding: 15px; border-radius: 12px; margin-top: -15px; margin-bottom: 25px; border: 1px solid #1F2937; }
+  #feedbackDestino { 
+    display: none; 
+    background: #111827; 
+    padding: 15px; 
+    border-radius: 12px; 
+    margin-top: -15px; 
+    margin-bottom: 25px; 
+    border: 1px solid #1F2937; 
+  }
   .dest-name { display: block; font-weight: 700; color: #FFF; font-size: 15px; }
   .dest-bank { font-size: 11px; color: #6B7280; text-transform: uppercase; margin-top: 2px; }
 
   .valor-input { font-size: 42px !important; font-weight: 800 !important; color: var(--primary) !important; }
 
-  .footer-action { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px; background: #000; }
+  /* 3. Ajuste do Footer para não cortar o botão e dar respiro em telas com notch */
+  .footer-action { 
+    position: fixed; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%; 
+    padding: 20px; 
+    padding-bottom: clamp(20px, 5vh, 40px); /* 4. Ajuste dinâmico para iPhones/Androids novos */
+    background: linear-gradient(to top, #000 70%, transparent); /* 5. Degradê para o texto não sumir seco */
+    box-sizing: border-box;
+    z-index: 100;
+  }
+
   .confirm-btn { 
     width: 100%; 
     background: #27272a; 
@@ -47,10 +91,21 @@
     padding: 18px; 
     border-radius: 15px; 
     font-weight: 700; 
-    font-size: 16px; 
+    font-size: 16px;
+    transition: all 0.3s ease;
+    cursor: pointer;
   }
-  .confirm-btn.active { background: var(--primary); color: #000; }
+
+  /* Efeito de brilho quando o botão está ativo */
+  .confirm-btn.active { 
+    background: var(--primary); 
+    color: #000; 
+    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+  }
+  
+  .confirm-btn:active { transform: scale(0.98); }
 </style>
+  
 </head>
 <body>
 
