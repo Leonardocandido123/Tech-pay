@@ -2,228 +2,192 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meta TechPay</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --primary:#22c55e;
-  --bg:#000;
-  --card:#0f172a;
-  --border:rgba(255,255,255,0.08);
-  --text:#9CA3AF;
-}
+  :root { --primary: #22C55E; --bg: #000; --card-bg: #111827; --border: #1F2937; --text-muted: #9CA3AF; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: #FFF; padding: 20px; display: flex; flex-direction: column; height: 100vh; }
 
-body {
-  margin:0;
-  font-family:'Inter',sans-serif;
-  background: radial-gradient(circle at top, #0f172a, #000);
-  color:#fff;
-}
+  /* HEADER */
+  .header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+  .back-btn { background: none; border: none; color: white; cursor: pointer; padding: 0; }
+  
+  .main-content { flex: 1; overflow-y: auto; padding-bottom: 100px; }
 
-.container { padding:20px; }
+  /* CARD TOTAL */
+  .total-guardado { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 20px; margin-bottom: 25px; border-left: 4px solid var(--primary); }
+  .total-guardado h2 { font-size: 32px; color: var(--primary); margin: 5px 0; font-weight: 800; }
 
-/* HEADER */
-.header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:20px;
-}
+  /* LISTA DE METAS */
+  .metas-lista { display: flex; flex-direction: column; gap: 15px; }
+  .meta-card { background: var(--card-bg); border: 1px solid var(--border); padding: 18px; border-radius: 18px; position: relative; }
+  
+  .meta-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+  .meta-icon { font-size: 24px; width: 45px; height: 45px; background: rgba(255,255,255,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .meta-title { flex: 1; font-weight: 700; font-size: 16px; }
+  .btn-delete { background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.6; }
 
-.header h2 {
-  font-size:20px;
-  font-weight:800;
-}
+  /* BARRA PROGRESSO */
+  .progress-container { width: 100%; height: 8px; background: #1f2937; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: 0.5s; }
+  
+  .meta-info-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 15px; }
+  .meta-valor-atual { color: #FFF; font-weight: 700; font-size: 14px; }
 
-/* CARD PRINCIPAL */
-.goal-card {
-  background: linear-gradient(145deg,#111827,#020617);
-  border-radius:26px;
-  padding:22px;
-  border:1px solid var(--border);
-  margin-bottom:20px;
-}
+  /* BOTÕES DE AÇÃO NO CARD */
+  .card-actions { display: flex; gap: 10px; }
+  .btn-action { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: #FFF; font-weight: 600; font-size: 13px; cursor: pointer; }
+  .btn-action:active { background: var(--primary); color: #000; }
 
-/* NOME */
-.goal-name {
-  font-size:13px;
-  color:var(--text);
-}
-
-.goal-value {
-  font-size:34px;
-  font-weight:800;
-  margin:5px 0;
-}
-
-/* BARRA */
-.bar {
-  height:8px;
-  background:#1f2937;
-  border-radius:20px;
-  overflow:hidden;
-  margin:15px 0;
-}
-
-.fill {
-  height:100%;
-  width:0%;
-  background:var(--primary);
-  border-radius:20px;
-  transition:1s;
-}
-
-/* TEXTO */
-.goal-info {
-  display:flex;
-  justify-content:space-between;
-  font-size:11px;
-  color:var(--text);
-}
-
-/* INPUT CARD */
-.input-card {
-  background:var(--card);
-  border-radius:20px;
-  padding:16px;
-  border:1px solid var(--border);
-  margin-bottom:15px;
-}
-
-.input-card input {
-  width:100%;
-  background:none;
-  border:none;
-  color:#fff;
-  font-size:22px;
-  font-weight:800;
-  outline:none;
-}
-
-/* BOTÃO */
-.btn {
-  width:100%;
-  padding:15px;
-  border:none;
-  border-radius:14px;
-  font-weight:800;
-  margin-top:10px;
-}
-
-.primary {
-  background:var(--primary);
-  color:#000;
-}
-
-.secondary {
-  background:transparent;
-  border:1px solid var(--border);
-  color:#fff;
-}
+  /* MODAL */
+  .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+  .modal-content { background: #111; border: 1px solid var(--border); width: 100%; max-width: 350px; padding: 25px; border-radius: 20px; }
+  input { width: 100%; background: #1f2937; border: 1px solid var(--border); padding: 15px; border-radius: 12px; color: #fff; margin: 15px 0; font-size: 16px; outline: none; }
+  
+  .footer-btn { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--primary); color: #000; border: none; padding: 18px; border-radius: 15px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 15px rgba(34,197,94,0.3); }
 </style>
 </head>
-
 <body>
 
-<div class="container">
-
 <div class="header">
-  <h2>Metas</h2>
+  <button class="back-btn" onclick="location.href='home.html'"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+  <h1 style="font-size: 18px; margin: 0;">Minhas Caixinhas</h1>
 </div>
 
-<!-- META -->
-<div class="goal-card">
-  <div class="goal-name" id="nome">Meu objetivo</div>
-  <div class="goal-value" id="valor">R$ 0,00</div>
-
-  <div class="bar">
-    <div class="fill" id="barra"></div>
+<div class="main-content">
+  <div class="total-guardado">
+    <small style="color: var(--text-muted)">Total Guardado</small>
+    <h2 id="totalGeral">R$ 0,00</h2>
   </div>
 
-  <div class="goal-info">
-    <span id="porc">0%</span>
-    <span id="restante">Faltam R$ 0,00</span>
+  <div class="metas-lista" id="metasContainer"></div>
+</div>
+
+<button class="footer-btn" onclick="abrirModalCriar()">Criar nova caixinha</button>
+
+<div id="modalCriar" class="modal">
+  <div class="modal-content">
+    <h3 style="margin:0">Novo Objetivo</h3>
+    <input type="text" id="nomeMeta" placeholder="Ex: Viagem, Carro, Moto">
+    <input type="text" id="valorMeta" placeholder="R$ 0,00" inputmode="numeric">
+
+    <button class="footer-btn" style="position:static" onclick="salvarMeta()">Criar Agora</button>
+    <button onclick="fecharModais()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
   </div>
 </div>
 
-<!-- DEPOSITAR -->
-<div class="input-card">
-  <small>Guardar dinheiro</small>
-  <input id="deposito" placeholder="R$ 0,00" oninput="mascara(this)">
-  <button class="btn primary" onclick="depositar()">Guardar</button>
-</div>
+<div id="modalMovimentar" class="modal">
+  <div class="modal-content">
+    <h3 id="tituloMovimentar" style="margin:0"></h3>
+    <input type="text" id="valorMovimentar" placeholder="R$ 0,00" inputmode="numeric">
 
-<!-- CONFIG -->
-<div class="input-card">
-  <small>Definir meta</small>
-  <input id="metaTotal" placeholder="R$ 0,00" oninput="mascara(this)">
-  <input id="metaNome" placeholder="Nome da meta">
-  <button class="btn secondary" onclick="salvar()">Salvar</button>
-</div>
-
+    <div style="display:flex; gap:10px">
+        <button class="btn-action" style="background:var(--primary); color:#000; border:none; padding:15px" onclick="confirmarMovimentacao('guardar')">Guardar</button>
+        <button class="btn-action" style="background:#ef4444; color:#fff; border:none; padding:15px" onclick="confirmarMovimentacao('resgatar')">Resgatar</button>
+    </div>
+    <button onclick="fecharModais()" style="background:none; border:none; color:#666; width:100%; margin-top:15px">Voltar</button>
+  </div>
 </div>
 
 <script>
-// máscara
-function mascara(i){
- let v=i.value.replace(/\D/g,'');
- v=(v/100).toFixed(2)+'';
- v=v.replace(".",",");
- v=v.replace(/(\d)(\d{3}),/g,"$1.$2,");
- i.value="R$ "+v;
-}
+  let metas = JSON.parse(localStorage.getItem('metas_db')) || [];
+  let indexSelecionado = null;
 
-// parse
-function parse(v){
- return parseFloat(v.replace(/[^\d]/g,''))/100||0;
-}
+  const dicionario = { carro: "🚗", moto: "🏍️", casa: "🏠", viagem: "✈️", viajem: "✈️", drone: "🛸", bike: "🚲", reserva: "💰", navio: "🚢", aviao: "✈️" };
+  const getIcon = (n) => { let m = n.toLowerCase(); for(let k in dicionario) if(m.includes(k)) return dicionario[k]; return "🎯"; };
 
-// salvar meta
-function salvar(){
- let valor=parse(document.getElementById("metaTotal").value);
- let nome=document.getElementById("metaNome").value;
+  // --- FUNÇÃO MÁSCARA DE MOEDA ---
+  function mascaraMoeda(event) {
+    let v = event.target.value.replace(/\D/g, "");
+    v = (v / 100).toFixed(2) + "";
+    v = v.replace(".", ",");
+    v = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    event.target.value = "R$ " + v;
+  }
 
- localStorage.setItem("meta_valor",valor);
- localStorage.setItem("meta_nome",nome);
+  // Aplicar a máscara nos inputs ao carregar
+  document.getElementById('valorMeta').addEventListener('input', mascaraMoeda);
+  document.getElementById('valorMovimentar').addEventListener('input', mascaraMoeda);
 
- atualizar();
-}
+  function formatarParaNumero(valorString) {
+    return parseFloat(valorString.replace("R$ ", "").replace(/\./g, "").replace(",", ".")) || 0;
+  }
 
-// depositar
-function depositar(){
- let v=parse(document.getElementById("deposito").value);
- let atual=parseFloat(localStorage.getItem("meta_guardado")||0);
+  function renderizar() {
+    const container = document.getElementById('metasContainer');
+    container.innerHTML = '';
+    let total = 0;
 
- localStorage.setItem("meta_guardado",atual+v);
+    metas.forEach((meta, i) => {
+      total += meta.guardado;
+      let perc = meta.total > 0 ? Math.min((meta.guardado / meta.total) * 100, 100).toFixed(0) : 0;
+      
+      container.innerHTML += `
+        <div class="meta-card">
+          <div class="meta-header">
+            <div class="meta-icon">${getIcon(meta.nome)}</div>
+            <div class="meta-title">${meta.nome}</div>
+            <button class="btn-delete" onclick="excluir(${i})">🗑️</button>
+          </div>
+          <div class="meta-valor-atual">R$ ${meta.guardado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+          <div class="progress-container"><div class="progress-bar" style="width:${perc}%"></div></div>
+          <div class="meta-info-row">
+            <span>${perc}% concluído</span>
+            <span>Meta: R$ ${meta.total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+          </div>
+          <div class="card-actions">
+            <button class="btn-action" onclick="abrirMovimentar(${i})">Guardar / Resgatar</button>
+          </div>
+        </div>`;
+    });
+    document.getElementById('totalGeral').innerText = total.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+    localStorage.setItem('metas_db', JSON.stringify(metas));
+  }
 
- atualizar();
-}
+  function salvarMeta() {
+    let n = document.getElementById('nomeMeta').value;
+    let v = formatarParaNumero(document.getElementById('valorMeta').value);
+    
+    if(n && v > 0) { 
+        metas.push({nome:n, total:v, guardado:0}); 
+        document.getElementById('nomeMeta').value = '';
+        document.getElementById('valorMeta').value = '';
+        fecharModais(); 
+        renderizar(); 
+    } else {
+        alert("Defina um nome e um valor para o seu objetivo.");
+    }
+  }
 
-// atualizar UI
-function atualizar(){
- let nome=localStorage.getItem("meta_nome")||"Meu objetivo";
- let total=parseFloat(localStorage.getItem("meta_valor")||0);
- let guardado=parseFloat(localStorage.getItem("meta_guardado")||0);
+  function abrirMovimentar(i) {
+    indexSelecionado = i;
+    document.getElementById('tituloMovimentar').innerText = metas[i].nome;
+    document.getElementById('valorMovimentar').value = ''; // Limpa o campo ao abrir
+    document.getElementById('modalMovimentar').style.display = 'flex';
+  }
 
- document.getElementById("nome").innerText=nome;
- document.getElementById("valor").innerText=
- guardado.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  function confirmarMovimentacao(tipo) {
+    let v = formatarParaNumero(document.getElementById('valorMovimentar').value);
+    if(v <= 0) return alert("Digite um valor válido.");
 
- let p= total>0 ? (guardado/total)*100 : 0;
+    if(tipo === 'guardar') {
+        metas[indexSelecionado].guardado += v;
+    } else {
+        if(v > metas[indexSelecionado].guardado) return alert("Saldo insuficiente nesta caixinha!");
+        metas[indexSelecionado].guardado -= v;
+    }
+    fecharModais();
+    renderizar();
+  }
 
- document.getElementById("barra").style.width=p+"%";
- document.getElementById("porc").innerText=Math.floor(p)+"%";
+  function excluir(i) { if(confirm("Excluir esta caixinha?")) { metas.splice(i,1); renderizar(); } }
+  function abrirModalCriar() { document.getElementById('modalCriar').style.display = 'flex'; }
+  function fecharModais() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
 
- let falta=total-guardado;
- document.getElementById("restante").innerText=
- "Faltam "+falta.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-}
-
-atualizar();
+  renderizar();
 </script>
+
 
 </body>
 </html>
