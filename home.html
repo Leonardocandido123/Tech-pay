@@ -575,72 +575,49 @@ function abrirPDV() {
 // =======================
 // BANNER ROTATIVO DINÂMICO
 // =======================
-  
-let currentSlide = 0;
-let slideInterval;
-
-function carregarBanners() {
+  function carregarBanners() {
     const bannerSlider = document.getElementById('banner-slider');
     const bannerDots = document.getElementById('banner-dots');
-    if (!bannerSlider) return;
-  console.log("BANNERS CARREGADOS");
 
-    // Limpa o slider
-    bannerSlider.innerHTML = '';
+    if (!bannerSlider || !bannerDots) return;
 
-    // Lista de cards
+    console.log("BANNERS CARREGADOS");
+
     const listaSlides = [
-        // Cartão
         `<div class="smart-banner" onclick="location.href='cartao.html'" style="border-left: 5px solid var(--primary);">
-            <b style="font-size: 15px; color: #fff;">Cartão Virtual TECH</b>
-            <p style="font-size: 12px; color: var(--text-secondary); margin:8px 0;">Peça já o seu e faça compras online com segurança.</p>
-            <button style="background: var(--primary); color: #000; border:none; border-radius:8px; padding:6px 12px; font-size:10px; font-weight:700;">Ativar Agora</button>
+            <b>Cartão Virtual TECH</b>
+            <p>Peça já o seu e faça compras online com segurança.</p>
+            <button style="background: var(--primary); color:#000;">Ativar Agora</button>
         </div>`,
-        // Cobrar
+
         `<div class="smart-banner" onclick="location.href='cobrar.html'" style="border-left: 5px solid #ef4444;">
-            <b style="font-size: 15px; color:#fff;">Cobrar Clientes</b>
-            <p style="font-size: 12px; color: var(--text-secondary); margin:8px 0;">Envie lembretes e organize suas cobranças Pix.</p>
-            <button style="background: #ef4444; color: #fff; border:none; border-radius:8px; padding:6px 12px; font-size:10px; font-weight:700;">Cobrar Agora</button>
+            <b>Cobrar Clientes</b>
+            <p>Envie cobranças rápidas via Pix.</p>
+            <button style="background:#ef4444; color:#fff;">Cobrar</button>
         </div>`,
-        // Contas
+
         `<div class="smart-banner" onclick="location.href='contas.html'" style="border-left: 5px solid #f59e0b;">
-            <b style="font-size: 15px; color:#fff;">Contas e Boletos</b>
-            <p style="font-size: 12px; color: var(--text-secondary); margin:8px 0;">Mantenha suas contas em dia e evite juros.</p>
-            <button style="background: #f59e0b; color: #000; border:none; border-radius:8px; padding:6px 12px; font-size:10px; font-weight:700;">Gerenciar</button>
+            <b>Contas a pagar</b>
+            <p>Organize suas contas e evite atraso.</p>
+            <button style="background:#f59e0b; color:#000;">Ver contas</button>
         </div>`,
-        // Recarga
+
         `<div class="smart-banner" onclick="location.href='recarga.html'" style="border-left: 5px solid #3b82f6;">
-            <b style="font-size: 15px; color:#fff;">Recarga de Celular</b>
-            <p style="font-size: 12px; color: var(--text-secondary); margin:8px 0;">Evite o bloqueio da sua linha. Recarregue agora.</p>
-            <button style="background: #3b82f6; color: #fff; border:none; border-radius:8px; padding:6px 12px; font-size:10px; font-weight:700;">Recarregar</button>
+            <b>Recarga</b>
+            <p>Recarregue seu celular em segundos.</p>
+            <button style="background:#3b82f6; color:#fff;">Recarregar</button>
         </div>`
     ];
 
-    // Inserir no HTML
-    if (!bannerSlider) return;
-bannerSlider.innerHTML = listaSlides.join('');
+    bannerSlider.innerHTML = listaSlides.join('');
 
-    // Dots
-    bannerDots.innerHTML = listaSlides.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}"></div>`).join('');
+    bannerDots.innerHTML = listaSlides.map((_, i) =>
+        `<div class="dot ${i === 0 ? 'active' : ''}"></div>`
+    ).join('');
 
-    // Resetar slide
     currentSlide = 0;
     iniciarRotacao(listaSlides.length);
-}
-
-function iniciarRotacao(total) {
-    if (total <= 1) return;
-    if (slideInterval) clearInterval(slideInterval);
-
-    const slider = document.getElementById('banner-slider');
-    const dots = document.querySelectorAll('.dot');
-
-    slideInterval = setInterval(() => {
-        currentSlide = (currentSlide + 1) % total;
-        if(slider) slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-        dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
-    }, 4000); // troca a cada 4s
-}
+  }
 
 
 // =======================
