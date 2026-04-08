@@ -220,9 +220,22 @@ body {
             </div>
         </div>
 
+        </div>
+    <div id="modal-sair" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #111; width: 100%; max-width: 320px; border-radius: 24px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); text-align: center;">
+        <div style="background: rgba(239, 68, 68, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </div>
+        <h2 style="margin: 0 0 10px 0; font-size: 20px;">Encerrar Sessão?</h2>
+        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 25px;">Terá de introduzir as suas credenciais para aceder novamente.</p>
         
-
-</div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button onclick="executarSaida()" style="width: 100%; background: #ef4444; color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer;">Sair da Conta</button>
+            <button onclick="fecharModalSair()" style="width: 100%; background: transparent; color: #94a3b8; border: none; padding: 10px; font-weight: 600; cursor: pointer;">Cancelar</button>
+        </div>
+    </div>
+    </div>
+    
 
 <script>
     lucide.createIcons();
@@ -249,15 +262,29 @@ body {
             avatar.innerHTML = `<img src="${fotoSalva}" alt="Foto de Perfil">`;
         }
     }
+// Abre o modal de confirmação
+function logout() {
+    document.getElementById('modal-sair').style.display = 'flex';
+}
 
-    function logout() {
-        if(confirm("Deseja realmente sair da conta?")) {
-            localStorage.setItem("techpay_user","false");
-            window.location.href="login.html";
-        }
-    }
+// Fecha o modal se o utilizador desistir
+function fecharModalSair() {
+    document.getElementById('modal-sair').style.display = 'none';
+}
 
-    carregarDados();
+// Executa a saída real do aparelho
+function executarSaida() {
+    // 1. Limpa o estado de login no LocalStorage
+    localStorage.setItem("user_logado", "false");
+    
+    // 2. Opcional: Limpar dados temporários (ex: nome, saldo)
+    // localStorage.clear(); 
+
+    // 3. Redireciona para o Login ou Splash
+    // Usamos .replace para que o utilizador NÃO consiga voltar com o botão "Back" do Android/iPhone
+    window.location.replace("login.html");
+}
+    
 </script>
 
 </body>
