@@ -1,155 +1,110 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZENTRY - Splash</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZENTRY</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        body {
-            height: 100vh;
-            overflow: hidden;
-            background-color: #000; /* Fundo de segurança */
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
-        /* --- IMAGEM DE FUNDO (AVENIDA) --- */
-        .fundo-avenida {
-            position: absolute;
-            inset: 0;
-            /* Certifique-se de que a imagem gerada está com este nome na mesma pasta */
-            background: url('splash-avenida.jpg') no-repeat center;
-            background-size: cover;
-            z-index: 1;
-        }
+body{
+  height:100vh;
+  overflow:hidden;
+}
 
-        /* --- CAMADA ESCURA (OVERLAY) --- */
-        /* Essencial para o texto branco e verde ser lido sobre as luzes da cidade */
-        .overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5); /* 50% de escurecimento */
-            z-index: 2;
-        }
+/* SPLASH */
+.splash{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
 
-        /* --- CONTAINER DO LOGO (ZENTRY) --- */
-        .zentry-logo {
-            position: relative;
-            z-index: 3; /* Acima do fundo e do overlay */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-transform: uppercase;
-            letter-spacing: -2px;
-            font-weight: 800; /* Extra Bold */
-            font-size: 56px; /* Tamanho grande para splash */
-        }
+/* FUNDO COM ZOOM */
+.splash::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:url('splash.jpg') center/cover no-repeat;
+  animation:zoom 4s ease forwards;
+}
 
-        /* --- ESTILOS DO EFEITO MÁQUINA DE ESCREVER --- */
-        .typewriter {
-            display: flex;
-            align-items: center;
-        }
+/* OVERLAY ESCURO PREMIUM */
+.splash::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    rgba(0,0,0,0.4),
+    rgba(0,0,0,0.8)
+  );
+}
 
-        /* Texto base (invisível no início para segurar o espaço) */
-        .text-part {
-            position: relative;
-            white-space: nowrap;
-        }
+/* LOGO */
+.logo{
+  position:relative;
+  font-family:'Inter',sans-serif;
+  font-size:52px;
+  font-weight:700;
+  letter-spacing:4px;
+}
 
-        /* ZEN (Branco) */
-        .zen { color: #ffffff; }
-        /* TRY (Verde) */
-        .try { color: #22c55e; } /* Verde Zentry */
+.white{
+  color:#fff;
+}
 
-        /* A camada de animação que "apaga" a palavra */
-        .typewriter-mask {
-            position: absolute;
-            right: 0;
-            top: 0;
-            height: 100%;
-            background-color: transparent; /* Cor do fundo atrás dela */
-            border-left: 4px solid transparent; /* O cursor */
-            width: 100%; /* Começa cobrindo tudo */
-        }
+.green{
+  color:#22c55e;
+}
 
-        /* --- CONFIGURAÇÃO DAS ANIMAÇÕES --- */
+/* ANIMAÇÃO FUNDO */
+@keyframes zoom{
+  from{transform:scale(1);}
+  to{transform:scale(1.08);}
+}
 
-        /* Animação do ZEN */
-        .zen-mask {
-            background-color: black; /* Deve ser a cor média do fundo ou overlay */
-            animation: 
-                typing 1.5s steps(3) 0.5s forwards, /* 3 letras, delay 0.5s */
-                blinkCaretZen 0.75s step-end infinite 0.5s;
-        }
+/* FADE OUT */
+.fade-out{
+  animation:fadeOut 0.8s ease forwards;
+}
 
-        /* Animação do TRY */
-        .try-mask {
-            background-color: black;
-            animation: 
-                typing 1s steps(3) 2.2s forwards, /* 3 letras, começa após ZEN */
-                blinkCaretTry 0.75s step-end infinite 2.2s;
-        }
-
-        /* --- KEYFRAMES DAS ANIMAÇÕES --- */
-
-        /* 1. Efeito Escrever (A máscara encolhe da direita para a esquerda) */
-        @keyframes typing {
-            from { width: 100%; }
-            to { width: 0%; border-left-color: transparent; }
-        }
-
-        /* 2. Cursor Piscando (Branco para ZEN) */
-        @keyframes blinkCaretZen {
-            from, to { border-left-color: transparent }
-            50% { border-left-color: #ffffff; }
-        }
-
-        /* 3. Cursor Piscando (Verde para TRY) */
-        @keyframes blinkCaretTry {
-            from, to { border-left-color: transparent }
-            50% { border-left-color: #22c55e; }
-        }
-
-    </style>
+@keyframes fadeOut{
+  to{
+    opacity:0;
+    transform:scale(1.05);
+  }
+}
+</style>
 </head>
+
 <body>
 
-    <div class="fundo-avenida"></div>
-    <div class="overlay"></div>
+<div class="splash" id="splash">
+  <h1 class="logo">
+    <span class="white">ZEN</span><span class="green">TRY</span>
+  </h1>
+</div>
 
-    <div class="zentry-logo">
-        <div class="typewriter">
-            <span class="text-part zen">
-                ZEN
-                <div class="typewriter-mask zen-mask"></div>
-            </span>
-            <span class="text-part try">
-                TRY
-                <div class="typewriter-mask try-mask"></div>
-            </span>
-        </div>
-    </div>
+<script>
+// tempo na splash
+setTimeout(()=>{
+  document.getElementById("splash").classList.add("fade-out");
 
-    <script>
-        // --- REDIRECIONAMENTO AUTOMÁTICO ---
-        // A animação total dura cerca de 3.2s. Redirecionamos após 4s.
-        setTimeout(() => {
-            window.location.href = "login.html";
-        }, 4000);
-    </script>
+  setTimeout(()=>{
+    window.location.href = "login.html";
+  }, 800);
+
+}, 2500);
+</script>
 
 </body>
 </html>
