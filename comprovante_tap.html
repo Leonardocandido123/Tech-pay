@@ -2,113 +2,80 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        body {
-            margin: 0; padding: 20px; font-family: sans-serif;
-            background: #f4f4f4; display: flex; flex-direction: column; align-items: center;
-        }
-
-        /* O PAPEL DO COMPROVANTE */
-        #area-impressao {
-            background: #fff; width: 100%; max-width: 320px;
-            padding: 25px; box-sizing: border-box; border: 1px solid #ddd;
-            color: #000;
-        }
-
-        .header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 15px; }
-        .logo { font-size: 26px; font-weight: 800; }
-        .valor { font-size: 38px; font-weight: 800; text-align: center; margin: 25px 0; }
-        .linha { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+        body { margin: 0; padding: 20px; font-family: 'Inter', sans-serif; background: #eee; display: flex; flex-direction: column; align-items: center; }
         
-        /* BOTÕES (Não aparecem na foto) */
-        .acoes { width: 100%; max-width: 320px; margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
-        button { 
-            padding: 16px; border-radius: 12px; border: none; font-weight: bold; font-size: 16px; cursor: pointer;
+        /* O COMPROVANTE ESTILO NUBANK */
+        #comprovante-final {
+            background: #fff; width: 100%; max-width: 350px;
+            padding: 30px; border-radius: 4px; color: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        .btn-share { background: #22c55e; color: #fff; }
-        .btn-home { background: #000; color: #fff; }
 
-        /* Estilo da linha pontilhada final */
-        .footer { border-top: 1px dashed #000; margin-top: 15px; padding-top: 15px; text-align: center; font-size: 12px; }
+        .check-icon { width: 80px; height: 80px; border: 3px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: #22c55e; font-size: 40px; font-weight: bold; }
+        .valor { font-size: 36px; font-weight: 800; text-align: center; margin-bottom: 5px; }
+        .status-txt { color: #22c55e; text-align: center; font-weight: 600; margin-bottom: 30px; }
+        .linha { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px; }
+        .label { color: #666; }
+        .info { font-weight: 600; text-align: right; }
+
+        /* BOTÕES */
+        .area-botoes { width: 100%; max-width: 350px; margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .btn { padding: 18px; border-radius: 15px; border: none; font-weight: 800; font-size: 16px; cursor: pointer; }
+        .btn-compartilhar { background: #22c55e; color: #fff; }
+        .btn-concluir { background: #000; color: #fff; }
     </style>
 </head>
 <body>
 
-    <div id="area-impressao">
-        <div class="header">
-            <div class="logo">ZEN<span style="color: #22c55e;">TRY</span></div>
-            <p>Comprovante de Pagamento</p>
-        </div>
+    <div id="comprovante-final">
+        <div class="check-icon">✓</div>
+        <div class="valor" id="v-valor">R$ 0,00</div>
+        <div class="status-txt">Pagamento aprovado</div>
 
-        <div class="valor" id="p-valor">R$ 0,00</div>
-
-        <div id="p-detalhes">
-            </div>
-
-        <div class="footer">
-            <p>Autenticação: <br> <span id="p-id">#000000</span></p>
-            <p>Zentry Pay © 2024</p>
-        </div>
+        <div class="linha"><span class="label">Método</span><span class="info" id="v-metodo">Pix</span></div>
+        <div class="linha"><span class="label">Data</span><span class="info" id="v-data">09/04/2026</span></div>
+        <div class="linha"><span class="label">ID Transação</span><span class="info" id="v-id">#77002026</span></div>
+        <div class="linha"><span class="label">Estabelecimento</span><span class="info">ZENTRY PAY</span></div>
     </div>
 
-    <div class="acoes">
-        <button class="btn-share" onclick="compartilhar()">COMPARTILHAR (Apps)</button>
-        <button class="btn-home" onclick="irHome()">CONCLUIR / VOLTAR</button>
+    <div class="area-botoes">
+        <button class="btn btn-compartilhar" onclick="enviarFoto()">COMPARTILHAR COMPROVANTE</button>
+        <button class="btn btn-concluir" onclick="finalizar()">CONCLUIR</button>
     </div>
 
     <script>
-        // 1. Carrega os dados salvos pelo PDV
+        // Pega os dados que o PDV salvou
         const dados = JSON.parse(localStorage.getItem("comprovante")) || {};
-        document.getElementById("p-valor").innerText = dados.valor || "R$ 0,00";
-        document.getElementById("p-id").innerText = dados.id || "TP" + Date.now();
+        document.getElementById('v-valor').innerText = dados.valor || "R$ 0,00";
+        document.getElementById('v-metodo').innerText = dados.metodo || "Pix";
+        document.getElementById('v-data').innerText = new Date().toLocaleString();
+        document.getElementById('v-id').innerText = "#TP" + Math.floor(Math.random() * 999999);
 
-        let detalhesHtml = `
-            <div class="linha"><span>Método</span><span>${dados.metodo || 'Crédito'}</span></div>
-            <div class="linha"><span>Data</span><span>${dados.data || new Date().toLocaleString()}</span></div>
-            <div class="linha"><span>Status</span><span style="font-weight:bold">APROVADO</span></div>
-        `;
-        document.getElementById("p-detalhes").innerHTML = detalhesHtml;
-
-        // 2. FUNÇÃO PARA COMPARTILHAR (Abre a galeria de apps do celular)
-        async function compartilhar() {
-            const area = document.getElementById("area-impressao");
+        async function enviarFoto() {
+            const area = document.getElementById("comprovante-final");
             
-            // Tira a "print" da área branca
-            const canvas = await html2canvas(area, { backgroundColor: "#ffffff", scale: 2 });
+            // Tira a "print" da área branca (html2canvas)
+            const canvas = await html2canvas(area, { backgroundColor: "#ffffff", scale: 3 });
             const dataUrl = canvas.toDataURL("image/png");
             
-            // Converte em arquivo para o celular entender
+            // Transforma em arquivo real para o celular compartilhar
             const blob = await (await fetch(dataUrl)).blob();
             const file = new File([blob], "comprovante_zentry.png", { type: "image/png" });
 
-            // Abre a galeria de apps do celular
             if (navigator.share) {
-                try {
-                    await navigator.share({
-                        files: [file],
-                        title: 'Comprovante Zentry',
-                        text: 'Segue o comprovante do pagamento.'
-                    });
-                } catch (err) {
-                    console.log("Usuário cancelou ou erro: ", err);
-                }
+                await navigator.share({
+                    files: [file], // ENVIA A FOTO AQUI
+                    title: 'Comprovante Zentry',
+                });
             } else {
-                alert("Seu celular não suporta compartilhamento direto. A imagem será baixada.");
-                const link = document.createElement('a');
-                link.download = 'comprovante.png';
-                link.href = dataUrl;
-                link.click();
+                alert("Erro ao abrir galeria de compartilhamento.");
             }
         }
 
-        // 3. FUNÇÃO PARA VOLTAR
-        function irHome() {
-            // Opcional: limpa o comprovante do cache pra não ocupar espaço
-            localStorage.removeItem("comprovante");
-            // Volta para a sua home (ajuste o nome do arquivo se for diferente)
-            window.location.href = "home.html"; 
+        function finalizar() {
+            window.location.href = "pdv.html"; // Volta pro início
         }
     </script>
 </body>
