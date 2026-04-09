@@ -104,6 +104,29 @@
     50% { transform: scale(1.08); opacity: 0.7; }
     100% { transform: scale(1); opacity: 1; }
 }
+    /* Estilo do Ícone de Aproximação */
+.icon-nfc {
+    width: 100px !important;
+    height: 100px !important;
+    color: var(--primary);
+    stroke-width: 1.5px;
+    animation: pulseNFC 1.5s infinite;
+}
+
+.nfc-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Animação para o ícone ficar piscando suavemente */
+@keyframes pulseNFC {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
     
 </style>
     
@@ -179,27 +202,22 @@
             </div>
         <button class="btn-full btn-secondary" style="margin-top: 15px;" onclick="goStep('step-2')">Voltar</button>
     </div>
-    <div id="step-nfc" class="screen" style="text-align: center; justify-content: center; display: none;">
+    <div id="step-nfc" class="screen" style="text-align: center; justify-content: center;">
     
-    <div style="margin-bottom: 30px;">
-        <i data-lucide="contactless" style="width: 100px; height: 100px; color: var(--primary); stroke-width: 1.5;"></i>
+    <div class="nfc-container" onclick="simularPagamento(metodoGlobal)">
+        <i data-lucide="contactless" class="icon-nfc"></i>
+        <div class="nfc-waves"></div>
     </div>
 
-    <h2 id="txt-metodo-nfc" style="font-size: 24px; font-weight: 800; margin-bottom: 10px; color: #fff;">
-        Aproxime para Débito
-    </h2>
+    <h2 id="txt-metodo-nfc" style="font-size: 22px; font-weight: 800; margin-top: 30px; margin-bottom: 10px;">Aproxime o cartão</h2>
     
-    <p id="txt-total-nfc" style="font-size: 38px; font-weight: 800; color: var(--primary); margin-bottom: 20px;">
-        R$ 0,00
+    <p id="txt-total-nfc" style="font-size: 36px; font-weight: 800; color: var(--primary); margin-bottom: 20px;">R$ 0,00</p>
+    
+    <p style="color: var(--text-muted); font-size: 14px; padding: 0 40px;">
+        Encoste o cartão ou celular na parte de trás do aparelho
     </p>
-    
-    <p style="color: var(--text-muted); font-size: 14px; max-width: 80%; margin: 0 auto 40px;">
-        Toque na tela para simular a leitura do cartão ou celular
-    </p>
-    
-    <button class="btn-full btn-secondary" style="margin-top: auto" onclick="goStep('step-2')">
-        Voltar
-    </button>
+
+    <button class="btn-full btn-secondary" style="margin-top: auto" onclick="goStep('step-2')">Voltar</button>
     </div>
     
     <div id="step-wait" class="screen" style="justify-content: center; align-items: center; text-align: center;">
