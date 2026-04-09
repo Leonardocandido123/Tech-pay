@@ -93,39 +93,28 @@
         font-weight: 800; font-size: 15px; transition: 0.3s; 
     }
     
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    /* Animação de Onda no ícone NFC */
-[data-lucide="contactless"] {
+    /* Animação Única e Limpa */
+@keyframes nfcPulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.icon-nfc {
+    width: 120px !important;
+    height: 120px !important;
+    color: var(--primary) !important;
+    display: block !important;
+    margin: 0 auto;
     animation: nfcPulse 1.8s infinite ease-in-out;
 }
 
-@keyframes nfcPulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.08); opacity: 0.7; }
-    100% { transform: scale(1); opacity: 1; }
-}
-    /* Estilo do Ícone de Aproximação */
-.icon-nfc {
-    width: 100px !important;
-    height: 100px !important;
-    color: var(--primary);
-    stroke-width: 1.5px;
-    animation: pulseNFC 1.5s infinite;
-}
-
 .nfc-container {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
-}
-
-/* Animação para o ícone ficar piscando suavemente */
-@keyframes pulseNFC {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.7; }
-    100% { transform: scale(1); opacity: 1; }
 }
     
 </style>
