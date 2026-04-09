@@ -99,8 +99,7 @@ body {
     </style>
 </head>
 <body>
-
-       <div id="step-1" class="screen active-screen">
+    <div id="step-1" class="screen active-screen">
         <div style="text-align: center; margin-top: 5px; margin-bottom: 15px;">
             <span style="font-size: 26px; font-weight: 800; letter-spacing: -1.5px;">
                 ZEN<span style="color: var(--primary);">TRY</span>
@@ -125,35 +124,34 @@ body {
     </div>
 
     <div id="step-2" class="screen">
-    <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 25px;">Meio de pagamento</h2>
-    
-    <div class="mode-card" onclick="goStep('step-pix-qr')">
-        <div class="mode-icon"><i data-lucide="zap"></i></div>
-        <div class="mode-info">
-            <b>Pix</b>
-            <small>QR Code dinâmico</small>
+        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 25px;">Meio de pagamento</h2>
+        
+        <div class="mode-card" onclick="goStep('step-pix-qr')">
+            <div class="mode-icon"><i data-lucide="zap"></i></div>
+            <div class="mode-info">
+                <b>Pix</b>
+                <small>QR Code dinâmico</small>
+            </div>
         </div>
-    </div>
 
-    <div class="mode-card" onclick="iniciarNFC('Débito')">
-        <div class="mode-icon"><i data-lucide="banknote"></i></div>
-        <div class="mode-info">
-            <b>Débito</b>
-            <small>Tap to Pay</small>
+        <div class="mode-card" onclick="iniciarNFC('Débito')">
+            <div class="mode-icon"><i data-lucide="banknote"></i></div>
+            <div class="mode-info">
+                <b>Débito</b>
+                <small>Tap to Pay</small>
+            </div>
         </div>
-    </div>
 
-    <div class="mode-card" onclick="goStep('step-parcelas')">
-        <div class="mode-icon"><i data-lucide="credit-card"></i></div>
-        <div class="mode-info">
-            <b>Crédito</b>
-            <small>À vista ou parcelado</small>
+        <div class="mode-card" onclick="goStep('step-parcelas')">
+            <div class="mode-icon"><i data-lucide="credit-card"></i></div>
+            <div class="mode-info">
+                <b>Crédito</b>
+                <small>À vista ou parcelado</small>
+            </div>
         </div>
-    </div>
 
-    <button class="btn-full btn-secondary" style="margin-top: auto;" onclick="goStep('step-1')">Voltar</button>
+        <button class="btn-full btn-secondary" style="margin-top: auto;" onclick="goStep('step-1')">Voltar</button>
     </div>
-    
 
     <div id="step-pix-qr" class="screen" style="text-align: center;">
         <h2>Escaneie o QR Code</h2>
@@ -165,15 +163,22 @@ body {
         <button class="btn-full btn-secondary" style="margin-top:auto" onclick="goStep('step-2')">Voltar</button>
     </div>
 
+    <div id="step-parcelas" class="screen">
+        <h2 style="margin-bottom: 20px;">Escolha as parcelas</h2>
+        <div class="parcela-list" id="lista-parcelas" style="flex: 1; overflow-y: auto;">
+            </div>
+        <button class="btn-full btn-secondary" style="margin-top: 15px;" onclick="goStep('step-2')">Voltar</button>
+    </div>
+
     <div id="step-nfc" class="screen" style="text-align: center; justify-content: center;">
-        <div class="nfc-anim" onclick="simularPagamento(metodoGlobal)">
+        <div class="nfc-anim" onclick="simularPagamento(metodoGlobal)" style="margin-bottom: 30px;">
             <div class="wave"></div>
-            <i data-lucide="contactless" style="width:100%; height:100%;"></i>
+            <i data-lucide="contactless" style="width: 80px; height: 80px; color: var(--primary);"></i>
         </div>
-        <h2 id="txt-metodo-nfc">Aproxime o cartão</h2>
-        <p id="txt-total-nfc" style="font-size:24px; font-weight:800; color:var(--primary);"></p>
-        <p style="color:var(--text-muted)">Toque no ícone acima para simular a leitura</p>
-        <button class="btn-full btn-secondary" style="margin-top:auto" onclick="goStep('step-2')">Voltar</button>
+        <h2 id="txt-metodo-nfc" style="font-size: 24px; font-weight: 800; margin-bottom: 10px;">Aproxime o cartão</h2>
+        <p id="txt-total-nfc" style="font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 20px;">R$ 0,00</p>
+        <p style="color: var(--text-muted); font-size: 14px;">Toque no ícone acima para simular a leitura</p>
+        <button class="btn-full btn-secondary" style="margin-top: auto" onclick="goStep('step-2')">Voltar</button>
     </div>
 
     <div id="step-wait" class="screen" style="justify-content: center; align-items: center; text-align: center;">
@@ -182,21 +187,45 @@ body {
     </div>
 
     <div id="step-success" class="screen">
-        <div style="text-align: center; margin-bottom: 20px;">
-            <div style="width:60px; height:60px; background:var(--primary); border-radius:50%; color:#000; display:flex; align-items:center; justify-content:center; margin: 0 auto 15px;"><i data-lucide="check" style="width:35px; height:35px"></i></div>
-            <h2 style="margin:0">Pagamento Aprovado</h2>
+        <div class="receipt-header">
+            <div style="width:70px; height:70px; background:var(--primary); border-radius:50%; color:#000; display:flex; align-items:center; justify-content:center; margin: 0 auto 15px;">
+                <i data-lucide="check" style="width:40px; height:40px; stroke-width: 3px;"></i>
+            </div>
+            <h2 style="margin:0; font-size: 24px; font-weight: 800;">Pagamento Aprovado</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 5px;">Comprovante Tech Pay</p>
         </div>
+
         <div class="receipt-card">
-            <div class="receipt-row"><span class="label">Valor</span><span class="value" id="res-valor"></span></div>
-            <div class="receipt-row"><span class="label">Método</span><span class="value" id="res-metodo"></span></div>
-            <div class="receipt-row"><span class="label">Data</span><span class="value" id="res-data"></span></div>
-            <div class="receipt-row" style="border:none"><span class="label">ID</span><span class="value">#77002026PDV</span></div>
+            <div class="receipt-row">
+                <span class="receipt-label">Valor</span>
+                <span class="receipt-value total" id="res-valor">R$ 0,00</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Método</span>
+                <span class="receipt-value" id="res-metodo">-</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Data e hora</span>
+                <span class="receipt-value" id="res-data">-</span>
+            </div>
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed rgba(255,255,255,0.1);">
+                <div class="receipt-row">
+                    <span class="receipt-label">Transação</span>
+                    <span class="receipt-value" style="font-family: monospace; font-size: 12px; opacity: 0.7;">#77002026PDV</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-label">Status</span>
+                    <span class="receipt-value" style="color: var(--primary);">EFETIVADO</span>
+                </div>
+            </div>
         </div>
-        <div style="margin-top: auto;">
+
+        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
             <button class="btn-full btn-primary" onclick="compartilhar()">COMPARTILHAR</button>
             <button class="btn-full btn-secondary" onclick="location.reload()">CONCLUIR</button>
         </div>
     </div>
+    
 
     <script>
         let valorRaw = "";
@@ -222,14 +251,41 @@ body {
                 btn.style.background = "#111"; btn.style.color = "#444"; btn.style.pointerEvents = "none";
             }
         }
+function goStep(stepId) {
+    // Esconde todas as telas e mostra a nova
+    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active-screen'));
+    document.getElementById(stepId).classList.add('active-screen');
 
-        function goStep(stepId) {
-            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active-screen'));
-            document.getElementById(stepId).classList.add('active-screen');
-            if(stepId === 'step-parcelas') gerarParcelas();
-            lucide.createIcons();
-        }
+    // Se for a tela de parcelas, gera a lista universal
+    if(stepId === 'step-parcelas') {
+        gerarParcelas();
+    }
 
+    // ESSA LINHA FAZ OS ÍCONES (SVG) APARECEREM NAS TELAS NOVAS
+    lucide.createIcons();
+}
+
+function gerarParcelas() {
+    const container = document.getElementById('lista-parcelas');
+    if (!container) return;
+    
+    container.innerHTML = "";
+    let valorNum = parseInt(valorRaw) / 100;
+    
+    for(let i=1; i<=12; i++) {
+        let pVal = (valorNum / i).toFixed(2).replace(".",",");
+        container.innerHTML += `
+            <div class="mode-card" style="padding: 18px; margin-bottom: 10px;" onclick="iniciarNFC('Crédito ${i}x')">
+                <div style="flex: 1;">
+                    <span style="font-size: 16px; font-weight: 600;">${i}x de <b style="color: var(--primary);">R$ ${pVal}</b></span>
+                </div>
+                <i data-lucide="chevron-right" style="color: #444;"></i>
+            </div>`;
+    }
+    // Atualiza os ícones da lista de parcelas
+    lucide.createIcons();
+}
+        
         function gerarParcelas() {
             const container = document.getElementById('lista-parcelas');
             container.innerHTML = "";
