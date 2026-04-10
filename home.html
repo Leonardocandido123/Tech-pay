@@ -649,7 +649,6 @@ svg {
     Sair
   </button>
 </nav>
-  
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -669,25 +668,35 @@ svg {
     const db = getFirestore(app);
 
     let saldoOculto = false;
-    let currentSlide = 0;
-    let slideInterval = null;
+    window.currentSaldo = 0; // Começa em zero
 
-    // --- CONEXÃO COM DADOS DO USUÁRIO ---
+    // --- CONEXÃO REAL-TIME ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            // Escuta o banco de dados em tempo real
+            console.log("Usuário logado ID:", user.uid);
+            
+            // Escuta o documento do usuário
             onSnapshot(doc(db, "usuarios", user.uid), (docSnap) => {
                 if (docSnap.exists()) {
                     const dados = docSnap.data();
-                    
-                    // Atualiza o Nome dinamicamente
+                    console.log("Dados vindos do Firebase:", dados);
+
+                    // 1. Atualiza Nome
                     const nomeH2 = document.querySelector(".user-info h2");
-                    if(nomeH2) nomeH2.innerText = dados.nome.split(' ')[0] + "!";
+                    if(nomeH2 && dados.nome) {
+                        nomeH2.innerText = dados.nome.split(' ')[0] + "!";
+                    }
+
+                    // 2. Atualiza Saldo (Garante que vira número)
+                    window.currentSaldo = parseFloat(dados.saldo || 0);
                     
-                    // Salva saldo global e renderiza
-                    window.currentSaldo = dados.saldo || 0;
+                    // 3. Força o desenho na tela
                     renderSaldo();
+                } else {
+                    console.error("Documento não existe no Firestore! Verifique o UID.");
                 }
+            }, (error) => {
+                console.error("Erro no Snapshot:", error);
             });
         } else {
             window.location.href = "login.html";
@@ -697,10 +706,19 @@ svg {
     function renderSaldo() {
         const el = document.getElementById("saldo-home");
         if(!el) return;
-        el.innerText = saldoOculto ? "••••••••" : window.currentSaldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        
+        if (saldoOculto) {
+            el.innerText = "••••••••";
+        } else {
+            // Formatação brasileira R$
+            el.innerText = window.currentSaldo.toLocaleString('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL' 
+            });
+        }
     }
 
-    // --- FUNÇÕES DE INTERAÇÃO (SEUS BOTÕES) ---
+    // --- SEUS BOTÕES (MANTIDOS) ---
     window.toggleSaldoHome = () => {
         saldoOculto = !saldoOculto;
         renderSaldo();
@@ -712,7 +730,6 @@ svg {
 
     window.abrirPDV = () => { window.location.href = 'pdv.html'; };
 
-    // --- LOGICA DOS BANNERS E SAUDAÇÃO (MANTIDA) ---
     function atualizarSaudacao() {
         const hora = new Date().getHours();
         let saudacao = "Olá,";
@@ -747,26 +764,16 @@ svg {
         ];
         bannerSlider.innerHTML = listaSlides.join('');
         bannerDots.innerHTML = listaSlides.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}"></div>`).join('');
-        iniciarRotacao(listaSlides.length);
     }
 
-    function iniciarRotacao(total) {
-        if (total <= 1) return;
-        const slider = document.getElementById('banner-slider');
-        slideInterval = setInterval(() => {
-            currentSlide = (currentSlide + 1) % total;
-            if(slider) slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-            const dots = document.querySelectorAll('.dot');
-            dots.forEach((dot, i) => dot.classList.toggle('active', i === currentSlide));
-        }, 3000);
-    }
-
-    // Inicialização ao carregar a página
+    // Inicialização
     window.onload = () => {
         atualizarSaudacao();
         carregarBanners();
+        renderSaldo(); // Chama uma vez para garantir
     };
-   </script>
+  </script>
+  
   
 </body>  
 </html>
