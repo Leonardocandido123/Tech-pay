@@ -229,7 +229,7 @@
       </div>
   </div>
 </div>
-<script type="module">
+  <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -249,9 +249,10 @@
 
   let saldoOculto = false;
 
-  // 1. MONITORAR LOGIN E SALDO
+  // 1. MONITORAR LOGIN E SALDO (SEM EXPULSAR NA HORA)
   onAuthStateChanged(auth, (user) => {
     if (user) {
+      console.log("Logado com sucesso!");
       const userRef = doc(db, "usuarios", user.uid);
       
       onSnapshot(userRef, (docSnap) => {
@@ -259,24 +260,21 @@
           const dados = docSnap.data();
           const saldo = parseFloat(dados.saldo || 0);
           
-          // Salva para o olhinho funcionar
           localStorage.setItem("saldo_atual", saldo);
           
-          // Só atualiza o texto se não estiver oculto
           if (!saldoOculto) {
-            document.getElementById('saldo-txt').innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            const el = document.getElementById('saldo-txt');
+            if(el) el.innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
           }
         }
       });
     } else {
-        // Pequeno delay para garantir que não é um erro de carregamento
-        setTimeout(() => {
-            if(!auth.currentUser) window.location.href = "pix.html";
-        }, 1500);
+        // COMENTEI O REDIRECIONAMENTO PARA TESTE
+        // Assim a página não vai fechar sozinha e você pode ver se o saldo carrega
+        console.log("Aguardando Firebase autenticar...");
     }
   });
 
-  // Função do Olhinho corrigida
   window.toggleSaldo = function() {
     saldoOculto = !saldoOculto;
     const txt = document.getElementById('saldo-txt');
@@ -291,7 +289,8 @@
       eye.style.opacity = "1";
     }
   };
-</script>
+  </script>
+  
   
 
 </body>
