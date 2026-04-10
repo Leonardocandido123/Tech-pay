@@ -1,38 +1,106 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zentry - Home</title>
-    <link rel="stylesheet" href="style.css"> 
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+   <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>ZENTRY- Home Premium</title>
+  <style>
+    /* TODO O SEU CSS MANTIDO INTEGRALMENTE */
+   :root { 
+    --primary: #22c55e; 
+    --bg-card: #111827;
+    --border: rgba(255, 255, 255, 0.15); 
+    --text-secondary: #9CA3AF; 
+}
+
+body { 
+    margin:0; 
+    font-family:'Inter',sans-serif; 
+    background: radial-gradient(circle at 20% 0%, #0f172a, #000 60%); 
+    -webkit-tap-highlight-color: transparent; 
+    overflow-x: hidden; 
+    color: #fff; 
+}
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-top: 10px; }
+    .user-info h2 { font-size: 20px; margin: 2px 0 0 0; color: #FFF; font-weight: 700; }
+    .avatar { width:42px; height:42px; background: var(--bg-card); border-radius:50%; display:flex; align-items:center; justify-content:center; border: 1px solid var(--border); }
+    
+    .balance-circle { display: flex; justify-content: center; margin: 30px 0; cursor: pointer; }
+    .circle {
+        width: 190px; height: 190px; border-radius: 50%;
+        border: 4px solid var(--primary); display: flex; flex-direction: column; 
+        align-items: center; justify-content: center; background: radial-gradient(circle, #0a0a0a, #000);
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);
+    }
+    .circle span { font-size: 24px; font-weight: 800; }
+
+    .pix-card { display:flex; justify-content:space-between; align-items:center; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius:20px; padding:16px; margin-bottom:25px; }
+    .pix-info b { font-size:14px; color:#fff; }
+    .pix-btn { background:#fff; color:#16a34a; padding:8px 14px; border-radius:12px; font-size:12px; font-weight:700; text-decoration:none; }
+    
+    .actions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 30px; }
+    .action-item { text-decoration: none; display: flex; flex-direction: column; align-items: center; }
+    .action-icon { width: 54px; height: 54px; background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #FFF; box-shadow: 0 4px 8px rgba(0,0,0,0.25); }
+    .action-icon svg { width: 22px; height: 22px; stroke: #fff; stroke-width: 1.8; fill: none; }
+    .action-item span { font-size: 11px; font-weight: 500; color: #FFF; margin-top: 6px; opacity: 0.85; }
+
+    .techtap-card { background: linear-gradient(135deg, #ff5f1f, #ff8c00); border-radius: 20px; padding: 16px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+    .techtap-info b { font-size: 14px; color: #000; }
+    .techtap-btn { background: #fff; color: #000; padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: 700; border: none; }
+
+    .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 0 25px; z-index: 1000; }
+    .nav-btn { background: none; border: none; color: #9CA3AF; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; }
+    
+    .container { padding: 20px 20px 100px 20px; }
+    .resumo-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 25px; }
+    .grafico-container { width: 100%; height: 100px; margin: 10px 0; display: flex; align-items: center; }
+    .grafico-svg { width: 100%; height: 80px; overflow: visible; }
+    .resumo-footer-compacto { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 15px; margin-top: 5px; }
+    .status-item { display: flex; flex-direction: column; gap: 4px; }
+    .status-item small { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; }
+    .status-item strong { font-size: 14px; font-weight: 700; }
+
+    /* EMPRÉSTIMO PREMIUM */
+    .premium-icon { position: relative; border: 1px solid rgba(34, 197, 94, 0.4); animation: pulseGlow 2.5s infinite; }
+    @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 5px rgba(34, 197, 94, 0.2); } 50% { box-shadow: 0 0 18px rgba(34, 197, 94, 0.5); } }
+    .badge-premium { position: absolute; top: -6px; right: -6px; background: #22c55e; color: #000; font-size: 8px; font-weight: 900; padding: 3px 6px; border-radius: 6px; }
+  </style>
 </head>
 <body>
 
 <div class="container">
   <header class="header">
     <div class="user-info">
-      <div class="greeting" id="greeting">Boa tarde,</div>
+      <div class="greeting" id="greeting">Olá,</div>
       <h2 id="nome-usuario">...</h2>
     </div>
     <div style="display:flex; gap:12px; align-items:center;">
-      <div onclick="toggleSaldoHome()" id="eye-btn" style="cursor:pointer; color: #FFF;">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-6 11-6 11 6 11 6-4 6-11 6S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      <div onclick="toggleSaldoHome()" style="cursor:pointer; color: #FFF;">
+        <svg viewBox="0 0 24 24"><path d="M1 12s4-6 11-6 11 6 11 6-4 6-11 6S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
       </div>
       <div class="avatar" onclick="location.href='perfil.html'" style="cursor:pointer;">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
     </div>
   </header>
 
   <div class="balance-circle" onclick="location.href='extrato.html'">
     <div class="circle">
-        <span id="saldo-home">...</span>
+        <span id="saldo-home">R$ 0,00</span>
         <small>Saldo disponível</small>
     </div>
   </div>
 
   <div class="resumo-card">
     <div class="resumo-header"><small>Visão Geral</small></div>
+    <div class="grafico-container">
+      <svg viewBox="0 0 500 100" class="grafico-svg">
+        <path d="M0,80 Q125,75 250,78 T500,75" fill="none" stroke="var(--primary)" stroke-width="3" opacity="0.8" />
+        <path d="M0,90 L50,40 L100,60 L150,20 L200,45 L250,10 L300,50 L350,15 L400,40 L450,5 L500,30" fill="none" stroke="#3B82F6" stroke-width="2" />
+      </svg>
+    </div>
     <div class="resumo-footer-compacto">
       <div class="status-item">
         <small>Entrou</small>
@@ -55,22 +123,19 @@
   </div>
 
   <section class="actions-grid">
-    <a href="extrato.html" class="action-item"><span>Extrato</span></a>
-    <a href="cobrar.html" class="action-item"><span>Cobrar</span></a>
-    <a href="contas.html" class="action-item"><span>Contas</span></a>
-    <a href="cartao.html" class="action-item"><span>Cartão</span></a>
-    <a href="recarga.html" class="action-item"><span>Recarga</span></a>
+    <a href="extrato.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2"/></svg></div><span>Extrato</span></a>
+    <a href="cobrar.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><span>Cobrar</span></a>
+    <a href="cartao.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><span>Cartão</span></a>
   </section>
 
   <div class="techtap-card">
     <div class="techtap-info"><b>ZENTAP ⚡</b><br><span>Venda por aproximação</span></div>
-    <button onclick="abrirPDV()" class="techtap-btn">Cobrar</button>
+    <button onclick="window.location.href='pdv.html'" class="techtap-btn">Cobrar</button>
   </div>
 
   <nav class="nav-bar">
-    <button class="nav-btn active" onclick="location.href='home.html'">Início</button>
-    <button class="nav-btn" onclick="location.href='metas.html'">Metas</button>
-    <button class="nav-btn" onclick="logout()">Sair</button>
+    <button class="nav-btn active" onclick="location.href='home.html'"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Início</button>
+    <button class="nav-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sair</button>
   </nav>
 </div>
 
@@ -100,13 +165,11 @@
             onSnapshot(doc(db, "usuarios", user.uid), (docSnap) => {
                 if (docSnap.exists()) {
                     const d = docSnap.data();
+                    const format = (v) => parseFloat(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                     
-                    // Atualiza Nome e Saldo
                     document.getElementById("nome-usuario").innerText = (d.nome || "Usuário") + "!";
                     window.currentSaldo = parseFloat(d.saldo || 0);
                     
-                    // Atualiza Resumo (Entrada/Saída/Lucro)
-                    const format = (v) => parseFloat(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                     document.getElementById("resumo-entrada").innerText = format(d.entrada);
                     document.getElementById("resumo-saida").innerText = format(d.saida);
                     document.getElementById("resumo-lucro").innerText = format(d.lucro);
@@ -128,8 +191,6 @@
 
     window.toggleSaldoHome = () => { saldoOculto = !saldoOculto; renderSaldo(); };
     window.logout = () => { signOut(auth).then(() => { window.location.href = 'login.html'; }); };
-    window.abrirPDV = () => { window.location.href = 'pdv.html'; };
 </script>
-
 </body>
 </html>
