@@ -140,18 +140,18 @@
     <button class="confirm-btn" id="btnProsseguir" onclick="irParaRevisao()" disabled>Continuar</button>
 </div>
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, doc, getDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  // SUAS CREDENCIAIS (Use as mesmas da Home)
+  // SUAS CREDENCIAIS REAIS (Preenchidas agora)
   const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
-    authDomain: "SEU_PROJETO.firebaseapp.com",
-    projectId: "SEU_PROJETO",
-    storageBucket: "SEU_PROJETO.appspot.com",
-    messagingSenderId: "ID",
-    appId: "APP_ID"
+    apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
+    authDomain: "zentry-app-74275.firebaseapp.com",
+    projectId: "zentry-app-74275",
+    storageBucket: "zentry-app-74275.appspot.com",
+    messagingSenderId: "571422826071",
+    appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -167,18 +167,22 @@
   let saldoDisponivel = 0;
   let destinoEncontrado = null;
 
-  // 1. CARREGAR SALDO REAL DO USUÁRIO
+  // 1. CARREGAR SALDO E MANTER LOGADO (BLINDADO)
   onAuthStateChanged(auth, (user) => {
     if (user) {
+      console.log("Usuário logado na Transferência:", user.uid);
       const userRef = doc(db, "usuarios", user.uid);
       onSnapshot(userRef, (docSnap) => {
         if (docSnap.exists()) {
-          saldoDisponivel = docSnap.data().saldo || 0;
+          saldoDisponivel = parseFloat(docSnap.data().saldo || 0);
           saldoElement.innerText = saldoDisponivel.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
       });
     } else {
-      window.location.href = "login.html";
+      // Se não identificar o user de cara, espera 2 segundos antes de expulsar
+      setTimeout(() => {
+        if(!auth.currentUser) window.location.href = "login.html";
+      }, 2000);
     }
   });
 
@@ -187,53 +191,43 @@
     const chaveLimpa = chave.replace(/\D/g, "");
     if (chaveLimpa.length < 11) return;
 
-    // Procura na coleção 'usuarios' quem tem essa chave Pix
-    const q = query(collection(db, "usuarios"), where("chavePix", "==", chaveLimpa));
-    const querySnapshot = await getDocs(q);
+    try {
+      const q = query(collection(db, "usuarios"), where("chavePix", "==", chaveLimpa));
+      const querySnapshot = await getDocs(q);
 
-    if (!querySnapshot.empty) {
-      const userDoc = querySnapshot.docs[0];
-      destinoEncontrado = { id: userDoc.id, ...userDoc.data() };
-      
-      document.querySelector(".dest-name").innerText = destinoEncontrado.nome;
-      document.querySelector(".dest-bank").innerText = (destinoEncontrado.banco || "Zentry Bank") + " - 001";
-      feedback.style.display = "block";
-    } else {
-      destinoEncontrado = null;
-      feedback.style.display = "none";
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        const dados = userDoc.data();
+        destinoEncontrado = { id: userDoc.id, ...dados };
+        
+        document.querySelector(".dest-name").innerText = dados.nome || "Usuário Zentry";
+        document.querySelector(".dest-bank").innerText = "Zentry Bank - 001";
+        feedback.style.display = "block";
+      } else {
+        destinoEncontrado = null;
+        feedback.style.display = "none";
+      }
+      validar();
+    } catch (error) {
+      console.error("Erro ao buscar:", error);
     }
-    validar();
   }
 
   // MÁSCARA CHAVE E BUSCA
   chaveInput.addEventListener("input", (e) => {
     let v = e.target.value.replace(/\D/g, "");
     if (v.length <= 11) {
-      if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-      else {
-        v = v.replace(/(\d{3})(\d)/, "$1.$2");
-        v = v.replace(/(\d{3})(\d)/, "$1.$2");
-        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-      }
-    } else {
-      v = v.replace(/^(\d{2})(\d)/, "$1.$2");
-      v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-      v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
-      v = v.replace(/(\d{4})(\d)/, "$1-$2");
+      v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
     }
     e.target.value = v;
     
-    // Busca automática quando atingir tamanho de CPF ou Celular
     const limpo = v.replace(/\D/g, "");
-    if (limpo.length === 11 || limpo.length === 14) {
-      buscarDestinatario(limpo);
-    }
+    if (limpo.length === 11) buscarDestinatario(limpo);
   });
 
   // MÁSCARA VALOR
   valorInput.addEventListener("input", (e) => {
     let v = e.target.value.replace(/\D/g,'');
-    if (v === "") v = "0";
     v = (v/100).toFixed(2) + '';
     v = v.replace(".", ",");
     v = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -245,7 +239,6 @@
     const valorLimpo = valorInput.value.replace("R$ ", "").replace(/\./g, "").replace(",", ".");
     const valorNum = parseFloat(valorLimpo) || 0;
     
-    // Só ativa se: tiver destino, valor > 0 e valor <= saldo
     if(destinoEncontrado && valorNum > 0 && valorNum <= saldoDisponivel) {
       btn.classList.add("active");
       btn.disabled = false;
@@ -258,21 +251,22 @@
   // FUNÇÃO DE PROSSEGUIR
   window.irParaRevisao = function() {
     const valorDigitado = valorInput.value;
+    const valorLimpo = valorDigitado.replace("R$ ", "").replace(/\./g, "").replace(",", ".");
     
-    const dadosComprovante = {
-        tipo: "pix",
+    const dadosTransferencia = {
         valor: valorDigitado,
-        nome: destinoEncontrado.nome,
-        banco: document.querySelector(".dest-bank").innerText,
-        data: new Date().toLocaleString('pt-BR'),
-        id: "TP" + Math.floor(Math.random() * 9999999),
-        uidDestino: destinoEncontrado.id // Guardamos para usar na confirmação final
+        valorNumerico: parseFloat(valorLimpo),
+        nomeDestino: destinoEncontrado.nome,
+        uidDestino: destinoEncontrado.id,
+        bancoDestino: "Zentry Bank - 001",
+        tipo: "pix"
     };
 
-    localStorage.setItem("comprovante", JSON.stringify(dadosComprovante));
+    // Salvando na chave que a Revisão que te mandei espera
+    localStorage.setItem("transacao_pendente", JSON.stringify(dadosTransferencia));
     window.location.href = 'revisao.html';
   }
-      </script>
+</script>
   
 </body>
 </html>
