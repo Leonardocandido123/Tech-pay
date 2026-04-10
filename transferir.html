@@ -139,12 +139,12 @@
 <div class="footer-action">
     <button class="confirm-btn" id="btnProsseguir" onclick="irParaRevisao()" disabled>Continuar</button>
 </div>
+  
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  // SUAS CREDENCIAIS REAIS (Preenchidas agora)
   const firebaseConfig = {
     apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
     authDomain: "zentry-app-74275.firebaseapp.com",
@@ -167,10 +167,9 @@
   let saldoDisponivel = 0;
   let destinoEncontrado = null;
 
-  // 1. CARREGAR SALDO E MANTER LOGADO (BLINDADO)
+  // 1. CARREGAR SALDO E MANTER LOGADO
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      console.log("Usuário logado na Transferência:", user.uid);
       const userRef = doc(db, "usuarios", user.uid);
       onSnapshot(userRef, (docSnap) => {
         if (docSnap.exists()) {
@@ -179,28 +178,24 @@
         }
       });
     } else {
-      // Se não identificar o user de cara, espera 2 segundos antes de expulsar
-      setTimeout(() => {
-        if(!auth.currentUser) window.location.href = "login.html";
-      }, 2000);
+      setTimeout(() => { if(!auth.currentUser) window.location.href = "login.html"; }, 3000);
     }
   });
 
-  // 2. BUSCAR DESTINATÁRIO NO FIRESTORE
+  // 2. BUSCAR DESTINATÁRIO (Ajustado para qualquer chave)
   async function buscarDestinatario(chave) {
-    const chaveLimpa = chave.replace(/\D/g, "");
-    if (chaveLimpa.length < 11) return;
+    const limpa = chave.replace(/\D/g, "");
+    if (limpa.length < 11) return; // CPF/Celular tem pelo menos 11
 
     try {
-      const q = query(collection(db, "usuarios"), where("chavePix", "==", chaveLimpa));
-      const querySnapshot = await getDocs(q);
+      const q = query(collection(db, "usuarios"), where("chavePix", "==", limpa));
+      const snap = await getDocs(q);
 
-      if (!querySnapshot.empty) {
-        const userDoc = querySnapshot.docs[0];
-        const dados = userDoc.data();
-        destinoEncontrado = { id: userDoc.id, ...dados };
+      if (!snap.empty) {
+        const userDoc = snap.docs[0];
+        destinoEncontrado = { id: userDoc.id, ...userDoc.data() };
         
-        document.querySelector(".dest-name").innerText = dados.nome || "Usuário Zentry";
+        document.querySelector(".dest-name").innerText = destinoEncontrado.nome;
         document.querySelector(".dest-bank").innerText = "Zentry Bank - 001";
         feedback.style.display = "block";
       } else {
@@ -208,21 +203,26 @@
         feedback.style.display = "none";
       }
       validar();
-    } catch (error) {
-      console.error("Erro ao buscar:", error);
-    }
+    } catch (e) { console.error(e); }
   }
 
-  // MÁSCARA CHAVE E BUSCA
+  // MÁSCARA MULTI-CHAVE (CPF, CNPJ e Celular)
   chaveInput.addEventListener("input", (e) => {
     let v = e.target.value.replace(/\D/g, "");
-    if (v.length <= 11) {
-      v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-    }
-    e.target.value = v;
     
+    if (v.length <= 11) { // CPF ou Celular
+        if (v.length > 10) { // Celular: (00) 00000-0000
+            v = v.replace(/^(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+        } else { // CPF: 000.000.000-00
+            v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+        }
+    } else { // CNPJ: 00.000.000/0000-00
+        v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+    }
+    
+    e.target.value = v;
     const limpo = v.replace(/\D/g, "");
-    if (limpo.length === 11) buscarDestinatario(limpo);
+    if (limpo.length === 11 || limpo.length === 14) buscarDestinatario(limpo);
   });
 
   // MÁSCARA VALOR
@@ -239,6 +239,7 @@
     const valorLimpo = valorInput.value.replace("R$ ", "").replace(/\./g, "").replace(",", ".");
     const valorNum = parseFloat(valorLimpo) || 0;
     
+    // O botão só ativa se encontrar o dono da chave e você tiver saldo
     if(destinoEncontrado && valorNum > 0 && valorNum <= saldoDisponivel) {
       btn.classList.add("active");
       btn.disabled = false;
@@ -248,12 +249,12 @@
     }
   }
 
-  // FUNÇÃO DE PROSSEGUIR
+  // PROSSEGUIR PARA REVISÃO
   window.irParaRevisao = function() {
     const valorDigitado = valorInput.value;
     const valorLimpo = valorDigitado.replace("R$ ", "").replace(/\./g, "").replace(",", ".");
     
-    const dadosTransferencia = {
+    const dados = {
         valor: valorDigitado,
         valorNumerico: parseFloat(valorLimpo),
         nomeDestino: destinoEncontrado.nome,
@@ -262,11 +263,11 @@
         tipo: "pix"
     };
 
-    // Salvando na chave que a Revisão que te mandei espera
-    localStorage.setItem("transacao_pendente", JSON.stringify(dadosTransferencia));
+    localStorage.setItem("transacao_pendente", JSON.stringify(dados));
     window.location.href = 'revisao.html';
   }
 </script>
+  
   
 </body>
 </html>
