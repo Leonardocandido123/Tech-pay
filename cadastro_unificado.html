@@ -53,7 +53,16 @@
             font-size: 13px; color: #9CA3AF; margin-bottom: 20px;
         }
 
-        .footer { position: absolute; bottom: 40px; right: 25px; display: flex; align-items: center; gap: 15px; }
+     .footer { 
+    position: absolute; 
+    bottom: 80px; /* Aumentamos de 40px para 80px para fugir da barra do sistema */
+    right: 25px; 
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    z-index: 1000; /* Garante que ele fique na frente de tudo */
+     }
+        
         .next-btn {
             width: 60px; height: 60px; background: #1F2937; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; border: none; transition: 0.3s;
