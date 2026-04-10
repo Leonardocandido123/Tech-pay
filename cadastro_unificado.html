@@ -135,12 +135,10 @@
         </button>
         <button id="finishBtn" class="finish-btn">FINALIZAR</button>
     </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-        // SUA CONFIGURAÇÃO DO FIREBASE AQUI
         const firebaseConfig = {
             apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
             authDomain: "zentry-app-74275.firebaseapp.com",
@@ -149,9 +147,11 @@
             messagingSenderId: "571422826071",
             appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
         };
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
+        // --- LÓGICA DE NAVEGAÇÃO E BOTÕES (Mantenha o que já tinha ou use este) ---
         let currentStep = 0;
         const totalSteps = 7;
         const slider = document.getElementById('main-slider');
@@ -159,63 +159,67 @@
         const nextBtn = document.getElementById('nextBtn');
         const finishBtn = document.getElementById('finishBtn');
 
-        // MÁSCARAS E VALIDAÇÕES
-        document.getElementById('cad_cpf').addEventListener('input', e => {
-            let v = e.target.value.replace(/\D/g,"");
-            v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/g, "$1.$2.$3-$4");
-            e.target.value = v;
-            checkValid();
-        });
-
-        document.getElementById('cad_tel').addEventListener('input', e => {
-            let v = e.target.value.replace(/\D/g,"");
-            v = v.replace(/^(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-            e.target.value = v;
-            checkValid();
-        });
-
-        // LÓGICA DE NAVEGAÇÃO
-        nextBtn.addEventListener('click', () => {
-            if(nextBtn.classList.contains('active')) {
+        window.avancar = () => {
+            if(currentStep < totalSteps - 1) {
                 currentStep++;
-                updateUI();
+                const deslocamento = currentStep * (100 / totalSteps);
+                slider.style.transform = `translateX(-${deslocamento}%)`;
+                pBar.style.width = `${((currentStep + 1) / totalSteps) * 100}%`;
+                
+                if(currentStep === 6) {
+                    nextBtn.style.display = 'none';
+                    finishBtn.style.display = 'block';
+                }
             }
-        });
+        };
 
-        function updateUI() {
-            slider.style.transform = `translateX(-${currentStep * (100 / totalSteps)}%)`;
-            pBar.style.width = `${((currentStep + 1) / totalSteps) * 100}%`;
-            nextBtn.classList.remove('active');
-            
-            if(currentStep === 6) {
-                nextBtn.style.display = 'none';
-                finishBtn.style.display = 'block';
-            }
-        }
+        nextBtn.onclick = avancar;
 
-        function checkValid() {
-            // Aqui você adiciona a lógica: se o input atual estiver preenchido corretamente, nextBtn.classList.add('active')
-            nextBtn.classList.add('active'); // Simplificado para teste
-        }
-
-        // FIREBASE FINALIZAR
+        // --- FIREBASE FINALIZAR (O CORAÇÃO DO CADASTRO) ---
         window.finalizar = async () => {
             const email = document.getElementById('cad_email').value;
             const senha = document.getElementById('cad_senha').value;
-            
-            try {
-                await createUserWithEmailAndPassword(auth, email, senha);
-                alert("Conta criada!");
-                window.location.href = "login.html";
-            } catch (error) {
-                alert("Erro: " + error.message);
+            const nome = document.getElementById('cad_nome').value; // Pega o nome para personalizar a Home
+
+            if(!email || !senha) {
+                alert("Por favor, preencha e-mail e senha corretamente.");
+                return;
             }
-        }
+
+            try {
+                // 1. Cria o usuário no Firebase Authentication
+                await createUserWithEmailAndPassword(auth, email, senha);
+                
+                // 2. SALVA NO LOCALSTORAGE: Isso é vital para o seu Login.html funcionar!
+                localStorage.setItem("usuarioEmail", email);
+                localStorage.setItem("usuarioNome", nome);
+                localStorage.setItem("estaLogado", "true");
+
+                alert("Conta ZENTRY criada com sucesso!");
+                
+                // 3. Redireciona para o login para ele validar a senha
+                window.location.href = "login.html";
+
+            } catch (error) {
+                let mensagemErro = "Erro ao criar conta";
+                if(error.code === 'auth/email-already-in-use') mensagemErro = "Este e-mail já está em uso.";
+                if(error.code === 'auth/weak-password') mensagemErro = "A senha deve ter pelo menos 6 dígitos.";
+                
+                alert(mensagemErro + " (" + error.code + ")");
+            }
+        };
+
         finishBtn.onclick = finalizar;
 
-        // Ativação genérica para teste
-        document.querySelectorAll('input').forEach(i => i.addEventListener('input', checkValid));
+        // Habilita o botão ao digitar (exemplo simples)
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                if(input.value.length > 2) nextBtn.classList.add('active');
+            });
+        });
     </script>
+    
+
 </body>
       </html>
       
