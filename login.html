@@ -24,8 +24,8 @@
   html, body {
     width: 100vw;
     height: 100vh;
-    overflow: hidden; /* Mata a rolagem vertical e horizontal */
-    position: fixed; /* Evita que o teclado do celular empurre tudo pra cima de forma errada */
+    overflow: hidden; 
+    position: fixed; 
   }
 
   body { 
@@ -53,10 +53,7 @@
     line-height: 1.4;
   }
 
-  .field-wrapper {
-    width: 100%;
-    max-width: 100%; /* Garante que não ultrapasse a largura do celular */
-  }
+  .field-wrapper { width: 100%; max-width: 100%; }
 
   .password-container {
     position: relative;
@@ -67,9 +64,7 @@
     transition: 0.3s;
   }
 
-  .password-container:focus-within {
-    border-bottom-color: var(--accent);
-  }
+  .password-container:focus-within { border-bottom-color: var(--accent); }
 
   input {
     flex: 1;
@@ -80,7 +75,7 @@
     outline: none;
     padding-right: 100px;
     letter-spacing: 2px;
-    width: 100%; /* Ocupa apenas o espaço disponível */
+    width: 100%;
   }
 
   .actions {
@@ -91,12 +86,7 @@
     gap: 12px;
   }
 
-  .eye {
-    width: 24px;
-    height: 24px;
-    opacity: 0.4;
-    cursor: pointer;
-  }
+  .eye { width: 24px; height: 24px; opacity: 0.4; cursor: pointer; }
 
   .enter-btn {
     width: 44px;
@@ -111,10 +101,7 @@
     transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
-  .enter-btn.active {
-    opacity: 1;
-    transform: scale(1);
-  }
+  .enter-btn.active { opacity: 1; transform: scale(1); }
 
   .links {
     display: flex;
@@ -127,7 +114,7 @@
     color: #9CA3AF;
     text-decoration: none;
     font-size: 13px;
-    white-space: nowrap; /* Evita que o texto quebre em duas linhas */
+    white-space: nowrap;
   }
 
   .links .create-acc {
@@ -163,7 +150,7 @@
 
     <div class="links">
       <a href="reset.html">Esqueci a senha</a>
-      <a href="cadastro_nome.html" class="create-acc">Criar conta</a>
+      <a href="cadastro_unificado.html" class="create-acc">Criar conta</a>
     </div>
   </div>
 
@@ -186,7 +173,6 @@ const auth = getAuth(app);
 window.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("senha");
   const btn = document.getElementById("btnEntrar");
-  const eye = document.getElementById("eyeIcon");
 
   input.addEventListener("input", () => {
     if(input.value.length >= 6) btn.classList.add("active");
@@ -208,7 +194,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if(input.value.length < 6) return;
     const email = localStorage.getItem("usuarioEmail");
     if(!email){
-      alert("Email não encontrado.");
+      alert("Email não encontrado no fluxo. Por favor, volte e digite o email novamente.");
       return;
     }
 
@@ -217,8 +203,9 @@ window.addEventListener("DOMContentLoaded", () => {
         document.body.style.opacity = "0";
         setTimeout(() => { window.location.href = "home.html"; }, 400);
       })
-      .catch(() => {
-        alert("Senha incorreta ou usuário não existe");
+      .catch((error) => {
+        console.error(error);
+        alert("Senha incorreta ou usuário não encontrado.");
       });
   };
 
