@@ -4,185 +4,313 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <title>Cartão ZENTRY</title>
+    <title>ZENTRY - Card Center</title>
     <style>
-        :root { --bg: #000; --card: #111; --accent: #22c55e; --border: #222; --text-muted: #888; }
+        :root { 
+            --primary: #22c55e; 
+            --bg: #000; 
+            --card-bg: #121826; 
+            --border: #2A3441; 
+            --text-muted: #888; 
+        }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: white; overflow-x: hidden; }
+        body { 
+            margin: 0; font-family: 'Inter', sans-serif; 
+            background: radial-gradient(circle at 20% 0%, #0f172a, #000 70%) no-repeat fixed;
+            color: white; overflow: hidden; position: fixed; width: 100%; height: 100%;
+        }
         
-        /* ANIMAÇÃO DE ENTRADA */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         .container { 
-            padding: 20px; 
-            max-width: 450px; 
-            margin: 0 auto; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-bottom: 120px;
-            animation: fadeInUp 0.6s ease-out;
+            padding: 20px; max-width: 450px; margin: 0 auto; 
+            height: 100%; display: flex; flex-direction: column;
+            overflow-y: auto; /* Permite rolagem apenas dentro do container */
+            padding-bottom: 30px;
         }
-
+        
         /* HEADER */
-        .app-header { width: 100%; padding: 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 100; border-bottom: 1px solid var(--border); }
-        .back-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-top: 10px; }
+        .back-btn { background: var(--card-bg); border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* CARTÃO PREMIUM */
-     .card-preview {
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
-}
-.card-preview:active {
-    transform: rotateY(10deg) rotateX(10deg) scale(0.95);
-    box-shadow: 0 0 30px rgba(34, 197, 94, 0.4);
-}
-
-        /* Detalhe Neon */
+        /* VISUAL DO CARTÃO PREMIUM (Neon Realista) */
+        .card-preview {
+            width: 100%; aspect-ratio: 1.58/1; 
+            border-radius: 24px; padding: 25px;
+            position: relative; overflow: hidden;
+            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: linear-gradient(135deg, #111, #000);
+            border: 1px solid var(--border);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+            margin-bottom: 30px;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        
+        /* Detalhe Neon Ativo */
         .card-preview::after {
-            content: "";
-            position: absolute;
-            top: 0; right: 0;
-            width: 100%; height: 100%;
+            content: ""; position: absolute; inset: 0;
             background: radial-gradient(circle at top right, rgba(34, 197, 94, 0.15), transparent 70%);
             pointer-events: none;
         }
 
+        /* Cores de Seleção Realistas */
+        .card-green { 
+            background: linear-gradient(135deg, #16a34a, #064e3b) !important; 
+            border-color: rgba(34, 197, 94, 0.5) !important;
+            box-shadow: 0 15px 35px rgba(34, 197, 94, 0.2) !important;
+        }
+        .card-silver { background: linear-gradient(135deg, #bdc3c7, #2c3e50) !important; border-color: #aaa !important; }
+
         /* CHIP REALISTA */
-        .chip-svg {
-            width: 42px;
-            height: 32px;
-            filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.5));
-        }
+        .chip-svg { width: 44px; height: 34px; filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.5)); }
 
-        /* BENEFÍCIOS */
-        .info-section { width: 100%; margin-top: 10px; }
-        .info-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; color: #fff; }
+        .card-number { font-size: 21px; letter-spacing: 3px; font-family: monospace; color: rgba(255,255,255,0.85); text-align: center; margin: 15px 0; }
+        .card-name { text-transform: uppercase; font-size: 14px; font-weight: 600; letter-spacing: 1.5px; color: #fff; }
+
+        /* SELETOR DE TIPO (Compacto) */
+        .type-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+        .type-opt { 
+            background: var(--card-bg); border: 1px solid var(--border); padding: 18px; 
+            border-radius: 18px; text-align: center; cursor: pointer; transition: 0.3s;
+        }
+        .type-opt b { display: block; font-size: 15px; margin-bottom: 2px; }
+        .type-opt small { font-size: 11px; color: var(--text-muted); }
+        .type-opt.active { border-color: var(--primary); background: rgba(34, 197, 94, 0.08); box-shadow: 0 0 15px rgba(34, 197, 94, 0.1); }
+        .type-opt.active b { color: var(--primary); }
+
+        /* FORMULÁRIO BLINDADO (Ajustado) */
+        .form-group { background: var(--card-bg); padding: 25px; border-radius: 28px; border: 1px solid var(--border); margin-bottom: 20px; }
+        .input-box { margin-bottom: 18px; width: 100%; }
+        .input-box:last-child { margin-bottom: 0; }
         
-        .benefit { 
-            display: flex; gap: 15px; background: var(--card); padding: 18px; 
-            border-radius: 22px; border: 1px solid var(--border); margin-bottom: 12px;
-            align-items: center;
+        label { display: block; font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; }
+        
+        input, select { 
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); 
+            padding: 15px; border-radius: 14px; color: #fff; font-size: 15px; outline: none;
+            transition: 0.3s; box-sizing: border-box; /* Impede que o padding estufe o campo */
         }
-        .benefit-icon { font-size: 20px; background: rgba(34, 197, 94, 0.1); width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--accent); }
-        .benefit-content b { display: block; font-size: 14px; margin-bottom: 2px; color: #fff; }
-        .benefit-content span { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+        input:focus, select:focus { border-color: var(--primary); background: rgba(0,0,0,0.5); }
+        
+        /* Ajuste para inputs date ficarem escuros no Android */
+        input[type="date"] { color-scheme: dark; }
 
-        /* RODAPÉ E BOTÃO */
-        .footer-action { position: fixed; bottom: 0; left: 0; right: 0; padding: 25px; background: linear-gradient(0deg, #000 70%, transparent); z-index: 100; display: flex; justify-content: center; }
-        .btn-confirm { width: 100%; max-width: 350px; padding: 20px; border-radius: 22px; border: none; background: var(--accent); color: #000; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3); transition: 0.2s; }
-        .btn-confirm:active { transform: scale(0.96); }
-
-        /* LOADING */
-        #loadingOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #000; z-index: 2000; display: none;
-            flex-direction: column; align-items: center; justify-content: center;
+        .btn-order { 
+            width: 100%; background: var(--primary); color: #052e16; border: none; 
+            padding: 18px; border-radius: 20px; font-weight: 800; font-size: 16px;
+            cursor: pointer; transition: 0.3s; box-shadow: 0 8px 20px rgba(34, 197, 94, 0.2);
         }
-        .spinner { width: 45px; height: 45px; border: 4px solid #111; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn-order:active { transform: scale(0.97); opacity: 0.8; }
+
+        /* MODAL ZENTRY */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; backdrop-filter: blur(5px); }
+        .modal-content { 
+            background: #121826; padding: 35px; border-radius: 30px; text-align: center; 
+            border: 1px solid var(--border); animation: modalPop 0.3s ease-out; max-width: 320px;
+        }
+        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
     </style>
 </head>
 <body>
 
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-        <b style="font-size: 18px;">Autenticando...</b>
-        <p style="color: #666; font-size: 13px;">Segurança Criptografada</p>
+<div class="modal" id="modalSucesso">
+    <div class="modal-content">
+        <div style="font-size: 50px; margin-bottom: 15px;">✨</div>
+        <h3 style="margin: 0 0 10px 0; font-size: 20px;">Pedido Confirmado!</h3>
+        <p id="msgSucesso" style="color: var(--text-muted); font-size: 14px; line-height: 1.5; margin-bottom: 25px;"></p>
+        <button class="btn-order" onclick="location.href='home.html'">Voltar para Início</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="header">
+        <div class="back-btn" onclick="location.href='home.html'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        </div>
+        <h2 style="margin:0; font-size: 17px; font-weight: 700;">ZENTRY Card Center</h2>
+        <div style="width:44px"></div>
     </div>
 
-    <header class="app-header">
-        <div class="back-btn" onclick="location.href='home.html'"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></div>
-        <b style="font-size: 14px; letter-spacing: 1px;">CARTÃO VIRTUAL</b>
-        <div style="width: 40px;"></div>
-    </header>
-
-    <div class="container">
-        <div class="card-wrapper">
-            <div class="card-preview">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <b style="letter-spacing: -1px; font-size: 20px; font-weight: 800; color: #fff;">ZENTRY</b>
-                    
-                    <svg class="chip-svg" viewBox="0 0 42 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="42" height="32" rx="6" fill="url(#chip_grad)"/>
-                        <path d="M0 16H8M34 16H42M21 0V8M21 24V32" stroke="#6B5329" stroke-width="0.5"/>
-                        <rect x="8" y="8" width="6" height="6" rx="1" stroke="#6B5329" stroke-width="0.5"/>
-                        <rect x="28" y="8" width="6" height="6" rx="1" stroke="#6B5329" stroke-width="0.5"/>
-                        <rect x="8" y="18" width="6" height="6" rx="1" stroke="#6B5329" stroke-width="0.5"/>
-                        <rect x="28" y="18" width="6" height="6" rx="1" stroke="#6B5329" stroke-width="0.5"/>
-                        <rect x="16" y="8" width="10" height="16" rx="2" stroke="#6B5329" stroke-width="0.5"/>
-                        <defs>
-                            <linearGradient id="chip_grad" x1="0" y1="0" x2="42" y2="32" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#E3C06F"/>
-                                <stop offset="0.5" stop-color="#B18C4D"/>
-                                <stop offset="1" stop-color="#E3C06F"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </div>
-                
-                <div style="font-family: monospace; font-size: 19px; letter-spacing: 3px; color: rgba(255,255,255,0.85); text-align: center; margin-top: 10px;">•••• •••• •••• 8842</div>
-                
-                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-                    <div>
-                        <small style="font-size: 9px; opacity: 0.5; display: block; margin-bottom: 2px; letter-spacing: 1px;">TITULAR</small>
-                        <b id="cardHolder" style="font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase;">CARREGANDO...</b>
-                    </div>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" width="35">
-                </div>
-            </div>
-        </div>
-
-        <div class="info-section">
-            <div class="info-title">Benefícios do seu Cartão</div>
+    <div class="card-display card-black" id="mainCard">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <b style="letter-spacing: -1px; font-size: 22px; font-weight: 800; color: #fff;">ZENTRY</b>
             
-            <div class="benefit">
-                <div class="benefit-icon">🟢</div>
-                <div class="benefit-content">
-                    <b>Modalidade Débito</b>
-                    <span>Uso imediato do seu saldo disponível.</span>
-                </div>
-            </div>
-
-            <div class="benefit">
-                <div class="benefit-icon">⚡</div>
-                <div class="benefit-content">
-                    <b>Aproximação</b>
-                    <span>Compatível com Apple Pay e Google Pay.</span>
-                </div>
-            </div>
-
-            <div class="benefit">
-                <div class="benefit-icon">🛡️</div>
-                <div class="benefit-content">
-                    <b>Segurança Ativa</b>
-                    <span>Criptografia de ponta a ponta.</span>
-                </div>
-            </div>
+            <svg class="chip-svg" viewBox="0 0 42 32" fill="none">
+                <rect width="42" height="32" rx="6" fill="url(#chip_grad)"/>
+                <path d="M0 16H8M34 16H42M21 0V8M21 24V32" stroke="#6B5329" stroke-width="0.5"/>
+                <rect x="8" y="8" width="6" height="6" rx="1" stroke="#6B5329" stroke-width="0.5"/>
+                <rect x="28" y="8" width="6" height="6" rx="1" stroke="#6B5329" stroke-width="0.5"/>
+                <rect x="8" y="18" width="6" height="6" rx="1" stroke="#6B5329" stroke-width="0.5"/>
+                <rect x="28" y="18" width="6" height="6" rx="1" stroke="#6B5329" stroke-width="0.5"/>
+                <rect x="16" y="8" width="10" height="10" rx="2" stroke="#6B5329" stroke-width="0.5"/>
+                <defs>
+                    <linearGradient id="chip_grad" x1="0" y1="0" x2="42" y2="32" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#E3C06F"/><stop offset="0.5" stop-color="#B18C4D"/><stop offset="1" stop-color="#E3C06F"/>
+                    </linearGradient>
+                </defs>
+            </svg>
         </div>
 
-        <div class="footer-action">
-            <button class="btn-confirm" onclick="gerarCartao()">Ativar meu Cartão</button>
+        <div class="card-number">•••• •••• •••• ••••</div>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <small style="font-size: 9px; color: rgba(255,255,255,0.5); display: block; margin-bottom: 2px; letter-spacing: 1px;">TITULAR</small>
+                <div class="card-name" id="previewName">NOME COMPLETO</div>
+            </div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" width="42">
         </div>
     </div>
 
-    <script>
-        // Puxa o nome do usuário salvo no sistema
-        window.onload = function() {
-            const nomeSalvo = localStorage.getItem('nomeUsuario') || 'LEONARDO S.';
-            document.getElementById('cardHolder').innerText = nomeSalvo;
-        };
+    <div class="type-selector">
+        <div class="type-opt active" onclick="selectType('virtual', this)">
+            <b>Virtual</b><small>Uso Imediato</small>
+        </div>
+        <div class="type-opt" onclick="selectType('fisico', this)">
+            <b>Físico</b><small>Receber em Casa</small>
+        </div>
+    </div>
 
-        function gerarCartao() {
-            document.getElementById('loadingOverlay').style.display = 'flex';
+    <div class="form-group">
+        <div class="input-box">
+            <label>Nome Gravado no Cartão</label>
+            <input type="text" id="nomeCartao" placeholder="EX: LEONARDO S SILVA" oninput="updateName(this)" spellcheck="false" autocomplete="off">
+        </div>
+        
+        <div class="input-box">
+            <label>Cor do Cartão</label>
+            <select id="corCartao" onchange="updateColor(this.value)">
+                <option value="card-black">Carbon Black (Padrão)</option>
+                <option value="card-green">Zentry Green (Premium)</option>
+                <option value="card-silver">Platinum Silver</option>
+            </select>
+        </div>
+
+        <div id="enderecoSect" style="display: none; border-top: 1px solid var(--border); padding-top: 18px; margin-top: 18px;">
+            <div class="input-box">
+                <label>CEP de Entrega</label>
+                <input type="number" id="cep" placeholder="00000000" inputmode="numeric">
+            </div>
+            <div class="input-box">
+                <label>Endereço Completo (Rua, Nº, Bairro)</label>
+                <input type="text" id="rua" placeholder="Ex: Av. Paulista, 1000 - Apt 12">
+            </div>
+        </div>
+
+        <button class="btn-order" onclick="solicitarCartao()">Solicitar meu ZENTRY Card</button>
+    </div>
+</div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
+        authDomain: "zentry-app-74275.firebaseapp.com",
+        projectId: "zentry-app-74275",
+        storageBucket: "zentry-app-74275.appspot.com",
+        messagingSenderId: "571422826071",
+        appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let userUid = "";
+    let tipoSelecionado = "virtual";
+
+    // --- ESTABILIZADOR DE SESSÃO (AQUI ESTAVA O ERRO) ---
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            userUid = user.uid;
+            console.log("Usuário autenticado:", userUid);
+            
+            try {
+                const userSnap = await getDoc(doc(db, "usuarios", user.uid));
+                if(userSnap.exists()) {
+                    const nome = userSnap.data().nome || "MEMBRO ZENTRY";
+                    document.getElementById("nomeCartao").value = nome.toUpperCase();
+                    document.getElementById("previewName").innerText = nome.toUpperCase();
+                }
+            } catch (error) {
+                console.error("Erro ao carregar dados:", error);
+            }
+        } else {
+            // Em vez de redirecionar na hora, esperamos 3 segundos.
+            // Se após 3s o Firebase realmente não achar ninguém, aí sim vai pro login.
+            console.warn("Verificando sessão...");
             setTimeout(() => {
-                location.href = 'configurar_cartao.html';
-            }, 2000);
+                if (!auth.currentUser) {
+                    window.location.href = "login.html";
+                }
+            }, 3000);
         }
-    </script>
+    });
+
+    // --- LÓGICA DE INTERAÇÃO ---
+    window.selectType = (type, el) => {
+        tipoSelecionado = type;
+        document.querySelectorAll('.type-opt').forEach(opt => opt.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('enderecoSect').style.display = type === 'fisico' ? 'block' : 'none';
+    };
+
+    window.updateName = (el) => {
+        el.value = el.value.replace(/[^a-zA-Z\s]/g, "");
+        document.getElementById("previewName").innerText = el.value.toUpperCase() || "NOME NO CARTÃO";
+    };
+
+    window.updateColor = (cor) => {
+        const card = document.getElementById("mainCard");
+        card.className = "card-preview " + cor; // Corrigido para a classe correta do CSS
+    };
+
+    window.solicitarCartao = async () => {
+        const nomeGravado = document.getElementById("nomeCartao").value;
+        const corEscolhida = document.getElementById("corCartao").value;
+        const btn = document.querySelector('.btn-order');
+        
+        if(!userUid) return alert("Erro de autenticação. Tente novamente.");
+        if(!nomeGravado || nomeGravado.length < 5) return alert("Digite seu nome completo.");
+        
+        if(tipoSelecionado === 'fisico') {
+            const cep = document.getElementById("cep").value;
+            const rua = document.getElementById("rua").value;
+            if(!cep || cep.length < 8) return alert("CEP inválido.");
+            if(!rua || rua.length < 10) return alert("Endereço incompleto.");
+        }
+
+        btn.innerText = "PROCESSANDO...";
+        btn.disabled = true;
+
+        try {
+            await setDoc(doc(db, "cartoes", userUid), {
+                userId: userUid,
+                tipo: tipoSelecionado,
+                nomeGravado: nomeGravado.toUpperCase(),
+                cor: corEscolhida,
+                status: tipoSelecionado === 'fisico' ? 'Em Produção' : 'Ativo',
+                dataPedido: new Date().toISOString()
+            });
+
+            document.getElementById("msgSucesso").innerText = tipoSelecionado === 'virtual' 
+                ? "Seu ZENTRY Virtual está liberado!" 
+                : "Seu ZENTRY Físico está em produção e chegará em breve!";
+            
+            document.getElementById("modalSucesso").style.display = "flex";
+            
+        } catch (e) { 
+            alert("Erro ao solicitar. Tente de novo.");
+            btn.innerText = "Solicitar meu ZENTRY Card";
+            btn.disabled = false;
+        }
+    };
+        </script>
+    
+    
 </body>
-</html>
+    </html>
+    
