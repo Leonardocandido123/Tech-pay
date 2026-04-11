@@ -231,7 +231,7 @@ body {
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
@@ -248,52 +248,32 @@ body {
 
     let saldoOculto = false;
     window.currentSaldo = 0;
+    let usuarioLogadoId = "";
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
+            usuarioLogadoId = user.uid;
             onSnapshot(doc(db, "usuarios", user.uid), (docSnap) => {
                 if (docSnap.exists()) {
                     const d = docSnap.data();
+                    const format = (v) => (parseFloat(v) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                     
-                    // Função de formatação segura (converte string do banco para número)
-                    const format = (v) => {
-                        const num = parseFloat(v) || 0;
-                        return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                    };
-                    
-                    // Atualiza Nome e Saudação
-                    const elNome = document.getElementById("nome-usuario");
-                    if(elNome) elNome.innerText = (d.nome || "Usuário") + "!";
-                    
-                    // Salva e Renderiza o Saldo Principal
+                    document.getElementById("nome-usuario").innerText = (d.nome || "Usuário") + "!";
                     window.currentSaldo = parseFloat(d.saldo || 0);
                     renderSaldo();
                     
-                    // ATUALIZAÇÃO DA VISÃO GERAL (Onde estavam os campos vazios)
-                    // ATUALIZAÇÃO DA VISÃO GERAL
-const elEntrada = document.getElementById("resumo-entrada");
-const elSaida = document.getElementById("resumo-saida");
-const elLucro = document.getElementById("resumo-lucro");
+                    const entrada = parseFloat(d.entrada || 0);
+                    const saida = parseFloat(d.saida || 0);
+                    const lucro = entrada - saida;
 
-// Pegamos os valores do banco (se não existirem, assume 0)
-const entrada = parseFloat(d.entrada || 0);
-const saida = parseFloat(d.saida || 0);
-const lucro = entrada - saida; // Cálculo automático
-
-if(elEntrada) elEntrada.innerText = format(entrada);
-if(elSaida) elSaida.innerText = format(saida);
-if(elLucro) {
-    elLucro.innerText = format(lucro);
-    // Fica verde se for lucro, vermelho se for prejuízo
-    elLucro.style.color = lucro >= 0 ? "var(--primary)" : "#ef4444";
-}
+                    document.getElementById("resumo-entrada").innerText = format(entrada);
+                    document.getElementById("resumo-saida").innerText = format(saida);
+                    const elLucro = document.getElementById("resumo-lucro");
+                    elLucro.innerText = format(lucro);
+                    elLucro.style.color = lucro >= 0 ? "var(--primary)" : "#ef4444";
                   
-                    
-                    // Dispara funções auxiliares
                     atualizarSaudacao();
-                    carregarBanners();
-
-                    // Salva o saldo para ser usado em outras páginas (como o Pix)
+                    verificarAlertasECarregarBanners(); // Chama a função inteligente
                     localStorage.setItem("saldo", window.currentSaldo);
                 }
             });
@@ -302,64 +282,83 @@ if(elLucro) {
         }
     });
 
-    // Função que mostra ou esconde o saldo com as bolinhas
     function renderSaldo() {
         const el = document.getElementById("saldo-home");
-        if(el) {
-            el.innerText = saldoOculto ? "••••••••" : window.currentSaldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
+        if(el) el.innerText = saldoOculto ? "••••••••" : window.currentSaldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
-    // Funções Globais
-    window.toggleSaldoHome = () => { 
-        saldoOculto = !saldoOculto; 
-        renderSaldo(); 
-    };
-
-    window.logout = () => { 
-        signOut(auth).then(() => { window.location.href = 'login.html'; }); 
-    };
+    window.toggleSaldoHome = () => { saldoOculto = !saldoOculto; renderSaldo(); };
+    window.logout = () => { signOut(auth).then(() => { window.location.href = 'login.html'; }); };
 
     function atualizarSaudacao() {
         const hora = new Date().getHours();
         const el = document.getElementById("greeting");
-        if (!el) return;
-
         if (hora >= 5 && hora < 12) el.innerText = "Bom dia,";
         else if (hora >= 12 && hora < 18) el.innerText = "Boa tarde,";
         else el.innerText = "Boa noite,";
     }
 
-    function carregarBanners() {
-        const bannerSlider = document.getElementById('banner-slider');
-        const bannerDots = document.getElementById('banner-dots');
-        if (!bannerSlider || bannerSlider.children.length > 0) return;
+    // --- FUNÇÃO INTELIGENTE DOS BANNERS ---
+    async function verificarAlertasECarregarBanners() {
+        let corCobrar = "#22c55e"; // Padrão Verde
+        let textoCobrar = "Envie cobranças via Pix.";
+        let tituloCobrar = "Cobrar Clientes";
+        let animarCobrar = false;
+
+        try {
+            // Busca clientes do usuário
+            const q = query(collection(db, "clientes_cadastrados"), where("vendedorId", "==", usuarioLogadoId));
+            const querySnapshot = await getDocs(q);
+            const hoje = new Date().setHours(0,0,0,0);
+
+            querySnapshot.forEach((doc) => {
+                const c = doc.data();
+                if(c.dataVenc) {
+                    const venc = new Date(c.dataVenc).setHours(24,0,0,0);
+                    if(venc < hoje) {
+                        corCobrar = "#ef4444"; // Vermelho se houver atraso
+                        tituloCobrar = "Cobrança Vencida!";
+                        textoCobrar = `O pagamento de ${c.nome} atrasou.`;
+                        animarCobrar = true;
+                    } else if (venc === hoje && corCobrar !== "#ef4444") {
+                        corCobrar = "#f59e0b"; // Laranja se vencer hoje
+                        tituloCobrar = "Vence Hoje";
+                        textoCobrar = `Cobrar ${c.nome} agora.`;
+                    }
+                }
+            });
+        } catch (e) { console.error(e); }
 
         const slides = [
-            { t: 'Cartão Virtual TECH', p: 'Compras online com segurança.', b: 'Ativar', c: 'var(--primary)', h: 'cartao.html' },
-            { t: 'Cobrar Clientes', p: 'Envie cobranças via Pix.', b: 'Cobrar', c: '#ef4444', h: 'cobrar.html' },
-            { t: 'Contas a pagar', p: 'Organize suas finanças.', b: 'Ver', c: '#f59e0b', h: 'contas.html' },
-            { t: 'Recarga', p: 'Recarregue em segundos.', b: 'Recarregar', c: '#3b82f6', h: 'recarga.html' }
+            { t: 'Cartão Virtual TECH', p: 'Compras online com segurança.', b: 'Ativar', c: 'var(--primary)', h: 'cartao.html', a: false },
+            { t: tituloCobrar, p: textoCobrar, b: 'Cobrar', c: corCobrar, h: 'cobrar.html', a: animarCobrar },
+            { t: 'Contas a pagar', p: 'Organize suas finanças.', b: 'Ver', c: '#f59e0b', h: 'contas.html', a: false },
+            { t: 'Recarga', p: 'Recarregue em segundos.', b: 'Recarregar', c: '#3b82f6', h: 'recarga.html', a: false }
         ];
 
+        const bannerSlider = document.getElementById('banner-slider');
+        const bannerDots = document.getElementById('banner-dots');
+        
         bannerSlider.innerHTML = slides.map(s => `
-            <div class="smart-banner" onclick="location.href='${s.h}'" style="border-left: 5px solid ${s.c};">
+            <div class="smart-banner ${s.a ? 'premium-icon' : ''}" onclick="location.href='${s.h}'" style="border-left: 5px solid ${s.c};">
                 <b>${s.t}</b><p>${s.p}</p>
-                <button style="background:${s.c}; color:${s.c==='var(--primary)'?'#000':'#fff'}; border:none; padding:8px; border-radius:8px;">${s.b}</button>
+                <button style="background:${s.c}; color:#fff; border:none; padding:8px; border-radius:8px; font-weight:bold;">${s.b}</button>
             </div>`).join('');
 
-        if(bannerDots) {
-            bannerDots.innerHTML = slides.map((_, i) => `<div class="dot ${i===0?'active':''}"></div>`).join('');
-        }
+        bannerDots.innerHTML = slides.map((_, i) => `<div class="dot ${i===0?'active':''}"></div>`).join('');
         
-        let cur = 0;
-        setInterval(() => {
-            cur = (cur + 1) % slides.length;
-            if(bannerSlider) bannerSlider.style.transform = `translateX(-${cur * 100}%)`;
-            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === cur));
-        }, 4000);
+        // Reiniciar intervalo de scroll apenas se necessário
+        if(!window.bannerIntervalID) {
+            let cur = 0;
+            window.bannerIntervalID = setInterval(() => {
+                cur = (cur + 1) % slides.length;
+                if(bannerSlider) bannerSlider.style.transform = `translateX(-${cur * 100}%)`;
+                document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+            }, 4000);
+        }
     }
 </script>
+  
   
 
 </body>
