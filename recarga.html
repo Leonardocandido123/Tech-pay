@@ -53,11 +53,27 @@
             background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; 
             padding: 12px; text-align: center; cursor: pointer; transition: 0.3s;
             display: flex; align-items: center; justify-content: center;
-        }
-        .op-card img { width: 32px; height: 32px; object-fit: contain; filter: brightness(0.8); }
-        .op-card.selected { border-color: var(--primary); background: rgba(34, 197, 94, 0.15); }
-        .op-card.selected img { filter: brightness(1); }
+            }
+.op-card img { 
+    width: 32px; 
+    height: 32px; 
+    object-fit: contain; 
+    /* Deixa a imagem um pouco transparente e cinza para destacar a seleção */
+    filter: grayscale(1) opacity(0.5); 
+    transition: all 0.3s ease;
+}
 
+.op-card.selected { 
+    border-color: var(--primary); 
+    background: rgba(34, 197, 94, 0.15); 
+    transform: scale(1.05); /* Dá um leve zoom ao selecionar */
+}
+
+.op-card.selected img { 
+    /* Volta a cor original e brilho total */
+    filter: grayscale(0) opacity(1); 
+}
+        
         .value-chips { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; }
         .chip { 
             padding: 14px 24px; background: var(--bg-card); border: 1px solid var(--border); 
@@ -87,14 +103,22 @@
             <label>NÚMERO COM DDD</label>
             <input type="tel" id="phone" placeholder="(00) 00000-0000" maxlength="15">
         </div>
-
-        <span class="section-label">Operadora</span>
-        <div class="operator-grid">
-            <div class="op-card" onclick="selectOp(this, 'Vivo')"><img src="https://img.icons8.com/color/96/vivo.png"></div>
-            <div class="op-card" onclick="selectOp(this, 'Tim')"><img src="https://img.icons8.com/color/96/tim.png"></div>
-            <div class="op-card" onclick="selectOp(this, 'Claro')"><img src="https://img.icons8.com/color/96/claro.png"></div>
-            <div class="op-card" onclick="selectOp(this, 'Oi')"><img src="https://img.icons8.com/color/96/oi.png"></div>
-        </div>
+<span class="section-label">Operadora</span>
+<div class="operator-grid">
+    <div class="op-card" onclick="selectOp(this, 'Vivo')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Logo_Vivo.svg/256px-Logo_Vivo.svg.png" alt="Vivo">
+    </div>
+    <div class="op-card" onclick="selectOp(this, 'Tim')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/TIM_logo.svg/256px-TIM_logo.svg.png" alt="Tim">
+    </div>
+    <div class="op-card" onclick="selectOp(this, 'Claro')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Logo_Claro.svg/256px-Logo_Claro.svg.png" alt="Claro">
+    </div>
+    <div class="op-card" onclick="selectOp(this, 'Oi')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Logo_Oi.svg/256px-Logo_Oi.svg.png" alt="Oi">
+    </div>
+</div>
+        
 
         <span class="section-label">Valores</span>
         <div class="value-chips">
