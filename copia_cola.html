@@ -10,7 +10,7 @@
       --bg: #000000; 
       --card: #121826; 
       --border: #2A3441; 
-      --accent: #22C55E; /* Verde Neon TechPay */
+      --accent: #22C55E; 
       --text-sec: #9CA3AF;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -18,7 +18,7 @@
 
     /* HEADER */
     .header { display: flex; align-items: center; gap: 15px; margin-bottom: 35px; }
-    .back-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--card); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); cursor: pointer; }
+    .back-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--card); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); cursor: pointer; border:none; color: var(--accent); }
     .back-btn svg { stroke: var(--accent); width: 22px; fill: none; stroke-width: 2.5; }
 
     /* ÁREA DE INPUT */
@@ -43,21 +43,33 @@
     .pay-btn:active { transform: scale(0.96); }
     .pay-btn:disabled { background: #1f2937; color: #4b5563; cursor: not-allowed; box-shadow: none; }
 
+    /* MODAL ZENTRY */
+    #zModalGlobal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(5px); }
+    .modal-content { background:#121826; border:1px solid #2A3441; border-radius:28px; width:100%; max-width:340px; padding:25px; text-align:center; animation: popIn 0.2s ease-out; }
+    @keyframes popIn { from { transform:scale(0.8); opacity:0; } to { transform:scale(1); opacity:1; } }
+
     .tip-box {
       background: rgba(34, 197, 94, 0.05); padding: 18px; border-radius: 16px; 
       border: 1px dashed var(--accent); display: flex; gap: 12px; align-items: center;
     }
-    .tip-box span { font-size: 13px; color: var(--text-sec); line-height: 1.4; }
-    .tip-box b { color: var(--accent); }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <div class="back-btn" onclick="location.href='pix.html'">
-      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+  <div id="zModalGlobal">
+    <div class="modal-content">
+      <div id="zIcon" style="font-size:40px; margin-bottom:15px;">⚠️</div>
+      <h3 id="zTitle" style="margin:0 0 10px; font-size:18px; color:#fff;">Aviso</h3>
+      <p id="zText" style="color:#9CA3AF; font-size:14px; margin-bottom:20px; line-height:1.5;"></p>
+      <button id="zBtnClose" style="width:100%; padding:15px; border-radius:14px; background:#22C55E; border:none; color:#000; font-weight:700;">Entendido</button>
     </div>
-    <b style="font-size: 22px; letter-spacing: -0.5px;">Copia e Cola</b>
+  </div>
+
+  <div class="header">
+    <button class="back-btn" onclick="location.href='pix.html'">
+      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <b style="font-size: 22px;">Copia e Cola</b>
   </div>
 
   <div class="field-group">
@@ -67,17 +79,16 @@
 
   <div class="tip-box">
     <div style="font-size: 20px;">📋</div>
-    <span>Certifique-se de que o código começa com <b>"000201..."</b> para garantir o processamento.</span>
+    <span>Certifique-se de que o código começa com <b>"000201..."</b></span>
   </div>
 
-  <button class="pay-btn" id="btnPagar" disabled onclick="processarPagamento()">
+  <button class="pay-btn" id="btnPagar" disabled>
     Continuar para o pagamento
   </button>
 
 <script type="module">
-    // Importações necessárias
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
@@ -94,29 +105,37 @@
     const input = document.getElementById('pixCode');
     const btn = document.getElementById('btnPagar');
 
+    // Função para mostrar o modal bonito em vez do alert
+    function showZModal(titulo, texto, icon) {
+      document.getElementById('zModalGlobal').style.display = 'flex';
+      document.getElementById('zTitle').innerText = titulo;
+      document.getElementById('zText').innerText = texto;
+      document.getElementById('zIcon').innerText = icon;
+    }
+
+    document.getElementById('zBtnClose').onclick = () => {
+      document.getElementById('zModalGlobal').style.display = 'none';
+    };
+
     input.addEventListener('input', () => {
         btn.disabled = input.value.trim().length < 20;
     });
 
-    // Função que "desmonta" o código Pix
     function extrairDadosPix(codigo) {
         try {
             let valor = "0.00";
             if (codigo.includes("5405")) valor = codigo.split('5405')[1].substring(0, codigo.split('5405')[1].indexOf('5802'));
             else if (codigo.includes("5404")) valor = codigo.split('5404')[1].substring(0, codigo.split('5404')[1].indexOf('5802'));
-
-            let nome = "Recebedor";
+            let nome = "Recebedor Externo";
             if (codigo.includes("59")) {
                 const parteNome = codigo.split('59')[1];
                 const tam = parseInt(parteNome.substring(0, 2));
                 nome = parteNome.substring(2, 2 + tam);
             }
-
             return { valor: parseFloat(valor), nome: nome };
         } catch (e) { return null; }
     }
 
-    // A MÁGICA: Tenta achar o usuário no Firestore pelo nome que veio no QR Code
     async function buscarUsuarioPorNome(nome) {
         const q = query(collection(db, "usuarios"), where("nome", "==", nome));
         const querySnapshot = await getDocs(q);
@@ -127,32 +146,39 @@
         return null;
     }
 
-    window.processarPagamento = async () => {
+    // BOTÃO ATUALIZADO PARA USAR O MODAL
+    btn.onclick = async () => {
         const codigo = input.value.trim();
         const dados = extrairDadosPix(codigo);
 
         if (!dados || dados.valor <= 0) {
-            alert("Código Pix inválido.");
+            // TROCADO ALERT POR MODAL
+            showZModal("Erro de Código", "Este código Pix parece inválido ou está incompleto.", "❌");
             return;
         }
 
-        btn.innerText = "Buscando recebedor...";
+        btn.innerText = "Processando...";
         btn.disabled = true;
 
-        // Tenta encontrar se esse cara existe no seu Firebase
-        const usuarioNoBanco = await buscarUsuarioPorNome(dados.nome);
+        try {
+          const usuarioNoBanco = await buscarUsuarioPorNome(dados.nome);
 
-        const transacaoPendente = {
-            nomeDestino: usuarioNoBanco ? usuarioNoBanco.nome : dados.nome,
-            valor: dados.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            valorNumerico: dados.valor,
-            chavePix: "Copia e Cola",
-            bancoDestino: usuarioNoBanco ? "Zentry Bank" : "Banco Externo",
-            uidDestino: usuarioNoBanco ? usuarioNoBanco.uid : "fake_id_123" 
-        };
+          const transacaoPendente = {
+              nomeDestino: usuarioNoBanco ? usuarioNoBanco.nome : dados.nome,
+              valor: dados.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+              valorNumerico: dados.valor,
+              chavePix: "Copia e Cola",
+              bancoDestino: usuarioNoBanco ? "Zentry Bank" : "Banco Externo",
+              uidDestino: usuarioNoBanco ? usuarioNoBanco.uid : "externo" 
+          };
 
-        localStorage.setItem("transacao_pendente", JSON.stringify(transacaoPendente));
-        window.location.href = "revisao.html";
+          localStorage.setItem("transacao_pendente", JSON.stringify(transacaoPendente));
+          window.location.href = "revisao.html";
+        } catch (e) {
+          showZModal("Erro", "Não foi possível processar o código agora.", "⚠️");
+          btn.innerText = "Continuar para o pagamento";
+          btn.disabled = false;
+        }
     };
 </script>
   
