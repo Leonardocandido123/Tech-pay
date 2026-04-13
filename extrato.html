@@ -61,106 +61,122 @@
     <div id="listaExtrato">
         <div class="empty">Carregando...</div>
     </div>
+        <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    const firebaseConfig = {
+        apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
+        authDomain: "zentry-app-74275.firebaseapp.com",
+        projectId: "zentry-app-74275",
+        storageBucket: "zentry-app-74275.appspot.com",
+        messagingSenderId: "571422826071",
+        appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
+    };
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
-            authDomain: "zentry-app-74275.firebaseapp.com",
-            projectId: "zentry-app-74275",
-            storageBucket: "zentry-app-74275.appspot.com",
-            messagingSenderId: "571422826071",
-            appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
-        };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+    let transacoesCache = [];
 
-        let transacoesCache = [];
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // 1. Monitorar Saldo em Tempo Real
+            onSnapshot(doc(db, "usuarios", user.uid), (ds) => {
+                if(ds.exists()) {
+                    const s = ds.data().saldo || 0;
+                    document.getElementById('txtSaldo').innerText = s.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                }
+            });
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // 1. Monitorar Saldo
-                onSnapshot(doc(db, "usuarios", user.uid), (ds) => {
-                    if(ds.exists()) {
-                        const s = ds.data().saldo || 0;
-                        document.getElementById('txtSaldo').innerText = s.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            // 2. Buscar Transações com Filtro de 30 dias
+            onSnapshot(collection(db, "transacoes"), (snap) => {
+                const trintaDiasAtras = Math.floor(Date.now() / 1000) - (30 * 24 * 60 * 60);
+                transacoesCache = [];
+
+                snap.forEach(d => {
+                    const t = d.data();
+                    const timestamp = t.timestamp?.seconds || 0;
+
+                    // Só pega se for dos últimos 30 dias e se envolver o usuário
+                    if ((t.userId === user.uid || t.uidDestino === user.uid) && timestamp > trintaDiasAtras) {
+                        transacoesCache.push({ id: d.id, ...t });
                     }
                 });
 
-                // 2. Buscar Transações (Onde sou remetente OU destinatário)
-                // Usamos onSnapshot na coleção toda e filtramos no JS para evitar erro de Index do Firebase
-                onSnapshot(collection(db, "transacoes"), (snap) => {
-                    transacoesCache = [];
-                    snap.forEach(d => {
-                        const t = d.data();
-                        if (t.userId === user.uid || t.uidDestino === user.uid) {
-                            transacoesCache.push({ id: d.id, ...t });
-                        }
-                    });
+                // Ordenar por data (mais recente primeiro)
+                transacoesCache.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+                renderizar("todos");
+            });
+        } else {
+            window.location.href = "login.html";
+        }
+    });
 
-                    // Ordenar por data
-                    transacoesCache.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-                    renderizar("todos");
-                });
-            } else {
-                window.location.href = "login.html";
-            }
+    function renderizar(filtro) {
+        const lista = document.getElementById('listaExtrato');
+        if (!lista) return;
+        lista.innerHTML = "";
+        const me = auth.currentUser.uid;
+
+        let filtradas = transacoesCache.filter(t => {
+            if (filtro === "entrada") return t.uidDestino === me;
+            if (filtro === "saida") return t.userId === me;
+            return true;
         });
 
-        function renderizar(filtro) {
-            const lista = document.getElementById('listaExtrato');
-            lista.innerHTML = "";
-            const me = auth.currentUser.uid;
-
-            let filtradas = transacoesCache.filter(t => {
-                if (filtro === "entrada") return t.uidDestino === me;
-                if (filtro === "saida") return t.userId === me;
-                return true;
-            });
-
-            if (filtradas.length === 0) {
-                lista.innerHTML = `<div class="empty">Nenhuma transação encontrada.</div>`;
-                return;
-            }
-
-            filtradas.forEach(t => {
-                const souEuRecebendo = t.uidDestino === me;
-                const valorFormatado = t.valor || "R$ 0,00";
-                
-                const html = `
-                    <div class="item">
-                        <div class="left">
-                            <div class="icon">${souEuRecebendo ? '➕' : '➖'}</div>
-                            <div class="info">
-                                <b>${souEuRecebendo ? (t.nomeRemetente || "Recebido") : (t.nomeDestino || "Enviado")}</b>
-                                <span>${t.data || 'Recentemente'}</span>
-                            </div>
-                        </div>
-                        <div class="right">
-                            <div class="val ${souEuRecebendo ? 'pos' : 'neg'}">
-                                ${souEuRecebendo ? '+' : '-'} ${valorFormatado}
-                            </div>
-                            <span style="font-size:10px; color:#9CA3AF;">PIX</span>
-                        </div>
-                    </div>
-                `;
-                lista.innerHTML += html;
-            });
+        if (filtradas.length === 0) {
+            lista.innerHTML = `<div class="empty">Nenhuma movimentação nos últimos 30 dias.</div>`;
+            return;
         }
 
-        // Eventos de Filtro
-        document.querySelectorAll('.filter').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.filter').forEach(f => f.classList.remove('active'));
-                btn.classList.add('active');
-                renderizar(btn.dataset.type);
-            };
+        filtradas.forEach(t => {
+            const souEuRecebendo = t.uidDestino === me;
+            const valorFormatado = t.valor || "0,00";
+            const icone = souEuRecebendo ? '💰' : '💸';
+            const classeIcone = souEuRecebendo ? 'icon-in' : 'icon-out';
+
+            const itemHtml = `
+                <div class="item" onclick="verComprovante('${t.id}')">
+                    <div class="left">
+                        <div class="icon-money ${classeIcone}">${icone}</div>
+                        <div class="info">
+                            <b>${souEuRecebendo ? (t.nomeRemetente || "Pix Recebido") : (t.nomeDestino || "Pix Enviado")}</b>
+                            <span>${t.data || 'Recentemente'} • PIX</span>
+                        </div>
+                    </div>
+                    <div class="right" style="text-align:right">
+                        <div class="val ${souEuRecebendo ? 'pos' : 'neg'}">
+                            ${souEuRecebendo ? '+' : '-'} ${valorFormatado}
+                        </div>
+                    </div>
+                </div>
+            `;
+            lista.innerHTML += itemHtml;
         });
-    </script>
+    }
+
+    // Função global para abrir o comprovante universal
+    window.verComprovante = (id) => {
+        const t = transacoesCache.find(x => x.id === id);
+        if (t) {
+            // Salva no padrão do seu novo comprovante
+            localStorage.setItem("comprovante_final", JSON.stringify(t));
+            window.location.href = "comprovante.html";
+        }
+    };
+
+    // Eventos de Filtro
+    document.querySelectorAll('.filter').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.filter').forEach(f => f.classList.remove('active'));
+            btn.classList.add('active');
+            renderizar(btn.dataset.type);
+        };
+    });
+        </script>
+    
 </body>
 </html>
