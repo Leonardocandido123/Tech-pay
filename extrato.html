@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <title>ZENTRY - Extrato Premium</title>
+    <title>ZENTRY - Movimentações</title>
     <style>
         :root { 
             --grad-black-green: linear-gradient(180deg, #000000 0%, #15803D 60%, #22C55E 100%);
@@ -38,7 +38,7 @@
         .balance-card small { opacity: 0.7; font-size: 11px; text-transform: uppercase; font-weight: 600; }
         .balance-card h1 { margin: 5px 0 0; font-size: 32px; font-weight: 800; letter-spacing: -1px; }
 
-        /* FILTROS */
+        /* FILTROS iOS STYLE */
         .filters { display: flex; gap: 8px; margin-bottom: 20px; background: #E2E8F0; padding: 4px; border-radius: 14px; }
         .filter { 
             flex: 1; padding: 10px; border-radius: 11px; border: none; 
@@ -46,7 +46,7 @@
         }
         .filter.active { background: var(--card-white); color: #15803D; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-        /* ITEM DA LISTA COM BORDA GRADIENTE */
+        /* ITEM DA LISTA COM ÍCONE DE DINHEIRO */
         .item { 
             display: flex; justify-content: space-between; align-items: center; 
             background: var(--card-white); padding: 14px 16px; border-radius: 18px; margin-bottom: 12px;
@@ -62,13 +62,19 @@
         .item:active { transform: scale(0.97); }
 
         .left { display: flex; align-items: center; gap: 12px; }
-        .icon-circle { 
-            width: 38px; height: 38px; border-radius: 12px; 
+        
+        /* NOVO CONTAINER DO ÍCONE (SEM SETA) */
+        .icon-money { 
+            width: 44px; height: 44px; border-radius: 14px; 
             display: flex; align-items: center; justify-content: center; 
-            background: #F1F5F9; font-size: 18px;
+            background: #F1F5F9; font-size: 22px; /* Aumentei o emoji */
+            position: relative;
         }
+        /* Cor de fundo sutil para diferenciar entrada/saída no ícone */
+        .icon-money.in { background: #DCFCE7; } /* Verde claro para entrada */
+        .icon-money.out { background: #FEE2E2; } /* Vermelho claro para saída */
 
-        /* TEXTO "PIX ENVIADO" COM GRADIENTE */
+        /* TEXTO COM GRADIENTE */
         .info b { 
             display: block; font-size: 14px; font-weight: 700;
             background: var(--grad-text);
@@ -106,7 +112,7 @@
     </div>
 
     <div id="listaExtrato">
-        <div class="empty">Carregando dados...</div>
+        <div class="empty">Buscando histórico...</div>
     </div>
 
     <script type="module">
@@ -127,30 +133,33 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        let transacoes = [];
+        let transacoesCache = [];
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 // Monitorar Saldo
                 onSnapshot(doc(db, "usuarios", user.uid), (ds) => {
                     if(ds.exists()) {
-                        document.getElementById('txtSaldo').innerText = ds.data().saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                        const s = ds.data().saldo || 0;
+                        document.getElementById('txtSaldo').innerText = s.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                     }
                 });
 
                 // Monitorar Transações (Lógica Manual para evitar erro de índice)
                 onSnapshot(collection(db, "transacoes"), (snap) => {
-                    transacoes = [];
+                    transacoesCache = [];
                     snap.forEach(d => {
                         const t = d.data();
                         if (t.userId === user.uid || t.uidDestino === user.uid) {
-                            transacoes.push({ id: d.id, ...t });
+                            transacoesCache.push({ id: d.id, ...t });
                         }
                     });
-                    transacoes.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+                    transacoesCache.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
                     renderizar("todos");
                 });
-            } else { window.location.href = "login.html"; }
+            } else {
+                window.location.href = "login.html";
+            }
         });
 
         function renderizar(filtro) {
@@ -158,43 +167,56 @@
             lista.innerHTML = "";
             const me = auth.currentUser.uid;
 
-            const filtradas = transacoes.filter(t => {
+            let filtradas = transacoesCache.filter(t => {
                 if (filtro === "entrada") return t.uidDestino === me;
                 if (filtro === "saida") return t.userId === me;
                 return true;
             });
 
             if (filtradas.length === 0) {
-                lista.innerHTML = '<div class="empty">Nenhuma movimentação.</div>';
+                lista.innerHTML = `<div class="empty">Nenhuma movimentação para este filtro.</div>`;
                 return;
             }
 
             filtradas.forEach(t => {
-                const souDestino = t.uidDestino === me;
-                const valor = t.valor || "0,00";
+                const souEuRecebendo = t.uidDestino === me;
+                const valorFormatado = t.valor || "R$ 0,00";
                 
-                const item = document.createElement('div');
-                item.className = 'item';
-                item.innerHTML = `
-                    <div class="left">
-                        <div class="icon-circle">${souDestino ? '⇣' : '⇡'}</div>
-                        <div class="info">
-                            <b>${souDestino ? (t.nomeRemetente || "Pix Recebido") : (t.nomeDestino || "Pix Enviado")}</b>
-                            <span>${t.data || 'Hoje'} • PIX</span>
+                // DEFINE ÍCONE E COR BASEADO NO FLUXO
+                let emojiDinheiro = '💸'; // Padrão Saída (dinheiro voando)
+                let classeIcone = 'out';
+                if (souEuRecebendo) {
+                    emojiDinheiro = '💰'; // Entrada (saco de dinheiro)
+                    classeIcone = 'in';
+                }
+
+                const itemHtml = `
+                    <div class="item" onclick="verComprovante('${t.id}')">
+                        <div class="left">
+                            <div class="icon-money ${classeIcone}">${emojiDinheiro}</div>
+                            <div class="info">
+                                <b>${souEuRecebendo ? (t.nomeRemetente || "Pix Recebido") : (t.nomeDestino || t.nome || "Pix Enviado")}</b>
+                                <span>${t.data || 'Hoje'} • PIX</span>
+                            </div>
+                        </div>
+                        <div class="right" style="text-align:right">
+                            <div class="val ${souEuRecebendo ? 'pos' : 'neg'}">
+                                ${souEuRecebendo ? '+' : '-'} ${valorFormatado}
+                            </div>
                         </div>
                     </div>
-                    <div class="right" style="text-align:right">
-                        <div class="val ${souDestino ? 'pos' : 'neg'}">${souDestino ? '+' : '-'} ${valor}</div>
-                    </div>
                 `;
-                item.onclick = () => {
-                    localStorage.setItem("comprovante_atual", JSON.stringify(t));
-                    window.location.href = "comprovante.html";
-                };
-                lista.appendChild(item);
+                lista.innerHTML += itemHtml;
             });
         }
 
+        window.verComprovante = (id) => {
+            const t = transacoesCache.find(x => x.id === id);
+            localStorage.setItem("comprovante_atual", JSON.stringify(t));
+            window.location.href = "comprovante.html";
+        };
+
+        // Eventos de Filtro
         document.querySelectorAll('.filter').forEach(btn => {
             btn.onclick = () => {
                 document.querySelectorAll('.filter').forEach(f => f.classList.remove('active'));
