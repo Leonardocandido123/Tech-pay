@@ -7,53 +7,42 @@
     <title>ZENTRY - Movimentações</title>
     <style>
         :root { 
-            --primary-blue: #0052FF; /* Azul Zentry Profissional */
-            --bg-light: #F8FAFC; 
-            --card-white: #FFFFFF; 
-            --border-light: #E2E8F0; 
-            --text-main: #1E293B; 
-            --text-sec: #64748B; 
-            --green-in: #10B981; 
-            --red-out: #F43F5E; 
-        }
+    /* Gradiente Verde Zentry */
+    --gradient-green: linear-gradient(135deg, #22C55E 0%, #15803D 100%);
+    --bg-light: #F8FAFC; 
+    --card-white: #FFFFFF; 
+    --border-light: #E2E8F0; 
+    --text-main: #1E293B; 
+    --text-sec: #64748B; 
+    --green-in: #10B981; 
+}
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            margin: 0; 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg-light); 
-            color: var(--text-main); 
-            padding: 20px; 
-        }
-        
-        /* HEADER AZULADO */
-        .header { display: flex; align-items: center; margin-bottom: 25px; }
-        .back-btn { 
-            background: var(--card-white); 
-            border: 1px solid var(--border-light); 
-            border-radius: 50%; width: 42px; height: 42px; 
-            display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; margin-right: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+/* CARD DE SALDO COM GRADIENTE */
+.balance-card { 
+    background: var(--gradient-green); 
+    border-radius: 24px; 
+    padding: 25px; 
+    margin-bottom: 25px; 
+    color: white;
+    box-shadow: 0 10px 25px rgba(34, 197, 94, 0.3); /* Sombra esverdeada */
+    position: relative;
+    overflow: hidden;
+    border: none;
+}
 
-        /* CARD DE SALDO PREMIUM */
-        .balance-card { 
-            background: var(--primary-blue); 
-            border-radius: 24px; padding: 25px; margin-bottom: 25px; 
-            color: white;
-            box-shadow: 0 10px 20px rgba(0, 82, 255, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        .balance-card::after {
-            content: ""; position: absolute; top: -50px; right: -50px;
-            width: 150px; height: 150px; background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-        }
-        .balance-card small { opacity: 0.8; font-size: 12px; font-weight: 500; text-transform: uppercase; }
-        .balance-card h1 { margin: 8px 0 0; font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+/* Bolha de brilho para dar profundidade */
+.balance-card::before {
+    content: "";
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    filter: blur(20px);
+}
+        
 
         /* FILTROS STYLE APPLE */
         .filters { 
