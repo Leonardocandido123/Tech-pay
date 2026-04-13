@@ -199,15 +199,10 @@ body {
     <button class="nav-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sair</button>
   </nav>
 </div> 
-
   <script type="module">
-    // 1. IMPORTAÇÕES (Dashboard inserido no topo)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    
-    // IMPORTANTE: Seu novo arquivo de lógica do gráfico
-    import { inicializarDashboard } from './dashboard.js';
 
     const firebaseConfig = {
         apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
@@ -226,16 +221,25 @@ body {
     window.currentSaldo = 0;
     let usuarioLogadoId = "";
 
-    // Observer Principal
     onAuthStateChanged(auth, (user) => {
         if (user) {
             usuarioLogadoId = user.uid;
             
+            // BUSCA NOME E SALDO EM TEMPO REAL
+            onSnapshot(doc(db, "usuarios", user.uid), (docSnap) => {
+                if (docSnap.exists()) {
+                    const d = docSnap.data();
+                    document.getElementById("nome-usuario").innerText = (d.nome || "Usuário") + "!";
+                    window.currentSaldo = parseFloat(d.saldo || 0);
+                    renderSaldo();
+                    atualizarSaudacao();
+                }
+            });
+
+            // ATIVA O BANNER E OS SCANNERS
+            verificarAlertasGerais();
         } else {
-            // Delay de segurança para não deslogar por erro de rede
-            setTimeout(() => {
-                if(!auth.currentUser) window.location.href = "login.html";
-            }, 3000);
+            window.location.href = "login.html";
         }
     });
 
@@ -255,54 +259,13 @@ body {
         else el.innerText = "Boa noite,";
     }
 
-    // --- RADAR INTELIGENTE (SCANNERS) ---
+    // LÓGICA DO BANNER DINÂMICO
     async function verificarAlertasGerais() {
-        const hoje = new Date().setHours(0,0,0,0);
-        
-        let statusCli = { cor: "var(--primary)", txt: "Envie cobranças via Pix.", tit: "Cobrar Clientes", anim: false, prioridade: 3 };
-        
-        try {
-            const qCli = query(collection(db, "clientes_cadastrados"), where("vendedorId", "==", usuarioLogadoId));
-            const snapCli = await getDocs(qCli);
-            snapCli.forEach(doc => {
-                const c = doc.data();
-                if(c.dataVenc) {
-                    const venc = new Date(c.dataVenc).setHours(24,0,0,0);
-                    if(venc < hoje) {
-                        statusCli = { cor: "#ef4444", tit: "Pagamento Atrasado!", txt: `O cliente ${c.nome} deve você.`, anim: true, prioridade: 1 };
-                    } else if (venc === hoje && statusCli.prioridade > 2) {
-                        statusCli = { cor: "#f59e0b", tit: "Vence Hoje", txt: `Lembre ${c.nome} de pagar.`, anim: false, prioridade: 2 };
-                    }
-                }
-            });
-        } catch(e) {}
-
-        let statusContas = { cor: "#3b82f6", txt: "Organize seus gastos.", tit: "Contas a Pagar", anim: false, prioridade: 3 };
-        
-        try {
-            const qMinhas = query(collection(db, "minhas_contas"), where("userId", "==", usuarioLogadoId));
-            const snapMinhas = await getDocs(qMinhas);
-            snapMinhas.forEach(doc => {
-                const c = doc.data();
-                if(c.data) {
-                    const venc = new Date(c.data + "T12:00:00").setHours(0,0,0,0);
-                    if(venc < hoje) {
-                        statusContas = { cor: "#ef4444", tit: "Conta Vencida!", txt: `Pagar ${c.descricao} urgente!`, anim: true, priority: 1 };
-                    } else if (venc === hoje && statusContas.prioridade > 2) {
-                        statusContas = { cor: "#f59e0b", tit: "Pagar Hoje", txt: `Hoje vence: ${c.descricao}`, anim: false, priority: 2 };
-                    }
-                }
-            });
-        } catch(e) {}
-
         const slides = [
-            { t: statusContas.tit, p: statusContas.txt, b: 'Ver Contas', c: statusContas.cor, h: 'contas.html', a: statusContas.anim },
-            { t: statusCli.tit, p: statusCli.txt, b: 'Cobrar', c: statusCli.cor, h: 'cobrar.html', a: statusCli.anim },
-            { t: 'Cartão Virtual', p: 'Compras seguras online.', b: 'Ativar', c: 'var(--primary)', h: 'cartao.html', a: false },
-            { t: 'Recarga Celular', p: 'Crédito em segundos.', b: 'Recarregar', c: '#3b82f6', h: 'recarga.html', a: false }
+            { t: 'Contas a Pagar', p: 'Organize seus gastos de hoje.', b: 'Ver', c: '#3b82f6', h: 'contas.html' },
+            { t: 'Recarga Celular', p: 'Crédito em segundos.', b: 'Recarregar', c: '#22c55e', h: 'recarga.html' },
+            { t: 'Cobranças Pix', p: 'Crie um QR Code agora.', b: 'Cobrar', c: '#ff5f1f', h: 'cobrar.html' }
         ];
-
-        slides.sort((a, b) => b.a - a.a);
         renderizarBanners(slides);
     }
 
@@ -312,25 +275,21 @@ body {
         if(!bannerSlider) return;
 
         bannerSlider.innerHTML = slides.map(s => `
-            <div class="smart-banner ${s.a ? 'premium-icon' : ''}" onclick="location.href='${s.h}'" style="border-left: 5px solid ${s.c};">
+            <div class="smart-banner" onclick="location.href='${s.h}'" style="border-left: 5px solid ${s.c};">
                 <b>${s.t}</b><p>${s.p}</p>
                 <button style="background:${s.c}; color:#fff; border:none; padding:8px 14px; border-radius:12px; font-weight:bold; font-size:11px;">${s.b}</button>
             </div>`).join('');
 
         if(bannerDots) bannerDots.innerHTML = slides.map((_, i) => `<div class="dot ${i===0?'active':''}"></div>`).join('');
         
-        if(!window.bannerIntervalID) {
-            let cur = 0;
-            window.bannerIntervalID = setInterval(() => {
-                cur = (cur + 1) % slides.length;
-                if(bannerSlider) bannerSlider.style.transform = `translateX(-${cur * 100}%)`;
-                document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === cur));
-            }, 5000);
-        }
+        let cur = 0;
+        setInterval(() => {
+            cur = (cur + 1) % slides.length;
+            if(bannerSlider) bannerSlider.style.transform = `translateX(-${cur * 100}%)`;
+            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+        }, 5000);
     }
-  </script>
-  
-  
+          </script>
   
 
 </body>
