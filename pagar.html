@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <title>ZENTRY - Pagar Conta</title>
+  <style>
+    :root { 
+        --primary: #22C55E; 
+        --bg: #000; 
+        /* AZUL MARINHO PADRÃO DO SEU APP */
+        --card: #111827; 
+        --border: rgba(255,255,255,0.1); 
+    }
+    
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    body { 
+        margin: 0; 
+        font-family: 'Inter', sans-serif; 
+        background: radial-gradient(circle at 20% 0%, #0f172a, #000 80%);
+        color: white; 
+        height: 100vh; 
+        display: flex; 
+        flex-direction: column; 
+        overflow: hidden; 
+    }
+
+    /* HEADER */
+    .header { padding: 20px; display: flex; align-items: center; gap: 15px; }
+    .back-btn { background: var(--card); border: 1px solid var(--border); color: white; cursor: pointer; padding: 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .header h2 { font-size: 20px; font-weight: 700; margin: 0; }
+
+    .content { flex: 1; padding: 20px; display: flex; flex-direction: column; }
+
+    /* ÁREA DO SCANNER (ESTILO BANCO) */
+    .scanner-container {
+      width: 100%; 
+      height: 250px; /* Mais retangular para boletos */
+      background: #050505; 
+      border-radius: 24px;
+      border: 1px solid var(--border); 
+      position: relative; 
+      overflow: hidden;
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      margin-bottom: 30px;
+    }
+
+    #reader { width: 100% !important; border-radius: 24px; overflow: hidden; }
+
+    /* MOLDURA DE FOCO */
+    .focus-border {
+        position: absolute;
+        width: 80%;
+        height: 60%;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 12px;
+        z-index: 5;
+    }
+
+    .scanner-line {
+      position: absolute; 
+      width: 80%; 
+      height: 2px; 
+      background: var(--primary);
+      box-shadow: 0 0 15px var(--primary); 
+      top: 20%;
+      animation: scan 2.5s infinite ease-in-out; 
+      z-index: 6;
+    }
+
+    @keyframes scan { 
+        0%, 100% { top: 20%; opacity: 0.3; } 
+        50% { top: 80%; opacity: 1; } 
+    }
+
+    #status-msg { text-align: center; color: #9CA3AF; font-size: 13px; margin-bottom: 25px; }
+
+    /* BOTÕES DE OPÇÃO */
+    .pay-option {
+      background: var(--card); 
+      border: 1px solid var(--border); 
+      border-radius: 20px;
+      padding: 18px; 
+      display: flex; 
+      align-items: center; 
+      gap: 15px; 
+      margin-bottom: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      color: white;
+    }
+
+    .icon-box { 
+        width: 45px; height: 45px; 
+        background: rgba(34, 197, 94, 0.15); 
+        border-radius: 12px; 
+        display: flex; align-items: center; justify-content: center; 
+        color: var(--primary); 
+    }
+
+    svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* MODAL DE LOADING */
+    #loading { 
+        position: fixed; inset: 0; background: rgba(0,0,0,0.8); 
+        display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; 
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='index.html'">
+      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h2>Pagar Conta</h2>
+  </div>
+
+  <div class="content">
+    <div class="scanner-container">
+      <div id="reader"></div>
+      <div class="focus-border"></div>
+      <div class="scanner-line"></div>
+    </div>
+    
+    <div id="status-msg">Aponte para o código de barras ou QR Code</div>
+
+    <div class="pay-option" onclick="alert('Funcionalidade de digitação manual em breve!')">
+      <div class="icon-box">
+          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+      </div>
+      <div class="info">
+          <b style="display:block">Digitar código</b>
+          <span style="color:#9CA3AF; font-size:12px">Boleto ou convênio</span>
+      </div>
+    </div>
+
+    <div class="pay-option" id="btnSimular">
+        <div class="icon-box">
+            <svg viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+        </div>
+        <div class="info">
+            <b style="display:block">Simular Pagamento</b>
+            <span style="color:#9CA3AF; font-size:12px">Teste de fluxo interno</span>
+        </div>
+      </div>
+  </div>
+
+  <div id="loading">
+      <div style="border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+      <p style="margin-top: 15px;">Validando código...</p>
+  </div>
+
+  <script type="module">
+    // --- Configuração Firebase --- (Igual à sua)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
+        authDomain: "zentry-app-74275.firebaseapp.com",
+        projectId: "zentry-app-74275",
+        storageBucket: "zentry-app-74275.appspot.com",
+        messagingSenderId: "571422826071",
+        appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let scanner = null;
+
+    // INICIAR SCANNER AO ABRIR
+    function startScanner() {
+        scanner = new Html5Qrcode("reader");
+        const config = { 
+            fps: 20, 
+            qrbox: { width: 300, height: 150 }, // Formato retangular para boletos
+            aspectRatio: 1.0 
+        };
+
+        scanner.start(
+            { facingMode: "environment" }, 
+            config, 
+            (text) => {
+                if (navigator.vibrate) navigator.vibrate(100);
+                scanner.stop();
+                processarPagamento(text);
+            }
+        ).catch(err => {
+            document.getElementById('status-msg').innerText = "Erro ao acessar câmera.";
+        });
+    }
+
+    async function processarPagamento(codigo) {
+        document.getElementById('loading').style.display = 'flex';
+        
+        // Simulação de processamento de boleto
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            alert("Código identificado: " + codigo);
+            // Aqui você redirecionaria para a confirmação de valor
+        }, 2000);
+    }
+
+    // Botão Simular
+    document.getElementById('btnSimular').onclick = () => processarPagamento("34191.09008 63571.272851 12345.678902 8 95340000050000");
+
+    window.onload = startScanner;
+  </script>
+
+  <style>
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</body>
+</html>
