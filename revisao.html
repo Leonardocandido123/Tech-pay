@@ -8,7 +8,6 @@
     <style>
         :root { --accent: #22c55e; --bg: #000; --card: #111; --border: #2A3441; }
         
-        /* TELA FIXA: Impede rolagem e garante que tudo caiba */
         html, body { 
             height: 100%; margin: 0; background: #000; color: #fff; 
             overflow: hidden; font-family: 'Inter', sans-serif;
@@ -21,7 +20,6 @@
 
         .content { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; }
         
-        /* CARD COMPACTO: Diminuímos as margens para o botão subir */
         .review-card {
             background: var(--card); border-radius: 20px;
             padding: 15px; margin-top: 10px;
@@ -33,7 +31,6 @@
         .value { font-size: 15px; font-weight: 600; color: #fff; }
         .value-amount { font-size: 28px; font-weight: 800; color: var(--accent); }
 
-        /* SEÇÃO DE SENHA MAIS PRÓXIMA */
         .password-section { margin-top: 20px; text-align: center; }
         .pin-container { display: flex; justify-content: center; gap: 12px; margin-top: 10px; }
         .pin-dot {
@@ -44,7 +41,6 @@
         
         #hidden-pin { position: absolute; opacity: 0; pointer-events: none; }
 
-        /* RODAPÉ SEMPRE VISÍVEL */
         .footer { padding: 20px 0; margin-top: auto; }
         .btn-confirm {
             width: 100%; background: var(--accent); color: #000; border: none;
@@ -53,7 +49,7 @@
         }
         .btn-confirm:disabled { background: #27272a; color: #71717a; }
 
-        /* MODAL */
+        /* MODAL CORRIGIDO */
         #zModalGlobal { 
             display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); 
             z-index:9999; align-items:center; justify-content:center; padding:20px; 
@@ -62,6 +58,12 @@
         .modal-content { 
             background:#121826; border:1px solid #2A3441; border-radius:28px; 
             width:100%; max-width:320px; padding:25px; text-align:center; 
+        }
+        /* BOTÃO DO MODAL VERDE */
+        #zBtnClose {
+            width: 100%; padding: 15px; border-radius: 14px; 
+            background: var(--accent); border: none; color: #000; 
+            font-weight: 700; font-size: 16px; cursor: pointer;
         }
     </style>
 </head>
@@ -93,11 +95,11 @@
             </div>
             <div class="info-row">
                 <span class="label">Instituição</span>
-                <div class="value" id="rev-bank">Zentry Bank</div>
+                <div class="value">Zentry Bank - 001</div>
             </div>
         </div>
 
-        <div class="password-section" onclick="focarPin()">
+        <div class="password-section" onclick="document.getElementById('hidden-pin').focus()">
             <span class="label">Digite sua senha de 4 dígitos</span>
             <div class="pin-container">
                 <div class="pin-dot" id="dot-1"></div>
@@ -105,7 +107,7 @@
                 <div class="pin-dot" id="dot-3"></div>
                 <div class="pin-dot" id="dot-4"></div>
             </div>
-            <input type="number" id="hidden-pin" pattern="\d*" inputmode="numeric" maxlength="4">
+            <input type="number" id="hidden-pin" pattern="\d*" inputmode="numeric">
         </div>
     </div>
 
@@ -134,21 +136,17 @@
         const transacao = JSON.parse(localStorage.getItem("transacao_pendente"));
         let userLogado = null;
 
-        // Funções de Senha (VOLTARAM AQUI)
-        const hiddenPin = document.getElementById('hidden-pin');
-        window.focarPin = () => hiddenPin.focus();
-
-        hiddenPin.addEventListener('input', (e) => {
-            const val = e.target.value;
-            if(val.length > 4) e.target.value = val.slice(0, 4);
-            
+        // Controle da Senha
+        const pinInput = document.getElementById('hidden-pin');
+        pinInput.addEventListener('input', () => {
+            if(pinInput.value.length > 4) pinInput.value = pinInput.value.slice(0,4);
             for(let i=1; i<=4; i++) {
-                document.getElementById(`dot-${i}`).classList.toggle('active', i <= e.target.value.length);
+                document.getElementById(`dot-${i}`).classList.toggle('active', i <= pinInput.value.length);
             }
-            document.getElementById('btnFinal').disabled = e.target.value.length < 4;
+            document.getElementById('btnFinal').disabled = pinInput.value.length < 4;
         });
 
-        function showZModal(titulo, texto, icon) {
+        function showModal(titulo, texto, icon) {
             document.getElementById('zModalGlobal').style.display = 'flex';
             document.getElementById('zTitle').innerText = titulo;
             document.getElementById('zText').innerText = texto;
@@ -157,72 +155,76 @@
 
         document.getElementById('zBtnClose').onclick = () => {
             document.getElementById('zModalGlobal').style.display = 'none';
-            focarPin();
+            pinInput.focus();
         };
 
-        onAuthStateChanged(auth, (user) => { 
-            if(user) { userLogado = user; } 
-            else { window.location.href = 'login.html'; }
+        onAuthStateChanged(auth, (user) => {
+            if(user) userLogado = user;
+            else window.location.href = 'login.html';
         });
 
         window.onload = () => {
-            if(!transacao) { window.location.href = 'pix.html'; return; }
+            if(!transacao) return window.location.href = 'pix.html';
             document.getElementById('rev-val').innerText = transacao.valor;
             document.getElementById('rev-name').innerText = transacao.nomeDestino;
-            focarPin();
+            pinInput.focus();
         };
 
+        // FUNÇÃO DE ENVIO CORRIGIDA
         document.getElementById('btnFinal').onclick = async () => {
             const btn = document.getElementById('btnFinal');
-            const pinDigitado = hiddenPin.value;
-
             btn.innerText = "Processando...";
             btn.disabled = true;
 
             try {
-                const remetenteRef = doc(db, "usuarios", userLogado.uid);
-                const snap = await getDoc(remetenteRef);
-                const dadosUser = snap.data();
+                const userRef = doc(db, "usuarios", userLogado.uid);
+                const userSnap = await getDoc(userRef);
+                const userData = userSnap.data();
 
-                if(pinDigitado !== dadosUser.senha) {
-                    showZModal("Senha Incorreta", "Tente novamente.", "🔒");
-                    hiddenPin.value = "";
+                // 1. Valida Senha
+                if(pinInput.value !== userData.senha) {
+                    showModal("Senha Incorreta", "Tente novamente.", "🔒");
+                    pinInput.value = "";
                     for(let i=1; i<=4; i++) document.getElementById(`dot-${i}`).classList.remove('active');
                     btn.innerText = "Confirmar e Enviar";
                     return;
                 }
 
-                await updateDoc(remetenteRef, {
+                // 2. Executa Transferência
+                await updateDoc(userRef, {
                     saldo: increment(-transacao.valorNumerico),
                     saida: increment(transacao.valorNumerico)
                 });
 
                 if(transacao.uidDestino) {
-                    const destinoRef = doc(db, "usuarios", transacao.uidDestino);
-                    await updateDoc(destinoRef, {
+                    const destRef = doc(db, "usuarios", transacao.uidDestino);
+                    await updateDoc(destRef, {
                         saldo: increment(transacao.valorNumerico),
                         entrada: increment(transacao.valorNumerico)
                     });
                 }
 
-                const dataAtual = new Date().toLocaleDateString('pt-BR');
+                // 3. Salva Histórico
+                const agora = new Date();
+                const dataFormatada = agora.toLocaleDateString('pt-BR');
+                
                 await addDoc(collection(db, "transacoes"), {
                     userId: userLogado.uid,
                     uidDestino: transacao.uidDestino,
                     nomeDestino: transacao.nomeDestino,
-                    nomeRemetente: dadosUser.nome,
+                    nomeRemetente: userData.nome,
                     valor: transacao.valorNumerico,
                     tipo: "saida",
-                    data: dataAtual,
+                    data: dataFormatada,
                     timestamp: serverTimestamp()
                 });
 
-                localStorage.setItem("comprovante_final", JSON.stringify({...transacao, data: dataAtual}));
+                localStorage.setItem("comprovante_final", JSON.stringify({...transacao, data: dataFormatada}));
                 window.location.href = "comprovante.html";
 
-            } catch (error) {
-                console.error(error);
-                showZModal("Erro", "Erro ao enviar.", "⚠️");
+            } catch (err) {
+                console.error(err);
+                showModal("Erro", "Erro ao processar o Pix.", "⚠️");
                 btn.innerText = "Confirmar e Enviar";
                 btn.disabled = false;
             }
