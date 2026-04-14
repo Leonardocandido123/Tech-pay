@@ -71,130 +71,135 @@
 
     <div class="footer">
         <button class="btn-confirm" id="btnFinal" disabled>Confirmar e Enviar</button>
-    </div>
-
+    </div>)
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc, increment, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, increment, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
-            authDomain: "zentry-app-74275.firebaseapp.com",
-            projectId: "zentry-app-74275",
-            storageBucket: "zentry-app-74275.appspot.com",
-            messagingSenderId: "571422826071",
-            appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
+        authDomain: "zentry-app-74275.firebaseapp.com",
+        projectId: "zentry-app-74275",
+        storageBucket: "zentry-app-74275.appspot.com",
+        messagingSenderId: "571422826071",
+        appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-        let transacao = JSON.parse(localStorage.getItem("transacao_pendente"));
-        let userLogado = null;
+    let transacao = JSON.parse(localStorage.getItem("transacao_pendente"));
+    let userLogado = null;
 
-        const pinInput = document.getElementById('hidden-pin');
-        const btnFinal = document.getElementById('btnFinal');
+    const pinInput = document.getElementById('hidden-pin');
+    const btnFinal = document.getElementById('btnFinal');
 
-        window.onload = () => {
-            if(!transacao) { window.location.href = 'pix.html'; return; }
-            document.getElementById('rev-val').innerText = transacao.valor;
-            document.getElementById('rev-name').innerText = transacao.nomeDestino;
-            pinInput.focus();
-        };
+    window.onload = () => {
+        if(!transacao) { window.location.href = 'pix.html'; return; }
+        document.getElementById('rev-val').innerText = transacao.valor;
+        document.getElementById('rev-name').innerText = transacao.nomeDestino;
+        pinInput.focus();
+    };
 
-        onAuthStateChanged(auth, (user) => { userLogado = user; });
+    onAuthStateChanged(auth, (user) => { userLogado = user; });
 
-        pinInput.addEventListener('input', () => {
-            if(pinInput.value.length > 4) pinInput.value = pinInput.value.slice(0,4);
-            for(let i=1; i<=4; i++) {
-                document.getElementById(`dot-${i}`).classList.toggle('active', i <= pinInput.value.length);
-            }
-            btnFinal.disabled = pinInput.value.length < 4;
-        });
-
-        function showModal(titulo, texto, icon) {
-            document.getElementById('zModalGlobal').style.display = 'flex';
-            document.getElementById('zTitle').innerText = titulo;
-            document.getElementById('zText').innerText = texto;
-            document.getElementById('zIcon').innerText = icon;
+    pinInput.addEventListener('input', () => {
+        if(pinInput.value.length > 4) pinInput.value = pinInput.value.slice(0,4);
+        for(let i=1; i<=4; i++) {
+            document.getElementById(`dot-${i}`).classList.toggle('active', i <= pinInput.value.length);
         }
+        btnFinal.disabled = pinInput.value.length < 4;
+    });
 
-        document.getElementById('zBtnClose').onclick = () => {
-            document.getElementById('zModalGlobal').style.display = 'none';
-            pinInput.focus();
-        };
+    function showModal(titulo, texto, icon) {
+        document.getElementById('zModalGlobal').style.display = 'flex';
+        document.getElementById('zTitle').innerText = titulo;
+        document.getElementById('zText').innerText = texto;
+        document.getElementById('zIcon').innerText = icon;
+    }
 
-        btnFinal.onclick = async () => {
-            if(!userLogado || !transacao) return;
-            
-            btnFinal.innerText = "Processando...";
-            btnFinal.disabled = true;
+    document.getElementById('zBtnClose').onclick = () => {
+        document.getElementById('zModalGlobal').style.display = 'none';
+        pinInput.focus();
+    };
 
-            try {
-                const userRef = doc(db, "usuarios", userLogado.uid);
-                const userSnap = await getDoc(userRef);
-                const userData = userSnap.data();
+    btnFinal.onclick = async () => {
+        if(!userLogado || !transacao) return;
+        
+        btnFinal.innerText = "Processando...";
+        btnFinal.disabled = true;
 
-                // 1. Validar Senha
-                if(pinInput.value !== userData.senha) {
-                    showModal("Senha Incorreta", "Tente novamente.", "🔒");
-                    pinInput.value = "";
-                    for(let i=1; i<=4; i++) document.getElementById(`dot-${i}`).classList.remove('active');
-                    btnFinal.innerText = "Confirmar e Enviar";
-                    btnFinal.disabled = true;
-                    return;
-                }
+        try {
+            const userRef = doc(db, "usuarios", userLogado.uid);
+            const userSnap = await getDoc(userRef);
+            const userData = userSnap.data();
 
-                // 2. Salvar dados NO LOCALSTORAGE PRIMEIRO (Garante o comprovante)
-                const transId = 'ZNT' + Math.random().toString(36).substr(2, 9).toUpperCase();
-                const dataFormatada = new Date().toLocaleString('pt-BR');
-                const dadosComprovante = { ...transacao, id: transId, data: dataFormatada };
-                localStorage.setItem("comprovante_final", JSON.stringify(dadosComprovante));
-
-                // 3. Processar no Firebase
-                const valorNumerico = parseFloat(transacao.valorNumerico);
-                
-                // Diminuir saldo
-                await updateDoc(userRef, {
-                    saldo: increment(-valorNumerico),
-                    saida: increment(valorNumerico)
-                });
-
-                // Aumentar saldo destino
-                if(transacao.uidDestino && transacao.uidDestino !== "externo") {
-                    const destRef = doc(db, "usuarios", transacao.uidDestino);
-                    await updateDoc(destRef, {
-                        saldo: increment(valorNumerico),
-                        entrada: increment(valorNumerico)
-                    });
-                }
-
-                // Gravar histórico
-                await addDoc(collection(db, "transacoes"), {
-                    userId: userLogado.uid,
-                    uidDestino: transacao.uidDestino || "externo",
-                    nomeDestino: transacao.nomeDestino,
-                    valor: valorNumerico,
-                    tipo: "saida",
-                    idTransacao: transId,
-                    data: dataFormatada.split(',')[0],
-                    timestamp: serverTimestamp()
-                });
-
-                // TUDO OK: VAI PRO COMPROVANTE
-                window.location.href = "comprovante.html";
-
-            } catch (err) {
-                // Se der erro de conexão mas o saldo já tiver sido descontado, 
-                // ou se você quiser ignorar o erro de rede e forçar o fim:
-                console.error("Erro capturado:", err);
-                
-                // MUDANÇA AQUI: Se o erro for só no histórico, mas o saldo já foi, ele vai pro comprovante
-                window.location.href = "comprovante.html";
+            // 1. Validar Senha
+            if(pinInput.value !== userData.senha) {
+                showModal("Senha Incorreta", "Tente novamente.", "🔒");
+                pinInput.value = "";
+                for(let i=1; i<=4; i++) document.getElementById(`dot-${i}`).classList.remove('active');
+                btnFinal.innerText = "Confirmar e Enviar";
+                btnFinal.disabled = true;
+                return;
             }
-        };
+
+            const transId = 'ZNT' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            const agora = new Date();
+            const dataFormatada = agora.toLocaleDateString('pt-BR') + ", " + agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+
+            // 2. Salvar LocalStorage (Comprovante)
+            const dadosComprovante = { 
+                ...transacao, 
+                id: transId, 
+                data: dataFormatada,
+                nomeRemetente: userData.nome // Pega o nome de quem está enviando
+            };
+            localStorage.setItem("comprovante_final", JSON.stringify(dadosComprovante));
+
+            // 3. Processar no Firebase
+            const valorNumerico = parseFloat(transacao.valorNumerico);
+            
+            // Diminuir saldo de quem envia
+            await updateDoc(userRef, {
+                saldo: increment(-valorNumerico),
+                saida: increment(valorNumerico)
+            });
+
+            // Aumentar saldo de quem recebe (se for usuário interno)
+            if(transacao.uidDestino && transacao.uidDestino !== "externo") {
+                const destRef = doc(db, "usuarios", transacao.uidDestino);
+                await updateDoc(destRef, {
+                    saldo: increment(valorNumerico),
+                    entrada: increment(valorNumerico)
+                });
+            }
+
+            // 4. GRAVAR HISTÓRICO (Onde o Extrato lê)
+            await addDoc(collection(db, "transacoes"), {
+                userId: userLogado.uid,
+                uidDestino: transacao.uidDestino || "externo",
+                nomeDestino: transacao.nomeDestino,
+                nomeRemetente: userData.nome, // Importante para o extrato de quem recebe
+                valor: valorNumerico,
+                tipo: "saida",
+                id: transId, // Campo corrigido de 'idTransacao' para 'id'
+                data: dataFormatada,
+                timestamp: serverTimestamp()
+            });
+
+            // TUDO OK: VAI PRO COMPROVANTE
+            window.location.href = "comprovante.html";
+
+        } catch (err) {
+            console.error("Erro capturado:", err);
+            // Se já processou o saldo mas falhou no histórico, ainda assim vai pro comprovante
+            window.location.href = "comprovante.html";
+        }
+    };
     </script>
+    
 </body>
 </html>
