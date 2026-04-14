@@ -107,7 +107,77 @@
                 window.location.href = "login.html";
             }
         });
+function renderizar(filtro) {
+    const lista = document.getElementById('listaExtrato');
+    lista.innerHTML = "";
+    
+    // Pegamos o ID do usuário logado e garantimos que é uma string limpa
+    const me = auth.currentUser ? auth.currentUser.uid.trim() : null;
 
+    if (!me) {
+        console.error("Usuário não identificado!");
+        return;
+    }
+
+    let filtradas = transacoesCache.filter(t => {
+        // Garantimos que os IDs comparados existam e não tenham espaços
+        const remetente = String(t.userId || "").trim();
+        const destino = String(t.uidDestino || "").trim();
+
+        if (filtro === "entrada") return destino === me;
+        if (filtro === "saida") return remetente === me;
+        return true; // "todos"
+    });
+
+    if (filtradas.length === 0) {
+        lista.innerHTML = `<div class="empty">Nenhuma movimentação de ${filtro} encontrada.</div>`;
+        return;
+    }
+
+    filtradas.forEach(t => {
+        // Se eu sou o destino, é entrada (+) verde. 
+        // Se eu sou o remetente, é saída (-) vermelho.
+        const souEuRecebendo = String(t.uidDestino || "").trim() === me;
+        
+        let valorNumerico = 0;
+        if (typeof t.valor === 'number') {
+            valorNumerico = t.valor;
+        } else if (typeof t.valor === 'string') {
+            valorNumerico = parseFloat(t.valor.replace(/[^\d,.-]/g, '').replace(',', '.'));
+        }
+        
+        const valorFormatado = valorNumerico.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        
+        let icone = souEuRecebendo ? '💰' : '💸'; 
+        let titulo = souEuRecebendo ? (t.nomeRemetente || "Pix Recebido") : (t.nomeDestino || "Pix Enviado");
+
+        if(t.tipo === 'recarga') {
+            icone = '📱';
+            titulo = "Recarga de Celular";
+        }
+
+        const corClasse = souEuRecebendo ? 'pos' : 'neg';
+        const sinal = souEuRecebendo ? '+' : '-';
+
+        lista.innerHTML += `
+            <div class="item" onclick="verComprovante('${t.id}')">
+                <div class="left">
+                    <div class="icon">${icone}</div>
+                    <div class="info">
+                        <b>${titulo}</b>
+                        <span>${t.data || 'Recentemente'} • ${t.tipo?.toUpperCase() || 'PIX'}</span>
+                    </div>
+                </div>
+                <div class="right">
+                    <div class="val ${corClasse}">
+                        ${sinal} ${valorFormatado}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+}
+        
         document.querySelectorAll('.filter').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
@@ -115,73 +185,6 @@
                 renderizar(btn.dataset.type);
             });
         });
-
-        function renderizar(filtro) {
-            const lista = document.getElementById('listaExtrato');
-            lista.innerHTML = "";
-            const me = auth.currentUser ? auth.currentUser.uid : null;
-
-            if(!me) return;
-
-            let filtradas = transacoesCache.filter(t => {
-                if (filtro === "entrada") return t.uidDestino === me;
-                if (filtro === "saida") return t.userId === me;
-                return true;
-            });
-
-            if (filtradas.length === 0) {
-                lista.innerHTML = `<div class="empty">Nenhuma movimentação encontrada.</div>`;
-                return;
-            }
-
-            filtradas.forEach(t => {
-                // Lógica crucial: se o uidDestino for o meu, o dinheiro ENTROU.
-                const souEuRecebendo = t.uidDestino === me;
-                
-                let valorNumerico = 0;
-                if (typeof t.valor === 'number') {
-                    valorNumerico = t.valor;
-                } else if (typeof t.valor === 'string') {
-                    valorNumerico = parseFloat(t.valor.replace(/[^\d,.-]/g, '').replace(',', '.'));
-                }
-                
-                const valorFormatado = valorNumerico.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                
-                // Define ícone e título baseado no tipo e direção
-                let icone = '💸'; 
-                let titulo = t.nomeDestino || "Pix Enviado";
-
-                if(souEuRecebendo) {
-                    icone = '💰';
-                    titulo = t.nomeRemetente || t.nomeDestino || "Pix Recebido";
-                } else if(t.tipo === 'recarga') {
-                    icone = '📱';
-                    titulo = "Recarga de Celular";
-                }
-
-                // Ajuste visual da cor e sinal (+ para verde, - para vermelho)
-                const corClasse = souEuRecebendo ? 'pos' : 'neg';
-                const sinal = souEuRecebendo ? '+' : '-';
-
-                lista.innerHTML += `
-                    <div class="item" onclick="verComprovante('${t.id}')">
-                        <div class="left">
-                            <div class="icon">${icone}</div>
-                            <div class="info">
-                                <b>${titulo}</b>
-                                <span>${t.data || 'Recentemente'} • ${t.tipo?.toUpperCase() || 'PIX'}</span>
-                            </div>
-                        </div>
-                        <div class="right">
-                            <div class="val ${corClasse}">
-                                ${sinal} ${valorFormatado}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
         window.verComprovante = (id) => {
             const t = transacoesCache.find(x => x.id === id);
             if (t) {
