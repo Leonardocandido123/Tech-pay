@@ -3,11 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <title>Extrato - Zentry</title>
+    <style>
+        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+        .header { margin-bottom: 30px; }
+        #txtSaldo { font-size: 24px; font-weight: 700; color: #22c55e; margin-top: 5px; }
+        .lista { display: flex; flex-direction: column; gap: 15px; }
+        .item { background: #111; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #222; cursor: pointer; }
+        .info b { display: block; font-size: 16px; }
+        .info span { font-size: 12px; color: #666; }
+        .val { font-weight: 700; }
+        .pos { color: #22c55e; }
+        .neg { color: #ef4444; }
+    </style>
 </head>
 <body>
-    <div id="txtSaldo">R$ 0,00</div>
-    <div id="listaExtrato"></div>
+
+    <div class="header">
+        <span>Seu saldo</span>
+        <div id="txtSaldo">R$ 0,00</div>
+    </div>
+
+    <div id="listaExtrato" class="lista">
+        </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -31,15 +50,12 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // 1. Monitora Saldo
                 onSnapshot(doc(db, "usuarios", user.uid), (ds) => {
                     if(ds.exists()) {
-                        const s = ds.data().saldo || 0;
-                        document.getElementById('txtSaldo').innerText = s.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                        document.getElementById('txtSaldo').innerText = (ds.data().saldo || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                     }
                 });
 
-                // 2. Monitora Transações
                 onSnapshot(collection(db, "transacoes"), (snap) => {
                     transacoesCache = [];
                     snap.forEach(d => {
@@ -48,56 +64,39 @@
                             transacoesCache.push({ id: d.id, ...t });
                         }
                     });
-
-                    // Ordena por tempo (mais novo primeiro)
                     transacoesCache.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
                     renderizar();
                 });
-            } else {
-                window.location.href = "login.html";
-            }
+            } else { window.location.href = "login.html"; }
         });
 
         function renderizar() {
             const lista = document.getElementById('listaExtrato');
-            if (!lista) return;
-            lista.innerHTML = ""; 
-            
-            const me = auth.currentUser?.uid;
+            lista.innerHTML = "";
+            const me = auth.currentUser.uid;
 
             transacoesCache.forEach(t => {
                 const souEuRecebendo = t.uidDestino === me || t.tipo === "entrada";
+                let val = typeof t.valor === 'number' ? t.valor : parseFloat(String(t.valor).replace(/[^\d,.-]/g, '').replace(',', '.'));
                 
-                // Trata o valor para ser sempre número
-                let val = 0;
-                if (typeof t.valor === 'number') val = t.valor;
-                else val = parseFloat(String(t.valor).replace(/[^\d,.-]/g, '').replace(',', '.'));
-
-                const valorFormatado = (val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                const cor = souEuRecebendo ? 'pos' : 'neg';
-                const sinal = souEuRecebendo ? '+' : '-';
-                const nome = souEuRecebendo ? (t.nomeRemetente || "Pix Recebido") : (t.nomeDestino || "Pix Enviado");
-
-                // CRUCIAL: O onclick usa o ID da transação
                 const itemHtml = `
-                    <div class="item" style="cursor:pointer" onclick="abrirComprovante('${t.id}')">
+                    <div class="item" onclick="abrirComprovante('${t.id}')">
                         <div class="info">
-                            <b>${nome}</b>
-                            <span style="display:block; font-size:12px; color:gray">${t.data || 'Hoje'}</span>
+                            <b>${souEuRecebendo ? (t.nomeRemetente || "Recebido") : (t.nomeDestino || "Enviado")}</b>
+                            <span>${t.data || 'Pix realizado'}</span>
                         </div>
-                        <div class="val ${cor}" style="font-weight:bold">${sinal} ${valorFormatado}</div>
-                    </div><hr>`;
-                
+                        <div class="val ${souEuRecebendo ? 'pos' : 'neg'}">
+                            ${souEuRecebendo ? '+' : '-'} ${val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                        </div>
+                    </div>`;
                 lista.insertAdjacentHTML('beforeend', itemHtml);
             });
         }
 
-        // ESSA FUNÇÃO RESOLVE O ERRO DO VALOR TROCADO
         window.abrirComprovante = (id) => {
             const t = transacoesCache.find(x => x.id === id);
             if (t) {
-                // LIMPA TUDO ANTES DE SALVAR O NOVO
-                localStorage.removeItem("comprovante_ativo");
+                // Aqui está o segredo: limpamos o antigo e salvamos o NOVO clicado
                 localStorage.setItem("comprovante_ativo", JSON.stringify(t));
                 window.location.href = "comprovante.html";
             }
