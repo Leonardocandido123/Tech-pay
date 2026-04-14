@@ -2,182 +2,106 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <title>ZENTRY - Extrato</title>
-    <style>
-        :root { --primary: #22C55E; --bg: #000; --card: #121826; --border: #2A3441; --text-sec: #9CA3AF; --danger: #EF4444; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: white; padding: 20px; }
-        
-        .header { display: flex; align-items: center; margin-bottom: 25px; }
-        .back-btn { background: var(--card); border: 1px solid var(--border); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-right: 15px; }
-
-        .balance-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 20px; }
-        .balance-card small { color: var(--text-sec); font-size: 12px; text-transform: uppercase; }
-        .balance-card h1 { margin: 5px 0 0; font-size: 28px; color: #fff; }
-
-        .filters { display: flex; gap: 10px; margin-bottom: 20px; }
-        .filter { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: var(--text-sec); font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
-        .filter.active { background: var(--primary); color: #000; border-color: var(--primary); }
-
-        .item { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 16px; border-radius: 18px; margin-bottom: 10px; border: 1px solid var(--border); }
-        .left { display: flex; align-items: center; gap: 12px; }
-        .icon { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .info b { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
-        .info span { font-size: 11px; color: var(--text-sec); }
-        .right { text-align: right; }
-        .val { font-weight: 700; font-size: 15px; }
-        .val.pos { color: var(--primary); }
-        .val.neg { color: var(--danger); }
-
-        .empty { text-align: center; color: var(--text-sec); margin-top: 50px; font-size: 14px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extrato - Zentry</title>
 </head>
 <body>
+    <div id="txtSaldo">R$ 0,00</div>
+    <div id="listaExtrato"></div>
 
-    <div class="header">
-        <div class="back-btn" onclick="history.back()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-        </div>
-        <b style="font-size: 18px;">Movimentações</b>
-    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    <div class="balance-card">
-        <small>Saldo Disponível</small>
-        <h1 id="txtSaldo">R$ 0,00</h1>
-    </div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
+            authDomain: "zentry-app-74275.firebaseapp.com",
+            projectId: "zentry-app-74275",
+            storageBucket: "zentry-app-74275.appspot.com",
+            messagingSenderId: "571422826071",
+            appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
+        };
 
-    <div class="filters">
-        <div class="filter active" data-type="todos">Tudo</div>
-        <div class="filter" data-type="entrada">Entradas</div>
-        <div class="filter" data-type="saida">Saídas</div>
-    </div>
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
-    <div id="listaExtrato">
-        <div class="empty">Carregando...</div>
-    </div> recebeu'}</span>
-                        </div>
-</div>) 
-        <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        let transacoesCache = [];
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
-        authDomain: "zentry-app-74275.firebaseapp.com",
-        projectId: "zentry-app-74275",
-        storageBucket: "zentry-app-74275.appspot.com",
-        messagingSenderId: "571422826071",
-        appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    let transacoesCache = [];
-
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            // Monitora Saldo
-            onSnapshot(doc(db, "usuarios", user.uid), (ds) => {
-                if(ds.exists()) {
-                    const s = ds.data().saldo || 0;
-                    const el = document.getElementById('txtSaldo');
-                    if(el) el.innerText = s.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                }
-            });
-
-            // Monitora Transações
-            onSnapshot(collection(db, "transacoes"), (snap) => {
-                transacoesCache = [];
-                snap.forEach(d => {
-                    const t = d.data();
-                    if (t.userId === user.uid || t.uidDestino === user.uid) {
-                        transacoesCache.push({ id: d.id, ...t });
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // 1. Monitora Saldo
+                onSnapshot(doc(db, "usuarios", user.uid), (ds) => {
+                    if(ds.exists()) {
+                        const s = ds.data().saldo || 0;
+                        document.getElementById('txtSaldo').innerText = s.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                     }
                 });
 
-                // Ordenar por data
-                transacoesCache.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+                // 2. Monitora Transações
+                onSnapshot(collection(db, "transacoes"), (snap) => {
+                    transacoesCache = [];
+                    snap.forEach(d => {
+                        const t = d.data();
+                        if (t.userId === user.uid || t.uidDestino === user.uid) {
+                            transacoesCache.push({ id: d.id, ...t });
+                        }
+                    });
 
-                const filtroAtivo = document.querySelector('.filter.active')?.dataset.type || "todos";
-                renderizar(filtroAtivo);
-            });
-        } else {
-            window.location.href = "login.html";
-        }
-    });
-
-    function renderizar(filtro) {
-        const lista = document.getElementById('listaExtrato');
-        if (!lista) return;
-        lista.innerHTML = ""; 
-        
-        const me = auth.currentUser?.uid;
-        if (!me) return;
-
-        let filtradas = transacoesCache.filter(t => {
-            const ehEntrada = t.uidDestino === me || t.tipo === "entrada";
-            if (filtro === "entrada") return ehEntrada;
-            if (filtro === "saida") return !ehEntrada;
-            return true;
+                    // Ordena por tempo (mais novo primeiro)
+                    transacoesCache.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+                    renderizar();
+                });
+            } else {
+                window.location.href = "login.html";
+            }
         });
 
-        if (filtradas.length === 0) {
-            lista.innerHTML = `<div class="empty">Nenhuma movimentação.</div>`;
-            return;
-        }
-
-        filtradas.forEach(t => {
-            const souEuRecebendo = t.uidDestino === me || t.tipo === "entrada";
-            const val = typeof t.valor === 'number' ? t.valor : parseFloat(t.valor);
+        function renderizar() {
+            const lista = document.getElementById('listaExtrato');
+            if (!lista) return;
+            lista.innerHTML = ""; 
             
-            const valorFormatado = (val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            const cor = souEuRecebendo ? 'pos' : 'neg';
-            const sinal = souEuRecebendo ? '+' : '-';
-            const nome = souEuRecebendo ? (t.nomeRemetente || "Recebido") : (t.nomeDestino || "Enviado");
+            const me = auth.currentUser?.uid;
 
-            // O onclick passa o ID único da transação do banco
-            lista.innerHTML += `
-                <div class="item" style="cursor:pointer" onclick="verComprovante('${t.id}')">
-                    <div class="left">
-                        <div class="icon">${souEuRecebendo ? '💰' : '💸'}</div>
+            transacoesCache.forEach(t => {
+                const souEuRecebendo = t.uidDestino === me || t.tipo === "entrada";
+                
+                // Trata o valor para ser sempre número
+                let val = 0;
+                if (typeof t.valor === 'number') val = t.valor;
+                else val = parseFloat(String(t.valor).replace(/[^\d,.-]/g, '').replace(',', '.'));
+
+                const valorFormatado = (val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                const cor = souEuRecebendo ? 'pos' : 'neg';
+                const sinal = souEuRecebendo ? '+' : '-';
+                const nome = souEuRecebendo ? (t.nomeRemetente || "Pix Recebido") : (t.nomeDestino || "Pix Enviado");
+
+                // CRUCIAL: O onclick usa o ID da transação
+                const itemHtml = `
+                    <div class="item" style="cursor:pointer" onclick="abrirComprovante('${t.id}')">
                         <div class="info">
                             <b>${nome}</b>
-                            <span>${t.data || 'Hoje'}</span>
+                            <span style="display:block; font-size:12px; color:gray">${t.data || 'Hoje'}</span>
                         </div>
-                    </div>
-                    <div class="right">
-                        <div class="val ${cor}">${sinal} ${valorFormatado}</div>
-                    </div>
-                </div>`;
-        });
-    }
-
-    // Filtros
-    document.querySelectorAll('.filter').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            renderizar(btn.dataset.type);
-        });
-    });
-
-    // FUNÇÃO QUE ABRE O COMPROVANTE CERTO
-    window.verComprovante = (id) => {
-        // Busca no cache a transação que tem o ID igual ao que foi clicado
-        const t = transacoesCache.find(x => x.id === id);
-        if (t) {
-            // Limpa o lixo antigo e salva a transação CLICADA
-            localStorage.removeItem("comprovante_ativo");
-            localStorage.setItem("comprovante_ativo", JSON.stringify(t));
-            window.location.href = "comprovante.html";
+                        <div class="val ${cor}" style="font-weight:bold">${sinal} ${valorFormatado}</div>
+                    </div><hr>`;
+                
+                lista.insertAdjacentHTML('beforeend', itemHtml);
+            });
         }
-    };
-        </script>
-    
-            </body
+
+        // ESSA FUNÇÃO RESOLVE O ERRO DO VALOR TROCADO
+        window.abrirComprovante = (id) => {
+            const t = transacoesCache.find(x => x.id === id);
+            if (t) {
+                // LIMPA TUDO ANTES DE SALVAR O NOVO
+                localStorage.removeItem("comprovante_ativo");
+                localStorage.setItem("comprovante_ativo", JSON.stringify(t));
+                window.location.href = "comprovante.html";
+            }
+        };
+    </script>
+</body>
 </html>
