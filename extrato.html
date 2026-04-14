@@ -58,8 +58,8 @@
         <div class="empty">Carregando...</div>
     </div> recebeu'}</span>
                         </div>
-</div>
-    <script type="module">
+</div>) 
+        <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -85,16 +85,14 @@
             onSnapshot(doc(db, "usuarios", user.uid), (ds) => {
                 if(ds.exists()) {
                     const s = ds.data().saldo || 0;
-                    const txtSaldo = document.getElementById('txtSaldo');
-                    if(txtSaldo) txtSaldo.innerText = s.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                    const el = document.getElementById('txtSaldo');
+                    if(el) el.innerText = s.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 }
             });
 
             // Monitora Transações
             onSnapshot(collection(db, "transacoes"), (snap) => {
-                const agoraUnix = Math.floor(Date.now() / 1000);
                 transacoesCache = [];
-
                 snap.forEach(d => {
                     const t = d.data();
                     if (t.userId === user.uid || t.uidDestino === user.uid) {
@@ -102,14 +100,11 @@
                     }
                 });
 
-                transacoesCache.sort((a,b) => {
-                    const timeA = a.timestamp?.seconds || agoraUnix;
-                    const timeB = b.timestamp?.seconds || agoraUnix;
-                    return timeB - timeA;
-                });
+                // Ordenar por data
+                transacoesCache.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
 
-                const btnAtivo = document.querySelector('.filter.active');
-                renderizar(btnAtivo ? btnAtivo.dataset.type : "todos");
+                const filtroAtivo = document.querySelector('.filter.active')?.dataset.type || "todos";
+                renderizar(filtroAtivo);
             });
         } else {
             window.location.href = "login.html";
@@ -121,7 +116,7 @@
         if (!lista) return;
         lista.innerHTML = ""; 
         
-        const me = auth.currentUser ? auth.currentUser.uid : null;
+        const me = auth.currentUser?.uid;
         if (!me) return;
 
         let filtradas = transacoesCache.filter(t => {
@@ -132,40 +127,37 @@
         });
 
         if (filtradas.length === 0) {
-            lista.innerHTML = `<div class="empty">Nenhuma movimentação encontrada.</div>`;
+            lista.innerHTML = `<div class="empty">Nenhuma movimentação.</div>`;
             return;
         }
 
         filtradas.forEach(t => {
             const souEuRecebendo = t.uidDestino === me || t.tipo === "entrada";
+            const val = typeof t.valor === 'number' ? t.valor : parseFloat(t.valor);
             
-            let val = 0;
-            if (typeof t.valor === 'number') val = t.valor;
-            else if (typeof t.valor === 'string') val = parseFloat(t.valor.replace(/[^\d,.-]/g, '').replace(',', '.'));
-
             const valorFormatado = (val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            const corClasse = souEuRecebendo ? 'pos' : 'neg';
+            const cor = souEuRecebendo ? 'pos' : 'neg';
             const sinal = souEuRecebendo ? '+' : '-';
-            const icone = souEuRecebendo ? '💰' : '💸';
-            
-            const nomeExibicao = souEuRecebendo ? (t.nomeRemetente || "Pix Recebido") : (t.nomeDestino || "Pix Enviado");
+            const nome = souEuRecebendo ? (t.nomeRemetente || "Recebido") : (t.nomeDestino || "Enviado");
 
+            // O onclick passa o ID único da transação do banco
             lista.innerHTML += `
                 <div class="item" style="cursor:pointer" onclick="verComprovante('${t.id}')">
                     <div class="left">
-                        <div class="icon">${icone}</div>
+                        <div class="icon">${souEuRecebendo ? '💰' : '💸'}</div>
                         <div class="info">
-                            <b>${nomeExibicao}</b>
-                            <span>${t.data || 'Hoje'} • ${t.tipo?.toUpperCase() || 'PIX'}</span>
+                            <b>${nome}</b>
+                            <span>${t.data || 'Hoje'}</span>
                         </div>
                     </div>
                     <div class="right">
-                        <div class="val ${corClasse}">${sinal} ${valorFormatado}</div>
+                        <div class="val ${cor}">${sinal} ${valorFormatado}</div>
                     </div>
                 </div>`;
         });
     }
 
+    // Filtros
     document.querySelectorAll('.filter').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
@@ -174,15 +166,18 @@
         });
     });
 
+    // FUNÇÃO QUE ABRE O COMPROVANTE CERTO
     window.verComprovante = (id) => {
+        // Busca no cache a transação que tem o ID igual ao que foi clicado
         const t = transacoesCache.find(x => x.id === id);
         if (t) {
+            // Limpa o lixo antigo e salva a transação CLICADA
+            localStorage.removeItem("comprovante_ativo");
             localStorage.setItem("comprovante_ativo", JSON.stringify(t));
             window.location.href = "comprovante.html";
         }
     };
-    </script>
+        </script>
     
-    
-            </body>
+            </body
 </html>
