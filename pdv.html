@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -25,32 +24,23 @@
         overflow: hidden; 
     }
 
-    /* O SEGREDO ESTÁ AQUI */
     .screen { 
         position: absolute; 
         inset: 0; 
-        display: none; /* Escondido por padrão */
+        display: none; 
         flex-direction: column; 
         padding: 25px; 
         animation: fadeIn 0.3s ease; 
-        background: var(--bg-gradient); /* Garante o fundo em todas as telas */
+        background: var(--bg-gradient); 
     }
 
-    /* FORÇA A TELA A APARECER */
-    .active-screen { 
-        display: flex !important; 
-    }
+    .active-screen { display: flex !important; }
 
     .display-val { flex: 1; display: flex; justify-content: center; align-items: center; }
     .val-main { font-size: 54px; font-weight: 800; letter-spacing: -2px; color: #333; }
     .val-main.has-content { color: #fff; }
 
-    .keypad { 
-        display: grid; 
-        grid-template-columns: repeat(3, 1fr); 
-        gap: 12px; 
-        margin-bottom: 20px; 
-    }
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
 
     .key { 
         height: 60px; 
@@ -62,7 +52,9 @@
         font-size: 22px; 
         font-weight: 600; 
         border: 1px solid var(--border); 
+        cursor: pointer;
     }
+    .key:active { background: rgba(255,255,255,0.1); }
 
     .mode-card {
         background: #0a0a0a !important;
@@ -73,6 +65,7 @@
         display: flex;
         align-items: center;
         gap: 15px;
+        cursor: pointer;
     }
 
     .mode-icon { 
@@ -90,50 +83,39 @@
 
     .btn-full { 
         width: 100%; padding: 18px; border-radius: 20px; border: none; 
-        font-weight: 800; font-size: 15px; transition: 0.3s; 
+        font-weight: 800; font-size: 15px; transition: 0.3s; cursor: pointer;
     }
     
-    /* Animação Única e Limpa */
-@keyframes nfcPulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.5; }
-    100% { transform: scale(1); opacity: 1; }
-}
+    .btn-secondary { background: #111; color: #fff; border: 1px solid var(--border); }
 
-.icon-nfc {
-    width: 120px !important;
-    height: 120px !important;
-    color: var(--primary) !important;
-    display: block !important;
-    margin: 0 auto;
-    animation: nfcPulse 1.8s infinite ease-in-out;
-}
+    @keyframes nfcPulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.5; }
+        100% { transform: scale(1); opacity: 1; }
+    }
 
-.nfc-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-    
+    .icon-nfc {
+        width: 120px !important;
+        height: 120px !important;
+        color: var(--primary) !important;
+        animation: nfcPulse 1.8s infinite ease-in-out;
+    }
+
+    .nfc-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+    .loader { width: 30px; height: 30px; border: 3px solid #222; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 10px auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
-    
 </head>
 <body>
+
     <div id="step-1" class="screen active-screen">
         <div style="text-align: center; margin-top: 5px; margin-bottom: 15px;">
-            <span style="font-size: 26px; font-weight: 800; letter-spacing: -1.5px;">
-                ZEN<span style="color: var(--primary);">TRY</span>
-            </span>
+            <span style="font-size: 26px; font-weight: 800; letter-spacing: -1.5px;">ZEN<span style="color: var(--primary);">TRY</span></span>
         </div>
-
         <div style="text-align: center; color: var(--text-muted); font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Informe o valor para cobrar</div>
-        
-        <div class="display-val">
-            <div class="val-main" id="val-display">R$ 0,00</div>
-        </div>
-
+        <div class="display-val"><div class="val-main" id="val-display">R$ 0,00</div></div>
         <div class="keypad">
             <div class="key" onclick="typeNum('1')">1</div><div class="key" onclick="typeNum('2')">2</div><div class="key" onclick="typeNum('3')">3</div>
             <div class="key" onclick="typeNum('4')">4</div><div class="key" onclick="typeNum('5')">5</div><div class="key" onclick="typeNum('6')">6</div>
@@ -141,269 +123,254 @@
             <div class="key" onclick="typeNum('00')">00</div><div class="key" onclick="typeNum('0')">0</div>
             <div class="key" onclick="backspace()"><i data-lucide="delete"></i></div>
         </div>
-<button id="btn-next-1" class="btn-full" style="background:#111; color:#444;" onclick="goStep('step-2')">CONTINUAR</button>
-        
+        <button id="btn-next-1" class="btn-full" style="background:#111; color:#444; pointer-events:none" onclick="goStep('step-2')">CONTINUAR</button>
     </div>
 
     <div id="step-2" class="screen">
         <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 25px;">Meio de pagamento</h2>
-        
         <div class="mode-card" onclick="goStep('step-pix-qr')">
             <div class="mode-icon"><i data-lucide="zap"></i></div>
-            <div class="mode-info">
-                <b>Pix</b>
-                <small>QR Code dinâmico</small>
-            </div>
+            <div class="mode-info"><b>Pix</b><small>QR Code dinâmico</small></div>
         </div>
-
         <div class="mode-card" onclick="iniciarNFC('Débito')">
             <div class="mode-icon"><i data-lucide="banknote"></i></div>
-            <div class="mode-info">
-                <b>Débito</b>
-                <small>Tap to Pay</small>
-            </div>
+            <div class="mode-info"><b>Débito</b><small>Tap to Pay</small></div>
         </div>
-
         <div class="mode-card" onclick="goStep('step-parcelas')">
             <div class="mode-icon"><i data-lucide="credit-card"></i></div>
-            <div class="mode-info">
-                <b>Crédito</b>
-                <small>À vista ou parcelado</small>
-            </div>
+            <div class="mode-info"><b>Crédito</b><small>À vista ou parcelado</small></div>
         </div>
-
         <button class="btn-full btn-secondary" style="margin-top: auto;" onclick="goStep('step-1')">Voltar</button>
     </div>
 
     <div id="step-pix-qr" class="screen" style="text-align: center;">
-        <h2>Escaneie o QR Code</h2>
-        <div class="qr-container" onclick="simularPagamento('Pix')">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TechPay" class="qr-img" alt="QR Code">
+        <h2 style="margin-bottom:20px">Escaneie o QR Code</h2>
+        <div style="background:#fff; padding:15px; border-radius:20px; width:220px; margin:0 auto;" onclick="simularPagamento('Pix')">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ZentryPay" style="width:100%">
         </div>
-        <p style="color:var(--text-muted)">Toque no QR Code para simular o pagamento</p>
-        <div class="loader"></div>
+        <p style="color:var(--text-muted); margin-top:20px">Toque no QR Code para simular</p>
         <button class="btn-full btn-secondary" style="margin-top:auto" onclick="goStep('step-2')">Voltar</button>
     </div>
 
     <div id="step-parcelas" class="screen">
         <h2 style="margin-bottom: 20px;">Escolha as parcelas</h2>
-        <div class="parcela-list" id="lista-parcelas" style="flex: 1; overflow-y: auto;">
-            </div>
+        <div class="parcela-list" id="lista-parcelas" style="flex: 1; overflow-y: auto;"></div>
         <button class="btn-full btn-secondary" style="margin-top: 15px;" onclick="goStep('step-2')">Voltar</button>
     </div>
+
     <div id="step-nfc" class="screen" style="text-align: center; justify-content: center;">
-    
-    <div class="nfc-container" onclick="simularPagamento(metodoGlobal)">
-        <i data-lucide="contactless" class="icon-nfc"></i>
-        <div class="nfc-waves"></div>
+        <div class="nfc-container" onclick="simularPagamento(metodoGlobal)">
+            <i data-lucide="contactless" class="icon-nfc"></i>
+        </div>
+        <h2 id="txt-metodo-nfc" style="font-size: 22px; font-weight: 800; margin-top: 30px;">Aproxime o cartão</h2>
+        <p id="txt-total-nfc" style="font-size: 36px; font-weight: 800; color: var(--primary); margin-bottom: 20px;">R$ 0,00</p>
+        <button class="btn-full btn-secondary" style="margin-top: auto" onclick="goStep('step-2')">Voltar</button>
     </div>
 
-    <h2 id="txt-metodo-nfc" style="font-size: 22px; font-weight: 800; margin-top: 30px; margin-bottom: 10px;">Aproxime o cartão</h2>
-    
-    <p id="txt-total-nfc" style="font-size: 36px; font-weight: 800; color: var(--primary); margin-bottom: 20px;">R$ 0,00</p>
-    
-    <p style="color: var(--text-muted); font-size: 14px; padding: 0 40px;">
-        Encoste o cartão ou celular na parte de trás do aparelho
-    </p>
-
-    <button class="btn-full btn-secondary" style="margin-top: auto" onclick="goStep('step-2')">Voltar</button>
-    </div>
-    
-    <div id="step-wait" class="screen" style="justify-content: center; align-items: center; text-align: center;">
+    <div id="step-wait" class="screen" style="justify-content: center; align-items: center;">
         <div class="loader" style="width:60px; height:60px"></div>
-        <h2>Processando...</h2>
+        <h2 style="margin-top:20px">Processando...</h2>
     </div>
-
-    <div id="step-success" class="screen">
-        <div class="receipt-header">
-            <div style="width:70px; height:70px; background:var(--primary); border-radius:50%; color:#000; display:flex; align-items:center; justify-content:center; margin: 0 auto 15px;">
-                <i data-lucide="check" style="width:40px; height:40px; stroke-width: 3px;"></i>
-            </div>
-            <h2 style="margin:0; font-size: 24px; font-weight: 800;">Pagamento Aprovado</h2>
-            <p style="color: var(--text-muted); font-size: 14px; margin-top: 5px;">Comprovante Tech Pay</p>
-        </div>
-
-        <div class="receipt-card">
-            <div class="receipt-row">
-                <span class="receipt-label">Valor</span>
-                <span class="receipt-value total" id="res-valor">R$ 0,00</span>
-            </div>
-            <div class="receipt-row">
-                <span class="receipt-label">Método</span>
-                <span class="receipt-value" id="res-metodo">-</span>
-            </div>
-            <div class="receipt-row">
-                <span class="receipt-label">Data e hora</span>
-                <span class="receipt-value" id="res-data">-</span>
-            </div>
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed rgba(255,255,255,0.1);">
-                <div class="receipt-row">
-                    <span class="receipt-label">Transação</span>
-                    <span class="receipt-value" style="font-family: monospace; font-size: 12px; opacity: 0.7;">#77002026PDV</span>
-                </div>
-                <div class="receipt-row">
-                    <span class="receipt-label">Status</span>
-                    <span class="receipt-value" style="color: var(--primary);">EFETIVADO</span>
-                </div>
-            </div>
-        </div>
-
-        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
-            <button class="btn-full btn-primary" onclick="compartilhar()">COMPARTILHAR</button>
-            <button class="btn-full btn-secondary" onclick="location.reload()">CONCLUIR</button>
-        </div>
+    <div id="custom-modal" style="
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+">
+    <div style="
+        background: #111;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 28px;
+        width: 90%;
+        max-width: 320px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    ">
+        <i id="modal-icon" data-lucide="info" style="
+            width: 60px;
+            height: 60px;
+            margin-bottom: 20px;
+            display: inline-block;
+        "></i>
+        
+        <h2 id="modal-title" style="
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        ">Sessão Expirada</h2>
+        
+        <p id="modal-text" style="
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        ">O e-mail não foi identificado. Reinicie o acesso.</p>
+        
+        <button onclick="closeModal()" style="
+            width: 100%;
+            padding: 16px;
+            background: #22c55e;
+            color: #000;
+            border: none;
+            border-radius: 18px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+        ">Entendido</button>
     </div>
-    : 600;">${i}x de <b style="color: var(--primary);">R$ ${pVal}</b></span></div>
-                    <i data-lucide="chevron-right" style="color: #444;"></i>
-                </div>
+    </div>
     
+
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
-        authDomain: "zentry-app-74275.firebaseapp.com",
-        projectId: "zentry-app-74275",
-        storageBucket: "zentry-app-74275.appspot.com",
-        messagingSenderId: "571422826071",
-        appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
+            authDomain: "zentry-app-74275.firebaseapp.com",
+            projectId: "zentry-app-74275",
+            storageBucket: "zentry-app-74275.appspot.com",
+            messagingSenderId: "571422826071",
+            appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
-    let valorRaw = "";
-    let metodoGlobal = "";
+        let valorRaw = "";
+        window.metodoGlobal = "";
 
-    // Bloqueio de clique direito e seleção
-    document.addEventListener('contextmenu', e => e.preventDefault());
+        window.typeNum = function(n) {
+            if(valorRaw.length < 9) {
+                valorRaw += n;
+                if (navigator.vibrate) navigator.vibrate(15);
+                updateDisplay();
+            }
+        }
 
-    // --- FUNÇÕES TORNADAS GLOBAIS PARA FUNCIONAR O ONCLICK ---
-
-    window.typeNum = function(n) {
-        if(valorRaw.length < 9) {
-            valorRaw += n;
-            if (navigator.vibrate) navigator.vibrate(15);
+        window.backspace = function() {
+            valorRaw = valorRaw.slice(0, -1);
+            if (navigator.vibrate) navigator.vibrate(10);
             updateDisplay();
         }
-    }
 
-    window.backspace = function() {
-        valorRaw = valorRaw.slice(0, -1);
-        if (navigator.vibrate) navigator.vibrate(10);
-        updateDisplay();
-    }
-
-    function updateDisplay() {
-        let v = valorRaw.padStart(3, '0');
-        let num = (parseInt(v)/100).toFixed(2);
-        let formatado = "R$ " + num.replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
-        
-        const display = document.getElementById('val-display');
-        const btn = document.getElementById('btn-next-1');
-        
-        display.innerText = formatado;
-        
-        if(parseInt(valorRaw) > 0) {
-            display.classList.add('has-content');
-            btn.style.background = "#22c55e"; 
-            btn.style.color = "#000"; 
-            btn.style.pointerEvents = "all";
-        } else {
-            display.classList.remove('has-content');
-            btn.style.background = "#111"; 
-            btn.style.color = "#444"; 
-            btn.style.pointerEvents = "none";
-        }
-    }
-
-    window.goStep = function(stepId) {
-        document.querySelectorAll('.screen').forEach(el => {
-            el.classList.remove('active-screen');
-            el.style.display = 'none'; 
-        });
-        
-        const nextScreen = document.getElementById(stepId);
-        if (nextScreen) {
-            nextScreen.classList.add('active-screen');
-            nextScreen.style.display = 'flex';
-        }
-        if(stepId === 'step-parcelas') gerarParcelas();
-        lucide.createIcons();
-    }
-
-    function gerarParcelas() {
-        const container = document.getElementById('lista-parcelas');
-        if (!container) return;
-        container.innerHTML = "";
-        let valorNum = parseInt(valorRaw) / 100;
-        for(let i=1; i<=12; i++) {
-            let pVal = (valorNum / i).toFixed(2).replace(".",",");
-            container.innerHTML += `
-                <div class="mode-card" style="padding: 18px; margin-bottom: 10px;" onclick="iniciarNFC('Crédito ${i}x')">
-                    <div style="flex: 1;"><span style="font-size: 16px; font-weight: 600;">${i}x de <b style="color: #22c55e;">R$ ${pVal}</b></span></div>
-                    <i data-lucide="chevron-right" style="color: #444;"></i>
-                </div>`;
-        }
-        lucide.createIcons();
-    }
-
-    window.iniciarNFC = function(metodo) {
-        metodoGlobal = metodo;
-        document.getElementById('txt-metodo-nfc').innerText = "Aproxime para " + metodo;
-        document.getElementById('txt-total-nfc').innerText = document.getElementById('val-display').innerText;
-        goStep('step-nfc');
-    }
-
-    window.simularPagamento = async function(metodo) {
-        goStep('step-wait');
-        const valorFinal = document.getElementById('val-display').innerText;
-        const transacaoID = "ZNT" + Math.floor(Math.random() * 999999);
-        const dataAtual = new Date().toLocaleString('pt-BR');
-
-        try {
-            if (auth.currentUser) {
-                await addDoc(collection(db, "transacoes"), {
-                    userId: auth.currentUser.uid,
-                    valor: valorFinal,
-                    nomeDestino: "Venda Zentap: " + metodo,
-                    tipo: "entrada",
-                    timestamp: serverTimestamp(),
-                    data: dataAtual,
-                    id: transacaoID
-                });
+        function updateDisplay() {
+            let v = valorRaw.padStart(3, '0');
+            let num = (parseInt(v)/100).toFixed(2);
+            let formatado = "R$ " + num.replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
+            document.getElementById('val-display').innerText = formatado;
+            
+            const btn = document.getElementById('btn-next-1');
+            if(parseInt(valorRaw) > 0) {
+                document.getElementById('val-display').classList.add('has-content');
+                btn.style.background = "#22c55e"; btn.style.color = "#000"; btn.style.pointerEvents = "all";
+            } else {
+                document.getElementById('val-display').classList.remove('has-content');
+                btn.style.background = "#111"; btn.style.color = "#444"; btn.style.pointerEvents = "none";
             }
-
-            const dadosComprovante = {
-                valor: valorFinal,
-                nome: "Venda Zentap",
-                banco: "Zentry Bank - POS",
-                tipo: "pagamento",
-                metodo: metodo,
-                data: dataAtual,
-                id: transacaoID
-            };
-
-            localStorage.setItem("comprovante_final", JSON.stringify(dadosComprovante));
-            localStorage.setItem("comprovante", JSON.stringify(dadosComprovante));
-
-            setTimeout(() => { window.location.href = "comprovante.html"; }, 1500);
-        } catch (e) {
-            alert("Erro na rede. Tente novamente.");
-            goStep('step-1');
         }
-    }
 
-    window.onload = () => { 
-        lucide.createIcons(); 
-        updateDisplay(); 
-    };
+        window.goStep = function(stepId) {
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active-screen'));
+            document.getElementById(stepId).classList.add('active-screen');
+            if(stepId === 'step-parcelas') gerarParcelas();
+            lucide.createIcons();
+        }
+
+        function gerarParcelas() {
+            const container = document.getElementById('lista-parcelas');
+            container.innerHTML = "";
+            let valorNum = parseInt(valorRaw) / 100;
+            for(let i=1; i<=12; i++) {
+                let pVal = (valorNum / i).toFixed(2).replace(".",",");
+                let card = document.createElement('div');
+                card.className = 'mode-card';
+                card.onclick = () => window.iniciarNFC(`Crédito ${i}x`);
+                card.innerHTML = `<div style="flex:1"><b>${i}x de R$ ${pVal}</b></div><i data-lucide="chevron-right"></i>`;
+                container.appendChild(card);
+            }
+            lucide.createIcons();
+        }
+
+        window.iniciarNFC = function(metodo) {
+            window.metodoGlobal = metodo;
+            document.getElementById('txt-metodo-nfc').innerText = "Aproxime para " + metodo;
+            document.getElementById('txt-total-nfc').innerText = document.getElementById('val-display').innerText;
+            window.goStep('step-nfc');
+        }
+
+        window.simularPagamento = async function(metodo) {
+            window.goStep('step-wait');
+            const valorFinal = document.getElementById('val-display').innerText;
+            const transacaoID = "ZNT" + Math.floor(Math.random() * 999999);
+            const dataAtual = new Date().toLocaleString('pt-BR');
+
+            try {
+                if (auth.currentUser) {
+                    await addDoc(collection(db, "transacoes"), {
+                        userId: auth.currentUser.uid,
+                        valor: valorFinal,
+                        nomeDestino: "Venda Zentap: " + metodo,
+                        tipo: "entrada",
+                        timestamp: serverTimestamp(),
+                        data: dataAtual,
+                        id: transacaoID
+                    });
+                }
+                const dadosComprovante = {
+                    valor: valorFinal, nome: "Venda Zentap", banco: "Zentry Bank - POS",
+                    tipo: "pagamento", metodo: metodo, data: dataAtual, id: transacaoID
+                };
+                localStorage.setItem("comprovante", JSON.stringify(dadosComprovante));
+                setTimeout(() => { window.location.href = "comprovante.html"; }, 1500);
+            } catch (e) {
+                alert("Erro ao salvar transação.");
+                window.goStep('step-1');
+            }
+        }
+
+        window.onload = () => { lucide.createIcons(); updateDisplay(); };
+        // === FUNÇÕES DO MODAL CUSTOMIZADO ===
+
+/**
+ * Abre o modal com título, texto e ícone customizados.
+ * @param {string} title - O título (ex: "Sessão Expirada")
+ * @param {string} text - O texto (ex: "Não identificamos seu e-mail.")
+ * @param {string} iconName - O nome do ícone do Lucide (ex: "alert-triangle", "check-circle", "x-circle")
+ * @param {string} iconColor - A cor do ícone (ex: "#ef4444" para vermelho, "#eab308" para amarelo, "#22c55e" para verde)
+ */
+function openModal(title, text, iconName, iconColor) {
+    const modal = document.getElementById('custom-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalText = document.getElementById('modal-text');
+    const modalIcon = document.getElementById('modal-icon');
+
+    // Preenche os dados
+    modalTitle.innerText = title;
+    modalText.innerText = text;
+    
+    // Atualiza o ícone do Lucide
+    modalIcon.setAttribute('data-lucide', iconName);
+    modalIcon.style.color = iconColor;
+    lucide.createIcons(); // Força a renderização do novo ícone
+
+    // Mostra o modal
+    modal.style.display = 'flex';
+}
+
+// Fecha o modal
+function closeModal() {
+    document.getElementById('custom-modal').style.display = 'none';
+}
+        
     </script>
-    
-    
 </body>
-  </html>
-  
+    </html>
+    
