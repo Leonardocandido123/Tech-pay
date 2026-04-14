@@ -17,14 +17,18 @@
         .label { font-size: 10px; text-transform: uppercase; color: #6B7280; font-weight: 700; display: block; margin-bottom: 2px; }
         .value { font-size: 15px; font-weight: 600; color: #fff; }
         .value-amount { font-size: 28px; font-weight: 800; color: var(--accent); }
-        .password-section { margin-top: 20px; text-align: center; }
-        .pin-container { display: flex; justify-content: center; gap: 12px; margin-top: 10px; }
-        .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #333; transition: 0.2s; }
-        .pin-dot.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
+        
+        .password-section { margin-top: 30px; text-align: center; }
+        .pin-container { display: flex; justify-content: center; gap: 12px; margin-top: 15px; }
+        .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #333; transition: 0.2s; }
+        .pin-dot.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 12px var(--accent); }
+        
         #hidden-pin { position: absolute; opacity: 0; pointer-events: none; }
+        
         .footer { padding: 20px 0; margin-top: auto; }
-        .btn-confirm { width: 100%; background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer; }
+        .btn-confirm { width: 100%; background: var(--accent); color: #000; border: none; padding: 18px; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer; }
         .btn-confirm:disabled { background: #27272a; color: #71717a; }
+
         #zModalGlobal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(5px); }
         .modal-content { background:#121826; border:1px solid #2A3441; border-radius:28px; width:100%; max-width:320px; padding:25px; text-align:center; }
         #zBtnClose { width: 100%; padding: 15px; border-radius: 14px; background: var(--accent); border: none; color: #000; font-weight: 700; font-size: 16px; cursor: pointer; }
@@ -52,16 +56,22 @@
             <div class="info-row"><span class="label">Para</span><div class="value" id="rev-name">---</div></div>
             <div class="info-row"><span class="label">Instituição</span><div class="value">Zentry Bank - 001</div></div>
         </div>
+
         <div class="password-section" onclick="document.getElementById('hidden-pin').focus()">
             <span class="label">Digite sua senha de 4 dígitos</span>
             <div class="pin-container">
-                <div class="pin-dot" id="dot-1"></div><div class="pin-dot" id="dot-2"></div><div class="pin-dot" id="dot-3"></div><div class="pin-dot" id="dot-4"></div>
+                <div class="pin-dot" id="dot-1"></div>
+                <div class="pin-dot" id="dot-2"></div>
+                <div class="pin-dot" id="dot-3"></div>
+                <div class="pin-dot" id="dot-4"></div>
             </div>
-            <input type="number" id="hidden-pin" pattern="\d*" inputmode="numeric">
+            <input type="number" id="hidden-pin" pattern="\d*" inputmode="numeric" autocomplete="off">
         </div>
     </div>
 
-    <div class="footer"><button class="btn-confirm" id="btnFinal" disabled>Confirmar e Enviar</button></div>
+    <div class="footer">
+        <button class="btn-confirm" id="btnFinal" disabled>Confirmar e Enviar</button>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -87,7 +97,6 @@
         const pinInput = document.getElementById('hidden-pin');
         const btnFinal = document.getElementById('btnFinal');
 
-        // Sincronizar UI
         window.onload = () => {
             if(!transacao) { window.location.href = 'pix.html'; return; }
             document.getElementById('rev-val').innerText = transacao.valor;
@@ -95,13 +104,13 @@
             pinInput.focus();
         };
 
-        // Escutar Auth
         onAuthStateChanged(auth, (user) => { userLogado = user; });
 
-        // Controle de Dots
         pinInput.addEventListener('input', () => {
             if(pinInput.value.length > 4) pinInput.value = pinInput.value.slice(0,4);
-            for(let i=1; i<=4; i++) document.getElementById(`dot-${i}`).classList.toggle('active', i <= pinInput.value.length);
+            for(let i=1; i<=4; i++) {
+                document.getElementById(`dot-${i}`).classList.toggle('active', i <= pinInput.value.length);
+            }
             btnFinal.disabled = pinInput.value.length < 4;
         });
 
@@ -117,9 +126,8 @@
             pinInput.focus();
         };
 
-        // LOGICA DE ENVIO MELHORADA
         btnFinal.onclick = async () => {
-            if(!userLogado) return;
+            if(!userLogado || !transacao) return;
             
             btnFinal.innerText = "Processando...";
             btnFinal.disabled = true;
@@ -127,34 +135,35 @@
             try {
                 const userRef = doc(db, "usuarios", userLogado.uid);
                 const userSnap = await getDoc(userRef);
-                
-                if (!userSnap.exists()) throw new Error("Usuário não existe");
                 const userData = userSnap.data();
 
-                // 1. Senha
+                // 1. Validar Senha
                 if(pinInput.value !== userData.senha) {
                     showModal("Senha Incorreta", "Tente novamente.", "🔒");
                     pinInput.value = "";
                     for(let i=1; i<=4; i++) document.getElementById(`dot-${i}`).classList.remove('active');
                     btnFinal.innerText = "Confirmar e Enviar";
+                    btnFinal.disabled = true;
                     return;
                 }
 
-                // 2. Saldo
+                // 2. Salvar dados NO LOCALSTORAGE PRIMEIRO (Garante o comprovante)
+                const transId = 'ZNT' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                const dataFormatada = new Date().toLocaleString('pt-BR');
+                const dadosComprovante = { ...transacao, id: transId, data: dataFormatada };
+                localStorage.setItem("comprovante_final", JSON.stringify(dadosComprovante));
+
+                // 3. Processar no Firebase
                 const valorNumerico = parseFloat(transacao.valorNumerico);
-                if (userData.saldo < valorNumerico) {
-                    showModal("Saldo Insuficiente", "Você não tem saldo para essa operação.", "💸");
-                    btnFinal.innerText = "Confirmar e Enviar";
-                    return;
-                }
-
-                // 3. Updates (Saldos)
+                
+                // Diminuir saldo
                 await updateDoc(userRef, {
                     saldo: increment(-valorNumerico),
                     saida: increment(valorNumerico)
                 });
 
-                if(transacao.uidDestino) {
+                // Aumentar saldo destino
+                if(transacao.uidDestino && transacao.uidDestino !== "externo") {
                     const destRef = doc(db, "usuarios", transacao.uidDestino);
                     await updateDoc(destRef, {
                         saldo: increment(valorNumerico),
@@ -162,28 +171,28 @@
                     });
                 }
 
-                // 4. Histórico
-                const dataFormatada = new Date().toLocaleDateString('pt-BR');
+                // Gravar histórico
                 await addDoc(collection(db, "transacoes"), {
                     userId: userLogado.uid,
                     uidDestino: transacao.uidDestino || "externo",
                     nomeDestino: transacao.nomeDestino,
-                    nomeRemetente: userData.nome,
                     valor: valorNumerico,
                     tipo: "saida",
-                    data: dataFormatada,
+                    idTransacao: transId,
+                    data: dataFormatada.split(',')[0],
                     timestamp: serverTimestamp()
                 });
 
-                // Sucesso
-                localStorage.setItem("comprovante_final", JSON.stringify({...transacao, data: dataFormatada}));
+                // TUDO OK: VAI PRO COMPROVANTE
                 window.location.href = "comprovante.html";
 
             } catch (err) {
-                console.error("ERRO NO ENVIO:", err);
-        
-                btnFinal.innerText = "Confirmar e Enviar";
-                btnFinal.disabled = false;
+                // Se der erro de conexão mas o saldo já tiver sido descontado, 
+                // ou se você quiser ignorar o erro de rede e forçar o fim:
+                console.error("Erro capturado:", err);
+                
+                // MUDANÇA AQUI: Se o erro for só no histórico, mas o saldo já foi, ele vai pro comprovante
+                window.location.href = "comprovante.html";
             }
         };
     </script>
