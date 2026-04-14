@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <title>Comprovante - ZENTRY</title>
@@ -11,47 +11,43 @@
   --bg: radial-gradient(circle at 20% 0%, #0f172a, #000 70%);
   --card: rgba(18,24,38,0.95);
   --green:#22C55E;
-  --red:#EF4444;
 }
-  body {
+body {
   margin:0; font-family:'Inter',sans-serif; background:var(--bg); color:#fff;
-  display:flex; flex-direction:column; align-items:center; /* Mudamos para coluna */
-  padding:20px; min-height: 100vh;
+  display:flex; flex-direction:column; align-items:center; padding:20px; min-height: 100vh;
 }
-
-.actions {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%; /* Ocupa a largura do card */
-}
-  
 .card{
   width:100%; max-width:420px; border-radius:28px; padding:30px 20px;
-  backdrop-filter:blur(20px); background:var(--card); box-shadow:0 20px 50px rgba(0,0,0,0.5);
+  backdrop-filter:blur(20px); background:var(--card); border: 1px solid rgba(255,255,255,0.05);
 }
-.check{
-  width:80px; height:80px; margin:0 auto 20px;
-}
+.check{ width:70px; height:70px; margin:0 auto 15px; }
 circle{ fill:none; stroke:var(--green); stroke-width:2; stroke-dasharray:200; stroke-dashoffset:200; animation:circle 0.6s forwards;}
 path{ fill:none; stroke:var(--green); stroke-width:3; stroke-dasharray:50; stroke-dashoffset:50; animation:check 0.4s 0.6s forwards;}
 @keyframes circle{to{stroke-dashoffset:0}}
 @keyframes check{to{stroke-dashoffset:0}}
-.valor{ font-size:34px; font-weight:700; text-align:center;}
-.status{ text-align:center; color:var(--green); margin-bottom:25px;}
-.linha{ display:flex; justify-content:space-between; margin-bottom:12px; font-size:13px;}
-.actions{ margin-top:25px; display:flex; flex-direction:column; gap:10px;}
-button{ padding:14px; border-radius:14px; border:none; font-weight:600;}
+
+.valor{ font-size:36px; font-weight:800; text-align:center; margin-bottom: 5px; letter-spacing: -1px;}
+.status{ text-align:center; color:var(--green); margin-bottom:30px; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;}
+.linha{ display:flex; justify-content:space-between; margin-bottom:15px; font-size:14px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 8px;}
+.linha span:first-child { color: #94a3b8; }
+.linha span:last-child { font-weight: 600; text-align: right; max-width: 60%; }
+
+.actions{ margin-top:20px; display:flex; flex-direction:column; gap:10px; width: 100%; max-width: 420px;}
+button{ padding:16px; border-radius:16px; border:none; font-weight:700; font-size: 15px; transition: 0.2s;}
 .primary{ background:var(--green); color:#000;}
-.secondary{ background:transparent; border:1px solid rgba(255,255,255,0.1); color:#fff;}
-.toast{ position:fixed; bottom:30px; background:#111; padding:12px 20px; border-radius:12px; opacity:0; transition:.3s;}
-.export-mode { background: #fff !important; color: #000 !important; }
-.export-mode .card { background:#fff !important; color:#000 !important; box-shadow:none !important; }
-.export-mode .status { color:#16a34a !important; }
+.secondary{ background:rgba(255,255,255,0.05); color:#fff; border: 1px solid rgba(255,255,255,0.1);}
+button:active { transform: scale(0.97); }
+
+/* Ajustes para Exportação de Imagem */
+.export-mode { background: #fff !important; padding: 40px !important; }
+.export-mode .card { background:#fff !important; color:#000 !important; border:none !important; box-shadow:none !important; }
+.export-mode .linha { border-color: #eee !important; }
+.export-mode .linha span:first-child { color: #666 !important; }
+.export-mode .linha span:last-child { color: #000 !important; }
 </style>
 </head>
 <body>
+
 <div class="card" id="card">
   <div class="check">
     <svg viewBox="0 0 52 52">
@@ -60,134 +56,107 @@ button{ padding:14px; border-radius:14px; border:none; font-weight:600;}
     </svg>
   </div>
 
-  <div class="valor" id="valor"></div>
-  <div class="status" id="status"></div>
+  <div class="valor" id="txtValor">R$ 0,00</div>
+  <div class="status" id="txtStatus">Realizado com sucesso</div>
 
-  <div id="conteudo"></div>
-</div> <div class="actions" style="width: 100%; max-width: 420px; margin: 0 auto;">
-    <button class="primary" onclick="compartilhar()">Compartilhar</button>
-    <button class="secondary" onclick="baixar()">Salvar imagem</button>
-    <button class="secondary" onclick="copiar()">Copiar dados</button>
-    <button class="secondary" onclick="voltar()">Sair</button>
+  <div id="conteudo">
+    </div>
 </div>
-  
 
-<div class="toast" id="toast">Copiado!</div>
+<div class="actions">
+    <button class="primary" onclick="compartilhar()">Compartilhar Comprovante</button>
+    <button class="secondary" onclick="voltar()">Voltar ao Início</button>
+    <button class="secondary" style="opacity: 0.6; font-size: 12px;" onclick="copiarID()">Copiar ID da Transação</button>
+</div>
+
 <script>
-// AJUSTE DE LEITURA: Tenta ler 'comprovante_final' (novo) ou 'comprovante' (antigo/recarga)
-const dados = JSON.parse(localStorage.getItem("comprovante_final")) || JSON.parse(localStorage.getItem("comprovante")) || {};
+// Pega os dados de onde quer que eles venham
+const dados = JSON.parse(localStorage.getItem("comprovante_ativo")) || 
+              JSON.parse(localStorage.getItem("comprovante_final")) || 
+              JSON.parse(localStorage.getItem("comprovante")) || {};
 
-const tipo = dados.tipo || "Pix";
-const valor = dados.valor || "R$ 0,00";
-// Adaptando nomes de campos que podem vir diferentes
-const nome = dados.nome || dados.nomeDestino || "-";
-const banco = dados.banco || dados.bancoDestino || "-";
-const numero = dados.numero || dados.telefone || "-";
-const operadora = dados.operadora || "-";
-const data = dados.data || new Date().toLocaleString();
-const id = dados.id || "ZNT" + Math.floor(Math.random() * 999999);
-
-document.getElementById("valor").innerText = valor;
-const labelTipo = {
-  pix: "PIX Enviado", 
-  transferencia: "Transferência", 
-  recarga: "Recarga Celular", 
-  pagamento: "Pagamento"
-}[tipo] || tipo;
-
-document.getElementById("status").innerText = labelTipo + " realizado";
-
-let html = "";
-if(tipo === "pix" || tipo === "transferencia"){ 
-    html += `
-        <div class="linha"><span>Destinatário</span><span>${nome}</span></div>
-        <div class="linha"><span>Instituição</span><span>${banco}</span></div>
-    `;
-}
-if(tipo === "recarga"){ 
-    html += `
-        <div class="linha"><span>Número</span><span>${numero}</span></div>
-        <div class="linha"><span>Operadora</span><span>${operadora}</span></div>
-    `;
-}
-html += `
-    <div class="linha"><span>Data</span><span>${data}</span></div>
-    <div class="linha"><span>ID da Transação</span><span>${id}</span></div>
-`;
-document.getElementById("conteudo").innerHTML = html;
-
-// FUNÇÃO COMPARTILHAR TURBINADA
-async function compartilhar() {
-  const card = document.getElementById("card");
-  document.body.classList.add("export-mode");
-  
-  try {
-    const canvas = await html2canvas(card, {
-      backgroundColor: "#ffffff",
-      scale: 3,
-      useCORS: true
-    });
-    
-    document.body.classList.remove("export-mode");
-    
-    const dataUrl = canvas.toDataURL("image/png");
-    const blob = await (await fetch(dataUrl)).blob();
-    const file = new File([blob], "comprovante_zentry.png", { type: "image/png" });
-
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        title: 'Comprovante Zentry',
-        text: 'Segue meu comprovante de pagamento.'
-      });
-    } else {
-      baixarImagem(canvas); // Cai no download se o cel não suportar share de arquivo
+function inicializar() {
+    if (!dados.valor) {
+        document.body.innerHTML = "<div style='padding:50px; text-align:center;'>Nenhum dado encontrado.</div>";
+        return;
     }
-  } catch (err) {
-    console.error("Erro ao compartilhar:", err);
-    document.body.classList.remove("export-mode");
-  }
+
+    const valorStr = typeof dados.valor === 'number' ? 
+        dados.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : dados.valor;
+
+    document.getElementById("txtValor").innerText = valorStr;
+    
+    // Título dinâmico
+    const labels = { pix: "Pix Enviado", recarga: "Recarga realizada", entrada: "Pix Recebido", link: "Link de Pagamento", qrcode: "Pagamento QR Code" };
+    document.getElementById("txtStatus").innerText = labels[dados.tipo] || "Transação Realizada";
+
+    let html = "";
+    
+    // Campo Dinâmico: Destinatário ou Remetente
+    if (dados.nomeDestino || dados.nomeRemetente || dados.nome) {
+        const rotulo = dados.tipo === "entrada" ? "Origem" : "Destino";
+        html += `<div class="linha"><span>${rotulo}</span><span>${dados.nomeDestino || dados.nomeRemetente || dados.nome}</span></div>`;
+    }
+
+    // Campo Dinâmico: Instituição/Banco
+    if (dados.bancoDestino || dados.banco) {
+        html += `<div class="linha"><span>Instituição</span><span>${dados.bancoDestino || dados.banco}</span></div>`;
+    }
+
+    // Campo Dinâmico: Recarga
+    if (dados.tipo === "recarga") {
+        html += `<div class="linha"><span>Número</span><span>${dados.telefone || dados.numero || '-'}</span></div>`;
+        html += `<div class="linha"><span>Operadora</span><span>${dados.operadora || '-'}</span></div>`;
+    }
+
+    // Campos Fixos
+    html += `<div class="linha"><span>Data e Hora</span><span>${dados.data || new Date().toLocaleString()}</span></div>`;
+    html += `<div class="linha"><span>ID da Transação</span><span>${dados.id || 'ZNT'+Math.random().toString(36).substr(2,9).toUpperCase()}</span></div>`;
+
+    document.getElementById("conteudo").innerHTML = html;
 }
 
-function baixar() { 
-  const card = document.getElementById("card");
-  document.body.classList.add("export-mode");
-  html2canvas(card, {backgroundColor: "#fff", scale: 3}).then(canvas => {
-    document.body.classList.remove("export-mode");
-    baixarImagem(canvas);
-  });
+async function compartilhar() {
+    const card = document.getElementById("card");
+    document.body.classList.add("export-mode");
+    
+    try {
+        const canvas = await html2canvas(card, { scale: 3, backgroundColor: "#ffffff" });
+        document.body.classList.remove("export-mode");
+        
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        const file = new File([blob], "comprovante_zentry.png", { type: "image/png" });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: 'Comprovante Zentry',
+                text: 'Comprovante de pagamento enviado via Zentry App.'
+            });
+        } else {
+            // Fallback: Baixa a imagem se o navegador não der suporte a compartilhar arquivos
+            const link = document.createElement("a");
+            link.download = "comprovante_zentry.png";
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    } catch (err) {
+        document.body.classList.remove("export-mode");
+        alert("Erro ao gerar imagem.");
+    }
 }
 
-function baixarImagem(canvas) { 
-  const link = document.createElement("a"); 
-  link.download = "comprovante_zentry.png"; 
-  link.href = canvas.toDataURL(); 
-  link.click();
+function copiarID() {
+    navigator.clipboard.writeText(dados.id || "");
+    alert("ID Copiado!");
 }
 
-function copiar() { 
-  const textoParaCopiar = `Comprovante Zentry\nValor: ${valor}\nPara: ${nome}\nData: ${data}\nID: ${id}`;
-  navigator.clipboard.writeText(textoParaCopiar); 
-  toast("Dados copiados!"); 
-}
-
-function toast(msg) { 
-  const t = document.getElementById("toast"); 
-  t.innerText = msg; 
-  t.style.opacity = 1; 
-  setTimeout(() => t.style.opacity = 0, 2000);
-}
-
-function voltar() { 
-    // Limpa a transação pendente para não dar erro ao voltar
-    localStorage.removeItem("transacao_pendente");
+function voltar() {
     window.location.href = 'home.html';
 }
 
-if(navigator.vibrate) { navigator.vibrate([50]); }
+inicializar();
 </script>
-  
 
 </body>
 </html>
-
