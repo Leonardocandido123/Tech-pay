@@ -1,193 +1,204 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root { --primary: #22C55E; --bg: #000; --card-bg: #111827; --border: #1F2937; --text-muted: #9CA3AF; }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: #FFF; padding: 20px; display: flex; flex-direction: column; height: 100vh; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zentry - Minhas Caixinhas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root { --primary: #22C55E; --bg: #000; --card-bg: rgba(255,255,255,0.05); --border: rgba(255,255,255,0.08); --text-muted: #94a3b8; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: radial-gradient(circle at 20% 0%, #0f172a, #000 60%); color: #FFF; min-height: 100vh; padding: 20px; }
 
-  /* HEADER */
-  .header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
-  .back-btn { background: none; border: none; color: white; cursor: pointer; padding: 0; }
-  
-  .main-content { flex: 1; overflow-y: auto; padding-bottom: 100px; }
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .back-nav { display: inline-flex; align-items: center; justify-content: center; width: 45px; height: 45px; background: var(--card-bg); border-radius: 50%; color: #fff; text-decoration: none; border: 1px solid var(--border); }
+        
+        .main-content { padding-bottom: 100px; }
 
-  /* CARD TOTAL */
-  .total-guardado { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 20px; margin-bottom: 25px; border-left: 4px solid var(--primary); }
-  .total-guardado h2 { font-size: 32px; color: var(--primary); margin: 5px 0; font-weight: 800; }
+        .total-guardado { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--border); padding: 25px; border-radius: 28px; margin-bottom: 25px; border-left: 5px solid var(--primary); }
+        .total-guardado h2 { font-size: 32px; color: var(--primary); margin: 5px 0; font-weight: 800; letter-spacing: -1px; }
 
-  /* LISTA DE METAS */
-  .metas-lista { display: flex; flex-direction: column; gap: 15px; }
-  .meta-card { background: var(--card-bg); border: 1px solid var(--border); padding: 18px; border-radius: 18px; position: relative; }
-  
-  .meta-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
-  .meta-icon { font-size: 24px; width: 45px; height: 45px; background: rgba(255,255,255,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-  .meta-title { flex: 1; font-weight: 700; font-size: 16px; }
-  .btn-delete { background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.6; }
+        .meta-card { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--border); padding: 22px; border-radius: 24px; margin-bottom: 15px; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* BARRA PROGRESSO */
-  .progress-container { width: 100%; height: 8px; background: #1f2937; border-radius: 10px; margin: 10px 0; overflow: hidden; }
-  .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: 0.5s; }
-  
-  .meta-info-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 15px; }
-  .meta-valor-atual { color: #FFF; font-weight: 700; font-size: 14px; }
+        .meta-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .meta-icon { font-size: 22px; width: 48px; height: 48px; background: rgba(255,255,255,0.03); border-radius: 16px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); }
+        .meta-title { flex: 1; font-weight: 700; font-size: 17px; }
 
-  /* BOTÕES DE AÇÃO NO CARD */
-  .card-actions { display: flex; gap: 10px; }
-  .btn-action { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: #FFF; font-weight: 600; font-size: 13px; cursor: pointer; }
-  .btn-action:active { background: var(--primary); color: #000; }
+        .progress-container { width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; margin: 12px 0; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #22c55e, #4ade80); border-radius: 10px; transition: 1s ease-in-out; }
+        
+        .meta-info-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 15px; }
+        .meta-valor-atual { color: #FFF; font-weight: 800; font-size: 18px; }
 
-  /* MODAL */
-  .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-  .modal-content { background: #111; border: 1px solid var(--border); width: 100%; max-width: 350px; padding: 25px; border-radius: 20px; }
-  input { width: 100%; background: #1f2937; border: 1px solid var(--border); padding: 15px; border-radius: 12px; color: #fff; margin: 15px 0; font-size: 16px; outline: none; }
-  
-  .footer-btn { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--primary); color: #000; border: none; padding: 18px; border-radius: 15px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 15px rgba(34,197,94,0.3); }
-</style>
+        .btn-action { flex: 1; padding: 14px; border-radius: 15px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: #FFF; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .btn-action:active { background: var(--primary); color: #000; }
+
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 25px; }
+        .modal-content { background: #111; border: 1px solid var(--border); width: 100%; max-width: 360px; padding: 30px; border-radius: 30px; text-align: center; }
+        input { width: 100%; background: #1a1a1a; border: 1px solid var(--border); padding: 18px; border-radius: 16px; color: #fff; margin: 15px 0; font-size: 16px; text-align: center; }
+        
+        .footer-btn { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--primary); color: #000; border: none; padding: 20px; border-radius: 20px; font-weight: 800; font-size: 16px; }
+    </style>
 </head>
 <body>
 
 <div class="header">
-  <button class="back-btn" onclick="location.href='home.html'"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-  <h1 style="font-size: 18px; margin: 0;">Minhas Caixinhas</h1>
+    <a href="home.html" class="back-nav"><i data-lucide="chevron-left"></i></a>
+    <h1 style="font-size: 18px; margin: 0;">Minhas Caixinhas</h1>
 </div>
 
 <div class="main-content">
-  <div class="total-guardado">
-    <small style="color: var(--text-muted)">Total Guardado</small>
-    <h2 id="totalGeral">R$ 0,00</h2>
-  </div>
-
-  <div class="metas-lista" id="metasContainer"></div>
+    <div class="total-guardado">
+        <small style="color: var(--text-muted)">Total Guardado</small>
+        <h2 id="totalGeral">R$ 0,00</h2>
+    </div>
+    <div id="metasContainer"></div>
 </div>
 
 <button class="footer-btn" onclick="abrirModalCriar()">Criar nova caixinha</button>
 
 <div id="modalCriar" class="modal">
-  <div class="modal-content">
-    <h3 style="margin:0">Novo Objetivo</h3>
-    <input type="text" id="nomeMeta" placeholder="Ex: Viagem, Carro, Moto">
-    <input type="text" id="valorMeta" placeholder="R$ 0,00" inputmode="numeric">
-
-    <button class="footer-btn" style="position:static" onclick="salvarMeta()">Criar Agora</button>
-    <button onclick="fecharModais()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
-  </div>
+    <div class="modal-content">
+        <h3>Novo Objetivo</h3>
+        <input type="text" id="nomeMeta" placeholder="Ex: Reserva, Viagem, Carro">
+        <input type="text" id="valorMeta" placeholder="R$ 0,00" inputmode="numeric">
+        <button class="btn-action" style="background:var(--primary); color:#000; width:100%; padding:18px" onclick="salvarMeta()">Criar Agora</button>
+        <button onclick="fecharModais()" style="background:none; border:none; color:var(--text-muted); margin-top:20px; cursor:pointer">Cancelar</button>
+    </div>
 </div>
 
 <div id="modalMovimentar" class="modal">
-  <div class="modal-content">
-    <h3 id="tituloMovimentar" style="margin:0"></h3>
-    <input type="text" id="valorMovimentar" placeholder="R$ 0,00" inputmode="numeric">
-
-    <div style="display:flex; gap:10px">
-        <button class="btn-action" style="background:var(--primary); color:#000; border:none; padding:15px" onclick="confirmarMovimentacao('guardar')">Guardar</button>
-        <button class="btn-action" style="background:#ef4444; color:#fff; border:none; padding:15px" onclick="confirmarMovimentacao('resgatar')">Resgatar</button>
+    <div class="modal-content">
+        <h3 id="tituloMovimentar"></h3>
+        <input type="text" id="valorMovimentar" placeholder="R$ 0,00" inputmode="numeric">
+        <div style="display:flex; gap:12px">
+            <button class="btn-action" style="background:var(--primary); color:#000;" onclick="confirmarMovimentacao('guardar')">Guardar</button>
+            <button class="btn-action" style="background:#ef4444; color:#fff;" onclick="confirmarMovimentacao('resgatar')">Resgatar</button>
+        </div>
+        <button onclick="fecharModais()" style="background:none; border:none; color:var(--text-muted); margin-top:20px">Voltar</button>
     </div>
-    <button onclick="fecharModais()" style="background:none; border:none; color:#666; width:100%; margin-top:15px">Voltar</button>
-  </div>
 </div>
 
-<script>
-  let metas = JSON.parse(localStorage.getItem('metas_db')) || [];
-  let indexSelecionado = null;
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, collection, onSnapshot, addDoc, updateDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  const dicionario = { carro: "🚗", moto: "🏍️", casa: "🏠", viagem: "✈️", viajem: "✈️", drone: "🛸", bike: "🚲", reserva: "💰", navio: "🚢", aviao: "✈️" };
-  const getIcon = (n) => { let m = n.toLowerCase(); for(let k in dicionario) if(m.includes(k)) return dicionario[k]; return "🎯"; };
+    const firebaseConfig = {
+        apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
+        authDomain: "zentry-app-74275.firebaseapp.com",
+        projectId: "zentry-app-74275",
+        storageBucket: "zentry-app-74275.appspot.com",
+        messagingSenderId: "571422826071",
+        appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
+    };
 
-  // --- FUNÇÃO MÁSCARA DE MOEDA ---
-  function mascaraMoeda(event) {
-    let v = event.target.value.replace(/\D/g, "");
-    v = (v / 100).toFixed(2) + "";
-    v = v.replace(".", ",");
-    v = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    event.target.value = "R$ " + v;
-  }
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-  // Aplicar a máscara nos inputs ao carregar
-  document.getElementById('valorMeta').addEventListener('input', mascaraMoeda);
-  document.getElementById('valorMovimentar').addEventListener('input', mascaraMoeda);
+    lucide.createIcons();
 
-  function formatarParaNumero(valorString) {
-    return parseFloat(valorString.replace("R$ ", "").replace(/\./g, "").replace(",", ".")) || 0;
-  }
+    let uid = null;
+    let indexSelecionado = null;
+    let listaMetasLocal = [];
 
-  function renderizar() {
-    const container = document.getElementById('metasContainer');
-    container.innerHTML = '';
-    let total = 0;
+    // --- MÁSCARA DE MOEDA ---
+    const mascaraMoeda = (e) => {
+        let v = e.target.value.replace(/\D/g, "");
+        v = (v / 100).toFixed(2) + "";
+        v = v.replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        e.target.value = "R$ " + v;
+    };
+    document.getElementById('valorMeta').addEventListener('input', mascaraMoeda);
+    document.getElementById('valorMovimentar').addEventListener('input', mascaraMoeda);
 
-    metas.forEach((meta, i) => {
-      total += meta.guardado;
-      let perc = meta.total > 0 ? Math.min((meta.guardado / meta.total) * 100, 100).toFixed(0) : 0;
-      
-      container.innerHTML += `
-        <div class="meta-card">
-          <div class="meta-header">
-            <div class="meta-icon">${getIcon(meta.nome)}</div>
-            <div class="meta-title">${meta.nome}</div>
-            <button class="btn-delete" onclick="excluir(${i})">🗑️</button>
-          </div>
-          <div class="meta-valor-atual">R$ ${meta.guardado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-          <div class="progress-container"><div class="progress-bar" style="width:${perc}%"></div></div>
-          <div class="meta-info-row">
-            <span>${perc}% concluído</span>
-            <span>Meta: R$ ${meta.total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
-          </div>
-          <div class="card-actions">
-            <button class="btn-action" onclick="abrirMovimentar(${i})">Guardar / Resgatar</button>
-          </div>
-        </div>`;
+    const parseVal = (str) => parseFloat(str.replace("R$ ", "").replace(/\./g, "").replace(",", ".")) || 0;
+    const dicionario = { carro: "🚗", moto: "🏍️", casa: "🏠", viagem: "✈️", drone: "🛸", bike: "🚲", reserva: "💰" };
+    const getIcon = (n) => { let m = n.toLowerCase(); for(let k in dicionario) if(m.includes(k)) return dicionario[k]; return "🎯"; };
+
+    // ESCUTA O USUÁRIO E AS METAS NO FIREBASE
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            uid = user.uid;
+            const q = query(collection(db, "usuarios", uid, "metas"));
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('metasContainer');
+                container.innerHTML = '';
+                let totalGeral = 0;
+                listaMetasLocal = [];
+
+                snapshot.forEach((doc) => {
+                    const meta = { id: doc.id, ...doc.data() };
+                    listaMetasLocal.push(meta);
+                    totalGeral += meta.guardado;
+                    
+                    let perc = Math.min((meta.guardado / meta.total) * 100, 100).toFixed(0);
+                    
+                    container.innerHTML += `
+                        <div class="meta-card">
+                            <div class="meta-header">
+                                <div class="meta-icon">${getIcon(meta.nome)}</div>
+                                <div class="meta-title">${meta.nome}</div>
+                                <button style="background:none; border:none; cursor:pointer;" onclick="excluirMeta('${meta.id}')">🗑️</button>
+                            </div>
+                            <div class="meta-valor-atual">R$ ${meta.guardado.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                            <div class="progress-container"><div class="progress-bar" style="width:${perc}%"></div></div>
+                            <div class="meta-info-row">
+                                <span>${perc}% concluído</span>
+                                <span>Objetivo: R$ ${meta.total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                            </div>
+                            <button class="btn-action" onclick="abrirMovimentar('${meta.id}', '${meta.nome}')">Ajustar Saldo</button>
+                        </div>`;
+                });
+                document.getElementById('totalGeral').innerText = totalGeral.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+            });
+        } else { window.location.replace("login.html"); }
     });
-    document.getElementById('totalGeral').innerText = total.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
-    localStorage.setItem('metas_db', JSON.stringify(metas));
-  }
 
-  function salvarMeta() {
-    let n = document.getElementById('nomeMeta').value;
-    let v = formatarParaNumero(document.getElementById('valorMeta').value);
-    
-    if(n && v > 0) { 
-        metas.push({nome:n, total:v, guardado:0}); 
+    // FUNÇÕES GLOBAIS
+    window.salvarMeta = async () => {
+        const n = document.getElementById('nomeMeta').value;
+        const v = parseVal(document.getElementById('valorMeta').value);
+        if(!n || v <= 0) return;
+        await addDoc(collection(db, "usuarios", uid, "metas"), { nome: n, total: v, guardado: 0, data: new Date() });
+        fecharModais();
+    };
+
+    window.abrirMovimentar = (id, nome) => {
+        indexSelecionado = id;
+        document.getElementById('tituloMovimentar').innerText = nome;
+        document.getElementById('modalMovimentar').style.display = 'flex';
+    };
+
+    window.confirmarMovimentacao = async (tipo) => {
+        const v = parseVal(document.getElementById('valorMovimentar').value);
+        if(v <= 0) return;
+
+        const metaRef = doc(db, "usuarios", uid, "metas", indexSelecionado);
+        const metaAtual = listaMetasLocal.find(m => m.id === indexSelecionado);
+        
+        let novoSaldo = tipo === 'guardar' ? metaAtual.guardado + v : metaAtual.guardado - v;
+        if(novoSaldo < 0) return;
+
+        await updateDoc(metaRef, { guardado: novoSaldo });
+        fecharModais();
+    };
+
+    window.excluirMeta = async (id) => {
+        // Modal de confirmação customizado pode ser feito aqui, por ora vamos de delete direto para fluidez
+        await deleteDoc(doc(db, "usuarios", uid, "metas", id));
+    };
+
+    window.abrirModalCriar = () => document.getElementById('modalCriar').style.display = 'flex';
+    window.fecharModais = () => {
+        document.querySelectorAll('.modal').forEach(m => m.style.display='none');
         document.getElementById('nomeMeta').value = '';
         document.getElementById('valorMeta').value = '';
-        fecharModais(); 
-        renderizar(); 
-    } else {
-        alert("Defina um nome e um valor para o seu objetivo.");
-    }
-  }
-
-  function abrirMovimentar(i) {
-    indexSelecionado = i;
-    document.getElementById('tituloMovimentar').innerText = metas[i].nome;
-    document.getElementById('valorMovimentar').value = ''; // Limpa o campo ao abrir
-    document.getElementById('modalMovimentar').style.display = 'flex';
-  }
-
-  function confirmarMovimentacao(tipo) {
-    let v = formatarParaNumero(document.getElementById('valorMovimentar').value);
-    if(v <= 0) return alert("Digite um valor válido.");
-
-    if(tipo === 'guardar') {
-        metas[indexSelecionado].guardado += v;
-    } else {
-        if(v > metas[indexSelecionado].guardado) return alert("Saldo insuficiente nesta caixinha!");
-        metas[indexSelecionado].guardado -= v;
-    }
-    fecharModais();
-    renderizar();
-  }
-
-  function excluir(i) { if(confirm("Excluir esta caixinha?")) { metas.splice(i,1); renderizar(); } }
-  function abrirModalCriar() { document.getElementById('modalCriar').style.display = 'flex'; }
-  function fecharModais() { document.querySelectorAll('.modal').forEach(m => m.style.display='none'); }
-
-  renderizar();
+        document.getElementById('valorMovimentar').value = '';
+    };
 </script>
-
-
 </body>
 </html>
