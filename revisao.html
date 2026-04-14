@@ -116,7 +116,8 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc, increment, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    
 
     const firebaseConfig = {
         apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
@@ -177,73 +178,86 @@
         document.getElementById('btnFinal').disabled = true;
         document.getElementById('btnFinal').innerText = "Confirmar e Enviar";
     }
+window.executarTransferencia = async () => {
+    const btn = document.getElementById('btnFinal');
+    const pinDigitado = document.getElementById('hidden-pin').value;
 
-    window.executarTransferencia = async () => {
-        const btn = document.getElementById('btnFinal');
-        const pinDigitado = document.getElementById('hidden-pin').value;
+    btn.innerText = "Processando...";
+    btn.disabled = true;
 
-        btn.innerText = "Processando...";
-        btn.disabled = true;
+    try {
+        const remetenteRef = doc(db, "usuarios", userLogado.uid);
+        const snap = await getDoc(remetenteRef);
+        
+        if(!snap.exists()) throw new Error("Usuário não encontrado");
+        const dadosUser = snap.data();
 
-        try {
-            const remetenteRef = doc(db, "usuarios", userLogado.uid);
-            const snap = await getDoc(remetenteRef);
-            
-            if(!snap.exists()) throw new Error("Usuário não encontrado");
-            const dadosUser = snap.data();
-
-            // 1. VALIDAÇÃO DE SENHA (BLINDADA)
-            let senhaNoBanco = dadosUser.senha;
-            if (!senhaNoBanco) {
-                await updateDoc(remetenteRef, { senha: pinDigitado });
-                senhaNoBanco = pinDigitado;
-            }
-
-            if(pinDigitado !== senhaNoBanco) {
-                showZModal("Senha Incorreta", "A senha de 4 dígitos não confere. Tente novamente.", "🔒");
-                limparPin();
-                return;
-            }
-
-            // 2. VALIDAÇÃO DE SALDO (BLINDADA)
-            const saldoAtual = parseFloat(dadosUser.saldo || 0);
-            if(saldoAtual < transacao.valorNumerico) {
-                showZModal("Saldo Insuficiente", "Você não possui saldo suficiente para esta transação.", "💸");
-                setTimeout(() => { window.location.href = 'pix.html'; }, 3000);
-                return;
-            }
-
-            // 3. EXECUÇÃO
-            await updateDoc(remetenteRef, {
-                saldo: increment(-transacao.valorNumerico),
-                saida: increment(transacao.valorNumerico)
-            });
-
-            if(transacao.uidDestino && transacao.uidDestino !== "externo" && transacao.uidDestino !== "fake_id_123") {
-                const destinoRef = doc(db, "usuarios", transacao.uidDestino);
-                await updateDoc(destinoRef, {
-                    saldo: increment(transacao.valorNumerico),
-                    entrada: increment(transacao.valorNumerico)
-                });
-            }
-
-            // 4. COMPROVANTE
-            const dadosComprovante = {
-                ...transacao,
-                data: new Date().toLocaleString('pt-BR'),
-                id: "ZNT" + Math.floor(100000 + Math.random() * 900000)
-            };
-            
-            localStorage.setItem("comprovante_final", JSON.stringify(dadosComprovante));
-            window.location.href = "comprovante.html";
-
-        } catch (error) {
-            console.error(error);
-            showZModal("Erro no Sistema", "Não foi possível completar a operação. Tente mais tarde.", "⚠️");
-            btn.innerText = "Confirmar e Enviar";
-            btn.disabled = false;
+        // 1. VALIDAÇÃO DE SENHA
+        let senhaNoBanco = dadosUser.senha;
+        if (!senhaNoBanco) {
+            await updateDoc(remetenteRef, { senha: pinDigitado });
+            senhaNoBanco = pinDigitado;
         }
-    };
+
+        if(pinDigitado !== senhaNoBanco) {
+            showZModal("Senha Incorreta", "A senha de 4 dígitos não confere.", "🔒");
+            limparPin();
+            return;
+        }
+
+        // 2. VALIDAÇÃO DE SALDO
+        const saldoAtual = parseFloat(dadosUser.saldo || 0);
+        if(saldoAtual < transacao.valorNumerico) {
+            showZModal("Saldo Insuficiente", "Você não possui saldo suficiente.", "💸");
+            return;
+        }
+
+        // 3. EXECUÇÃO (Atualiza saldos)
+        await updateDoc(remetenteRef, {
+            saldo: increment(-transacao.valorNumerico),
+            saida: increment(transacao.valorNumerico)
+        });
+
+        if(transacao.uidDestino) {
+            const destinoRef = doc(db, "usuarios", transacao.uidDestino);
+            await updateDoc(destinoRef, {
+                saldo: increment(transacao.valorNumerico),
+                entrada: increment(transacao.valorNumerico)
+            });
+        }
+
+        // 4. GRAVAÇÃO DO HISTÓRICO (O que estava faltando!)
+        // Criamos o registro para aparecer no Extrato
+        const dataAtual = new Date().toLocaleDateString('pt-BR');
+        await addDoc(collection(db, "transacoes"), {
+            userId: userLogado.uid,          // Quem enviou
+            uidDestino: transacao.uidDestino,// Quem recebeu
+            nomeDestino: transacao.nomeDestino,
+            nomeRemetente: dadosUser.nome,
+            valor: transacao.valorNumerico,
+            tipo: "saida",                   // Para o remetente aparecer vermelho
+            data: dataAtual,
+            timestamp: serverTimestamp()     // Para ordenação correta
+        });
+
+        // 5. COMPROVANTE
+        const dadosComprovante = {
+            ...transacao,
+            data: dataAtual + " " + new Date().toLocaleTimeString('pt-BR'),
+            id: "ZNT" + Math.floor(100000 + Math.random() * 900000)
+        };
+        
+        localStorage.setItem("comprovante_final", JSON.stringify(dadosComprovante));
+        window.location.href = "comprovante.html";
+
+    } catch (error) {
+        console.error(error);
+        showZModal("Erro", "Não foi possível completar a operação.", "⚠️");
+        btn.innerText = "Confirmar e Enviar";
+        btn.disabled = false;
+    }
+};
+            
 </script>
 </body>
 </html>
