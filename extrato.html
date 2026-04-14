@@ -62,8 +62,28 @@
                     <div class="right">
                         <div class="val ${corClasse}">${sinal} ${valorExibir}</div>
                  </div>
+</div> { style: 'currency', currency: 'BRL' });
+                }
+            }); itens
+        
+        const me = auth.currentUser ? auth.currentUser.uid : null;
+        if (!me) return;
+
+        let filtradas = transacoesCache.filter(t => {
+            const ehEntrada = t.uidDestino === me || t.tipo === "entrada";
+            if (filtro === "entrada") return ehEntrada;}')">
+                    <div class="left">
+                        <div class="icon">${icone}</div>
+                        <div class="info">
+                            <b>${nomeExibicao}</b>
+                            <span>${t.data || 'Recentemente'} • ${t.tipo?.toUpperCase() || 'PIX'}</span>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <div class="val ${corClasse}">${sinal} ${valorFormatado}</div>
+                    </div>
                 </div>
-<script type="module">
+    <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -116,8 +136,8 @@
                     return timeB - timeA;
                 });
 
-                // Pega o filtro ativo no momento
-                const filtroAtivo = document.querySelector('.filter.active').dataset.type;
+                // Pega o filtro ativo e renderiza
+                const filtroAtivo = document.querySelector('.filter.active')?.dataset.type || "todos";
                 renderizar(filtroAtivo);
             });
         } else {
@@ -127,11 +147,13 @@
 
     function renderizar(filtro) {
         const lista = document.getElementById('listaExtrato');
-        lista.innerHTML = ""; // Limpa a lista para não repetir itens
+        if (!lista) return;
         
+        lista.innerHTML = ""; 
         const me = auth.currentUser ? auth.currentUser.uid : null;
         if (!me) return;
 
+        // Filtragem
         let filtradas = transacoesCache.filter(t => {
             const ehEntrada = t.uidDestino === me || t.tipo === "entrada";
             if (filtro === "entrada") return ehEntrada;
@@ -145,23 +167,21 @@
         }
 
         filtradas.forEach(t => {
-            // Lógica de Entrada ou Saída
             const souEuRecebendo = t.uidDestino === me || t.tipo === "entrada";
             
-            // TRATAMENTO DE VALOR (Crucial para não repetir os 0,30)
-            let val = t.valor;
-            if (typeof val === 'string') {
-                // Se vier como "R$ 100,00", limpa e vira número
-                val = parseFloat(val.replace(/[^\d,.-]/g, '').replace(',', '.'));
+            // Tratamento de Valor Blindado
+            let val = 0;
+            if (typeof t.valor === 'number') {
+                val = t.valor;
+            } else if (typeof t.valor === 'string') {
+                val = parseFloat(t.valor.replace(/[^\d,.-]/g, '').replace(',', '.'));
             }
             
             const valorFormatado = (val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            
             const corClasse = souEuRecebendo ? 'pos' : 'neg';
             const sinal = souEuRecebendo ? '+' : '-';
             const icone = souEuRecebendo ? '💰' : '💸';
             
-            // Define o nome (Quem enviou ou quem recebeu)
             const nomeExibicao = souEuRecebendo ? (t.nomeRemetente || "Pix Recebido") : (t.nomeDestino || "Pix Enviado");
 
             const itemHtml = `
@@ -182,7 +202,7 @@
         });
     }
 
-    // Gerenciador de cliques nos filtros
+    // Gerenciador de cliques
     document.querySelectorAll('.filter').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
@@ -191,6 +211,7 @@
         });
     });
 
+    // Função global para o onclick
     window.verComprovante = (id) => {
         const t = transacoesCache.find(x => x.id === id);
         if (t) {
@@ -198,8 +219,7 @@
             window.location.href = "comprovante.html";
         }
     };
-</script>
+    </script>
     
-    
-</body>
+            </body>
 </html>
