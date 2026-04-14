@@ -83,39 +83,55 @@ button{ padding:16px; border-radius:16px; border:none; font-weight:700; font-siz
     <button class="primary" onclick="compartilhar()">Compartilhar Comprovante</button>
     <button class="secondary" onclick="voltar()">Voltar ao Início</button>
 </div>
-
-<script>
-const dados = JSON.parse(localStorage.getItem("comprovante_final")) || 
-              JSON.parse(localStorage.getItem("comprovante_ativo")) || {};
+  <script>
+// 1. Tenta pegar o ativo (extrato) ou o final (revisão)
+// Importante: a ordem aqui garante que o clique no extrato tenha prioridade
+const dados = JSON.parse(localStorage.getItem("comprovante_ativo")) || 
+              JSON.parse(localStorage.getItem("comprovante_final")) || null;
 
 function inicializar() {
-    if (!dados.valor) {
-        document.body.innerHTML = "<div style='padding:50px; text-align:center;'>Nenhum dado encontrado.</div>";
+    if (!dados || (!dados.valor && !dados.valorNumerico)) {
+        document.body.innerHTML = `
+            <div style='padding:50px; text-align:center;'>
+                <h2>Comprovante não encontrado</h2>
+                <button onclick="voltar()" class="secondary">Voltar</button>
+            </div>`;
         return;
     }
 
-    document.getElementById("txtValor").innerText = dados.valor;
-    const labels = { pix: "Pix Enviado", recarga: "Recarga realizada", entrada: "Pix Recebido" };
+    // Trata o valor: se for número vindo do banco, formata. Se for string (R$), mantém.
+    let valorExibir = dados.valor;
+    if (typeof dados.valor === 'number') {
+        valorExibir = dados.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    document.getElementById("txtValor").innerText = valorExibir;
+    
+    // Define o Título baseado no tipo ou no sinal
+    const labels = { pix: "Pix Enviado", recarga: "Recarga realizada", entrada: "Pix Recebido", saida: "Pix Enviado" };
     document.getElementById("txtStatus").innerText = labels[dados.tipo] || "Transferência Realizada";
 
     let html = "";
     
     // --- SEÇÃO DADOS DA TRANSAÇÃO ---
     html += `<div class="secao-titulo">Dados da Transação</div>`;
-    html += `<div class="linha"><span>Valor</span><span>${dados.valor}</span></div>`;
+    html += `<div class="linha"><span>Valor</span><span>${valorExibir}</span></div>`;
     html += `<div class="linha"><span>Data e Hora</span><span>${dados.data || new Date().toLocaleString()}</span></div>`;
-    html += `<div class="linha"><span>ID da Transação</span><span>${dados.id || 'ZNT'+Math.random().toString(36).substr(2,9).toUpperCase()}</span></div>`;
+    html += `<div class="linha"><span>ID da Transação</span><span>${dados.id || 'ZNT-S/N'}</span></div>`;
 
     // --- SEÇÃO DESTINO ---
     html += `<div class="secao-titulo">Destino</div>`;
-    html += `<div class="linha"><span>Nome</span><span>${dados.nomeDestino || '---'}</span></div>`;
+    // Se eu recebi o dinheiro, o "Destino" sou eu (Remetente no banco)
+    const nomeDestino = (dados.uidDestino === "externo" || dados.tipo === "saida") ? (dados.nomeDestino || "---") : (dados.nomeRemetente || "Eu");
+    html += `<div class="linha"><span>Nome</span><span>${nomeDestino}</span></div>`;
     if(dados.chavePix) html += `<div class="linha"><span>Chave Pix</span><span>${dados.chavePix}</span></div>`;
     html += `<div class="linha"><span>Instituição</span><span>${dados.bancoDestino || 'Zentry Bank'}</span></div>`;
 
     // --- SEÇÃO ORIGEM ---
     html += `<div class="secao-titulo">Origem</div>`;
-    // Aqui você pode puxar o nome do usuário logado se tiver salvo
-    html += `<div class="linha"><span>Nome</span><span>${dados.nomeRemetente || 'Usuário Zentry'}</span></div>`;
+    // Se eu enviei, a origem sou eu. Se recebi, a origem é o nomeRemetente.
+    const nomeOrigem = (dados.uidDestino === "externo" || dados.tipo === "saida") ? (dados.nomeRemetente || "Minha Conta") : (dados.nomeDestino || "Outro Usuário");
+    html += `<div class="linha"><span>Nome</span><span>${nomeOrigem}</span></div>`;
     html += `<div class="linha"><span>Instituição</span><span>ZENTRY</span></div>`;
     html += `<div class="linha"><span>CNPJ</span><span>98.768.908/0001-01</span></div>`;
 
@@ -145,9 +161,16 @@ async function compartilhar() {
     }
 }
 
-function voltar() { window.location.href = 'home.html'; }
+// Quando voltar, limpa o cache do comprovante ativo para não bugar o extrato
+function voltar() { 
+    localStorage.removeItem("comprovante_ativo");
+    window.location.href = 'home.html'; 
+}
+
 inicializar();
-</script>
+  </script>
+  
+  
 
 </body>
 </html>
