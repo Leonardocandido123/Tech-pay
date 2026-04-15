@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>ZENTRY - Scanner</title>
 
@@ -10,8 +10,6 @@
 
 <style>
 :root { --primary: #22C55E; }
-
-* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -22,7 +20,7 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
-/* SCANNER FULL */
+/* VIDEO FULL */
 #reader {
   position: fixed;
   inset: 0;
@@ -34,23 +32,32 @@ body {
   object-fit: cover;
 }
 
-/* OVERLAY ESCURO */
+/* OVERLAY MAIS LEVE (ANTES tava escuro demais) */
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
 }
 
-/* ÁREA DE FOCO (BOLETO) */
+/* ESCURECER SÓ FORA DA ÁREA */
+.overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.4); /* MAIS CLARO */
+}
+
+/* ÁREA FOCO (BOLETO) */
 .focus-area {
   width: 90%;
-  height: 140px;
+  height: 120px;
+  border: 2px solid var(--primary);
   border-radius: 12px;
   position: relative;
+  z-index: 2;
   overflow: hidden;
 }
 
@@ -60,8 +67,8 @@ body {
   width: 100%;
   height: 3px;
   background: var(--primary);
-  box-shadow: 0 0 20px var(--primary);
-  animation: scan 2s infinite;
+  box-shadow: 0 0 15px var(--primary);
+  animation: scan 1.8s infinite;
 }
 
 @keyframes scan {
@@ -69,7 +76,7 @@ body {
   100% { top: 100%; }
 }
 
-/* BOTÃO VOLTAR */
+/* BOTÃO */
 .back-btn {
   position: absolute;
   top: 20px;
@@ -80,7 +87,6 @@ body {
   color: white;
   padding: 12px;
   border-radius: 50%;
-  backdrop-filter: blur(10px);
 }
 
 /* TEXTO */
@@ -97,9 +103,7 @@ body {
 
 <body>
 
-<button class="back-btn" onclick="window.history.back()">
-←
-</button>
+<button class="back-btn" onclick="window.history.back()">←</button>
 
 <div id="reader"></div>
 
@@ -109,7 +113,7 @@ body {
   </div>
 </div>
 
-<div class="tip">Aponte para o código de barras do boleto</div>
+<div class="tip">Aponte para o código de barras</div>
 
 <script>
 let jaLeu = false;
@@ -121,28 +125,36 @@ function startScanner() {
       target: document.querySelector('#reader'),
       constraints: {
         facingMode: "environment",
-        width: { ideal: 1280 },
-        height: { ideal: 720 }
+        focusMode: "continuous" // 🔥 melhora foco
+      },
+      area: { // 🔥 só lê dentro da área verde
+        top: "40%",
+        right: "5%",
+        left: "5%",
+        bottom: "40%"
       }
     },
+
     locator: {
-      patchSize: "medium",
-      halfSample: true
+      patchSize: "large", // 🔥 melhora leitura de boleto
+      halfSample: false
     },
-    numOfWorkers: 2,
+
+    numOfWorkers: navigator.hardwareConcurrency || 4,
+
     decoder: {
       readers: [
-        "ean_reader",
-        "ean_13_reader",
+        "i2of5_reader",   // 🔥 PRINCIPAL PRA BOLETO
         "code_128_reader",
-        "code_39_reader",
-        "i2of5_reader"
+        "ean_reader",
+        "ean_13_reader"
       ]
     },
+
     locate: true
   }, function(err) {
     if (err) {
-      console.error(err);
+      console.error("Erro:", err);
       return;
     }
     Quagga.start();
@@ -153,7 +165,7 @@ function startScanner() {
 
     const code = result.codeResult.code;
 
-    if (!code || code.length < 10) return;
+    if (!code || code.length < 20) return;
 
     jaLeu = true;
 
@@ -174,7 +186,7 @@ function startScanner() {
   });
 }
 
-/* FORMATAR BOLETO */
+/* FORMATAR */
 function converterLinhaDigitavel(codigo) {
   return `${codigo.slice(0,5)}.${codigo.slice(5,10)} ` +
          `${codigo.slice(10,15)}.${codigo.slice(15,21)} ` +
@@ -185,7 +197,6 @@ function converterLinhaDigitavel(codigo) {
 
 /* PROCESSAR */
 function processarBoleto(codigo) {
-
   const linha = converterLinhaDigitavel(codigo);
   const valor = parseInt(codigo.slice(37)) / 100;
 
@@ -202,7 +213,6 @@ function processarBoleto(codigo) {
 
   localStorage.setItem("boletoAtual", JSON.stringify(boleto));
 
-  // TRANSIÇÃO SUAVE
   document.body.style.opacity = "0";
 
   setTimeout(() => {
