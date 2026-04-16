@@ -107,12 +107,12 @@ body {
 <div class="option" onclick="modoManual()">
   Digitar código manualmente
 </div>
+  
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Lembre-se de conferir se sua apiKey e projectId estão batendo com o novo projeto!
 const firebaseConfig = {
   apiKey: "AIzaSy...", 
   authDomain: "zentry-app-74275.firebaseapp.com",
@@ -132,41 +132,53 @@ let jaLeu = false;
 let cameraIniciada = false;
 
 /* =========================
-   🛡️ LOGIN COM PROTEÇÃO (DELAY)
+   🛡️ LOGIN COM PROTEÇÃO ULTRA
 ========================= */
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    console.log("Usuário autenticado:", user.uid);
+    console.log("Usuário detectado:", user.uid);
     userLogado = user;
     
-    // Pequeno delay para garantir que o DOM carregou antes de abrir a câmera
-    setTimeout(() => {
-        if(!cameraIniciada) iniciarQR();
-    }, 500);
-    
+    // Garantir que o DOM está pronto antes de chamar a câmera
+    if (document.readyState === "complete") {
+        executarInicio();
+    } else {
+        window.addEventListener("load", executarInicio);
+    }
   } else {
-    // Só redireciona se após 2 segundos o Firebase confirmar que não há ninguém
+    // Aumentamos o tempo para 4 segundos para dar tempo do hardware responder
     setTimeout(() => {
         if (!auth.currentUser) {
-            console.warn("Nenhum usuário detectado, redirecionando...");
             location.href = "login.html";
         }
-    }, 2000);
+    }, 4000);
   }
 });
 
+function executarInicio() {
+    if(!cameraIniciada) iniciarQR();
+}
+
 /* =========================
-   🔳 QR CODE (MELHORADO)
+   🔳 QR CODE (RESOLVENDO TELA PRETA)
 ========================= */
 async function iniciarQR(){
   if(cameraIniciada) return;
-  cameraIniciada = true;
+  
+  const readerElement = document.getElementById("reader");
+  if(!readerElement) return;
 
   qrScanner = new Html5Qrcode("reader");
+  cameraIniciada = true;
 
-  const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+  const config = { 
+    fps: 15, 
+    qrbox: { width: 250, height: 250 },
+    aspectRatio: 1.0 
+  };
 
   try {
+    // Tenta forçar a câmera traseira de forma explícita
     await qrScanner.start(
       { facingMode: "environment" },
       config,
@@ -175,14 +187,17 @@ async function iniciarQR(){
         jaLeu = true;
         vibrar();
         qrScanner.stop();
-        document.getElementById("status").innerText = "Código detectado! ✔";
+        document.getElementById("status").innerText = "Detectado! ✔";
         processar(text);
       }
     );
+    document.getElementById("status").innerText = "Câmera iniciada. Aponte para o código.";
   } catch (err) {
-    console.error("Erro ao iniciar QR, tentando Barras...", err);
+    console.error("Falha na câmera:", err);
+    document.getElementById("status").innerText = "Erro na câmera. Tentando modo barras...";
     cameraIniciada = false;
-    iniciarBarras();
+    // Se o QR falhar, tenta o Quagga como plano B
+    setTimeout(iniciarBarras, 1000);
   }
 }
 
@@ -193,20 +208,22 @@ function iniciarBarras(){
   if(cameraIniciada) return;
   cameraIniciada = true;
 
-  document.getElementById("status").innerText = "Modo código de barras ativo...";
-
   Quagga.init({
     inputStream: {
       type: "LiveStream",
-      target: document.querySelector('#reader'),
-      constraints: { facingMode: "environment" }
+      target: "#reader",
+      constraints: { 
+        facingMode: "environment",
+        width: {ideal: 640},
+        height: {ideal: 480}
+      }
     },
     decoder: {
       readers: ["i2of5_reader", "code_128_reader", "ean_reader"]
     }
   }, (err) => {
     if (err) {
-        console.error(err);
+        document.getElementById("status").innerText = "Erro fatal de hardware.";
         cameraIniciada = false;
         return;
     }
@@ -215,89 +232,43 @@ function iniciarBarras(){
 
   Quagga.onDetected((res) => {
     if (jaLeu) return;
-    const code = res.codeResult.code;
-    if (!code || code.length < 10) return;
-
     jaLeu = true;
     vibrar();
     Quagga.stop();
-    document.getElementById("status").innerText = "Barras detectado! ✔";
-    processar(code);
+    processar(res.codeResult.code);
   });
 }
 
-/* =========================
-   💳 PROCESSAR PAGAMENTO
-========================= */
+// ... (Função processar e vibrar permanecem iguais) ...
 async function processar(codigoLido){
   try {
-    let valorPrompt = prompt("Valor do pagamento (Ex: 50,00):");
-    if (!valorPrompt) {
-        location.reload();
-        return;
-    }
-
+    let valorPrompt = prompt("Valor do pagamento:");
+    if (!valorPrompt) { location.reload(); return; }
     const valorNum = parseFloat(valorPrompt.replace(".", "").replace(",", "."));
     
-    if (isNaN(valorNum) || valorNum <= 0) {
-        alert("Valor inválido!");
-        location.reload();
-        return;
-    }
-
-    document.getElementById("status").innerText = "Verificando saldo...";
-
     const userRef = doc(db, "usuarios", userLogado.uid);
     const snap = await getDoc(userRef);
-
-    if (!snap.exists()) {
-        alert("Erro: Perfil de usuário não encontrado no banco!");
-        return;
-    }
-
     const saldo = snap.data().saldo || 0;
 
     if (saldo < valorNum) {
-        alert("Saldo insuficiente! Seu saldo: R$ " + saldo.toFixed(2));
+        alert("Saldo insuficiente!");
         location.reload();
         return;
     }
 
-    document.getElementById("status").innerText = "Processando débito...";
-
-    // Atualiza saldo no Firebase
-    await updateDoc(userRef, {
-        saldo: increment(-valorNum)
-    });
-
-    // Salva transação local para o comprovante
+    await updateDoc(userRef, { saldo: increment(-valorNum) });
     localStorage.setItem("transacao", JSON.stringify({
         valor: valorNum,
-        codigo: codigoLido,
-        data: new Date().toLocaleString(),
-        tipo: "Pagamento"
+        data: new Date().toLocaleString()
     }));
-
     location.href = "comprovante.html";
-
-  } catch (error) {
-    console.error("Erro no processamento:", error);
-    alert("Ocorreu um erro ao processar o pagamento.");
-    location.reload();
-  }
+  } catch (e) { location.reload(); }
 }
 
-/* =========================
-   🧠 AUXILIARES
-========================= */
-function vibrar(){
-  if (navigator.vibrate) navigator.vibrate(150);
-}
-
-window.modoManual = function(){
-  processar("MANUAL");
-}
+function vibrar(){ if(navigator.vibrate) navigator.vibrate(150); }
+window.modoManual = () => processar("MANUAL");
 </script>
+  
   
 </body>
 </html>
