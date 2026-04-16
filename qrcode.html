@@ -12,12 +12,12 @@
 :root { --primary:#22C55E; --bg:#000; --card:#121826; --border:#2A3441; }
 * { box-sizing:border-box; font-family:'Inter'; }
 
-body { margin:0; background:var(--bg); color:white; overflow-x: hidden; }
+body { margin:0; background:var(--bg); color:white; }
 
 .header { padding:20px; display:flex; align-items:center; gap:15px; }
-.back-btn { background:var(--card); border:none; padding:10px; border-radius:50%; color:white; cursor:pointer; }
+.back-btn { background:var(--card); border:none; padding:10px; border-radius:50%; color:white; }
 
-/* SCANNER CORRIGIDO */
+/* SCANNER */
 .scanner-container {
   height:320px;
   margin:20px;
@@ -25,38 +25,55 @@ body { margin:0; background:var(--bg); color:white; overflow-x: hidden; }
   overflow:hidden;
   position:relative;
   border:2px solid var(--border);
-  background: #111;
+  background:#000;
 }
 
-/* ISSO AQUI RESOLVE A TELA PRETA */
-#reader { width: 100% !important; height: 100% !important; }
-#reader video { 
-  width: 100% !important; 
-  height: 100% !important; 
-  object-fit: cover !important; 
+#reader {
+  width:100%;
+  height:100%;
+  position:relative;
 }
 
-/* LINHA CENTRALIZADA E VISÍVEL */
+#reader video {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* LINHA PERFEITAMENTE CENTRAL */
 .scan-line {
   position:absolute;
-  left: 5%;
+  left:50%;
+  transform:translateX(-50%);
   width:90%;
   height:3px;
   background:var(--primary);
   box-shadow:0 0 20px var(--primary);
-  z-index: 99; /* Fica na frente do vídeo */
-  pointer-events: none;
+  z-index:10;
   animation: scan 2.5s infinite ease-in-out;
 }
 
 @keyframes scan {
-  0% { top: 15%; }
-  50% { top: 85%; }
-  100% { top: 15%; }
+  0% { top: 10%; }
+  50% { top: 90%; }
+  100% { top: 10%; }
 }
 
-.status { text-align:center; color:var(--primary); font-size:13px; margin: 10px 0; padding: 0 20px; }
-.option { margin:20px; padding:20px; border-radius:20px; background:var(--card); border:1px solid var(--border); text-align: center; cursor: pointer; }
+.status {
+  text-align:center;
+  color:var(--primary);
+  font-size:13px;
+  margin:10px;
+}
+
+.option {
+  margin:20px;
+  padding:20px;
+  border-radius:20px;
+  background:var(--card);
+  border:1px solid var(--border);
+  text-align:center;
+}
 </style>
 </head>
 
@@ -72,11 +89,11 @@ body { margin:0; background:var(--bg); color:white; overflow-x: hidden; }
   <div class="scan-line"></div>
 </div>
 
-<div class="status" id="status">Iniciando sistema de segurança...</div>
+<div class="status" id="status">Carregando câmera...</div>
 
 <div class="option" onclick="modoManual()">
   Digitar código manualmente
-</div> 
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -84,7 +101,7 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { getFirestore, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSy...", // VERIFIQUE SE SUA KEY ESTÁ ATUALIZADA
+  apiKey: "SUA_KEY_AQUI",
   authDomain: "zentry-app-74275.firebaseapp.com",
   projectId: "zentry-app-74275"
 };
@@ -97,108 +114,106 @@ let userLogado = null;
 let html5QrCode = null;
 let jaLeu = false;
 
-/* --- LOGIN COM DELAY DE SEGURANÇA --- */
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    userLogado = user;
-    console.log("Acesso autorizado!");
-    // Delay para garantir que o elemento #reader existe no DOM
-    setTimeout(iniciarScanner, 1000);
-  } else {
-    // Aumentamos para 5 segundos. Se o Firebase não responder, aí sim volta pro login.
-    setTimeout(() => {
-      if (!auth.currentUser) window.location.href = "login.html";
-    }, 5000);
+/* LOGIN SEGURO (SEM BUG DE LOOP) */
+onAuthStateChanged(auth, async (user) => {
+  const status = document.getElementById("status");
+
+  if (!user) {
+    status.innerText = "Sessão expirada...";
+    setTimeout(() => window.location.href = "login.html", 1500);
+    return;
   }
+
+  userLogado = user;
+  status.innerText = "Abrindo câmera...";
+
+  iniciarScanner();
 });
 
 async function iniciarScanner() {
   const status = document.getElementById("status");
-  
-  if (html5QrCode) {
-    await html5QrCode.stop().catch(() => {});
-  }
-
-  html5QrCode = new Html5Qrcode("reader");
-
-  // Configurações para leitura rápida (Estilo Banco)
-  const config = { 
-    fps: 20, 
-    qrbox: { width: 250, height: 250 },
-    aspectRatio: 1.0
-  };
 
   try {
+    html5QrCode = new Html5Qrcode("reader");
+
     await html5QrCode.start(
       { facingMode: "environment" },
-      config,
+      {
+        fps: 15,
+        qrbox: { width: 250, height: 250 }
+      },
       (text) => {
         if (jaLeu) return;
         jaLeu = true;
-        vibrar();
+
+        navigator.vibrate?.(150);
+
         html5QrCode.stop();
-        status.innerText = "Código identificado! ✔";
+
+        status.innerText = "Código lido ✔";
         processarPagamento(text);
       }
     );
-    status.innerText = "Aponte para o QR Code ou Código de Barras";
+
+    status.innerText = "Aponte para o QR Code";
+
+    /* CORREÇÃO MOBILE (ANDROID) */
+    setTimeout(() => {
+      const video = document.querySelector("#reader video");
+      if (video) {
+        video.setAttribute("playsinline", true);
+        video.muted = true;
+        video.play().catch(()=>{});
+      }
+    }, 500);
+
   } catch (err) {
-    console.error("Câmera travada:", err);
-    status.innerText = "Erro ao acessar câmera. Verifique as permissões.";
+    console.error(err);
+    status.innerText = "Erro na câmera. Permita o acesso.";
   }
 }
 
-async function processarPagamento(codigoLido) {
+async function processarPagamento(codigo) {
   try {
-    let valorPrompt = prompt("Confirmar Pagamento\nDigite o valor (Ex: 50,00):");
-    if (!valorPrompt) { location.reload(); return; }
+    let valor = prompt("Digite o valor:");
 
-    const valorFinal = parseFloat(valorPrompt.replace(".", "").replace(",", "."));
-    
-    if (isNaN(valorFinal) || valorFinal <= 0) {
-        alert("Valor inválido!");
-        location.reload();
-        return;
+    if (!valor) return location.reload();
+
+    valor = parseFloat(valor.replace(",", "."));
+
+    if (!valor || valor <= 0) {
+      alert("Valor inválido");
+      return location.reload();
     }
 
-    status.innerText = "Validando saldo...";
+    const ref = doc(db, "usuarios", userLogado.uid);
+    const snap = await getDoc(ref);
 
-    const userRef = doc(db, "usuarios", userLogado.uid);
-    const snap = await getDoc(userRef);
+    const saldo = snap.data()?.saldo || 0;
 
-    if (!snap.exists()) {
-        alert("Erro no perfil do usuário!");
-        return;
+    if (saldo < valor) {
+      alert("Saldo insuficiente");
+      return location.reload();
     }
 
-    const saldoAtual = snap.data().saldo || 0;
-
-    if (saldoAtual < valorFinal) {
-        alert("Saldo insuficiente!\nSeu saldo: R$ " + saldoAtual.toLocaleString('pt-BR'));
-        location.reload();
-        return;
-    }
-
-    // Debita o valor no Firebase
-    await updateDoc(userRef, { saldo: increment(-valorFinal) });
+    await updateDoc(ref, { saldo: increment(-valor) });
 
     localStorage.setItem("transacao", JSON.stringify({
-        valor: valorFinal,
-        data: new Date().toLocaleString(),
-        codigo: codigoLido
+      valor,
+      data: new Date().toLocaleString(),
+      codigo
     }));
 
     window.location.href = "comprovante.html";
 
-  } catch (e) {
-    alert("Erro no processamento.");
+  } catch {
+    alert("Erro no pagamento");
     location.reload();
   }
 }
 
-function vibrar() { if (navigator.vibrate) navigator.vibrate(150); }
+window.modoManual = () => processarPagamento("manual");
 
-window.modoManual = () => processarPagamento("DIGITADO_MANUAL");
 </script>
 </body>
 </html>
