@@ -65,6 +65,7 @@ body { margin:0; background:var(--bg); color:white; }
 </style></head><body><div class="header">
   <button class="back-btn" onclick="history.back()">←</button>
   <h2>Pagar</h2>
+  <button class="btn" onclick="abrirScanner()">Ler QR Code</button>
 </div><div class="scanner-container">
   <div id="reader"></div>
   <div class="scan-line"></div>
@@ -73,7 +74,7 @@ body { margin:0; background:var(--bg); color:white; }
   <p><b>Valor:</b> R$ <span id="valor"></span></p>
   <p><b>Saldo:</b> R$ <span id="saldo"></span></p><button class="btn" onclick="confirmarPagamento()">Concluir pagamento</button>
 
-</div><script type="module">
+</div><script>
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc, increment, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -89,99 +90,54 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let userLogado = null;
-let html5QrCode = null;
 let dadosPix = null;
 let saldoAtual = 0;
 
-let authCarregado = false;
-let scannerIniciado = false;
-
+// 🔐 LOGIN ESTÁVEL
 onAuthStateChanged(auth, (user) => {
-  const status = document.getElementById("status");
-
-  // Primeira chamada (Firebase carregando)
-  if (!authCarregado) {
-    authCarregado = true;
-
-    if (!user) {
-    
-      
+  if (!user) {
+    setTimeout(() => {
+      if (!auth.currentUser) {
+        window.location.href = "login.html";
+      }
+    }, 1500);
+    return;
   }
 
-  if (user && !scannerIniciado) {
-    scannerIniciado = true;
-    userLogado = user;
-    iniciarScanner();
-  }
+  userLogado = user;
+
+  // 🔥 Quando voltar do scanner
+  carregarPix();
 });
 
-async function iniciarScanner() {
-  const status = document.getElementById("status");
+// 🔥 PEGA DADOS DO SCANNER
+function carregarPix() {
+  const dados = localStorage.getItem("pixData");
 
-  try {
-    if (html5QrCode) {
-      try {
-        await html5QrCode.stop();
-        await html5QrCode.clear();
-      } catch {}
-    }
+  if (!dados) return;
 
-    html5QrCode = new Html5Qrcode("reader");
+  const pix = JSON.parse(dados);
+  localStorage.removeItem("pixData");
 
-    const cameras = await Html5Qrcode.getCameras();
+  dadosPix = pix;
 
-    if (!cameras.length) {
-      status.innerText = "Nenhuma câmera encontrada";
-      return;
-    }
-
-    const camera = cameras.find(c =>
-      c.label.toLowerCase().includes("back")
-    ) || cameras[0];
-
-    await html5QrCode.start(
-      camera.id,
-      {
-        fps: 10,
-        qrbox: 250
-      },
-      async (text) => {
-        navigator.vibrate?.(150);
-
-        try {
-          await html5QrCode.stop();
-        } catch {}
-
-        try {
-          dadosPix = JSON.parse(text);
-
-          const ref = doc(db, "usuarios", userLogado.uid);
-          const snap = await getDoc(ref);
-          saldoAtual = snap.data()?.saldo || 0;
-
-          document.getElementById("nome").innerText = dadosPix.nome;
-          document.getElementById("valor").innerText = dadosPix.valor;
-          document.getElementById("saldo").innerText = saldoAtual;
-
-          document.getElementById("confirmBox").style.display = "block";
-          status.innerText = "Confirme o pagamento";
-
-        } catch (e) {
-          console.error(e);
-          alert("QR inválido");
-          location.reload();
-        }
-      }
-    );
-
-    status.innerText = "Aponte para o QR";
-
-  } catch (err) {
-    console.error("ERRO CAMERA:", err);
-    status.innerText = "Erro ao abrir câmera";
-  }
+  mostrarConfirmacao();
 }
 
+// 💰 MOSTRAR TELA
+async function mostrarConfirmacao() {
+  const ref = doc(db, "usuarios", userLogado.uid);
+  const snap = await getDoc(ref);
+  saldoAtual = snap.data()?.saldo || 0;
+
+  document.getElementById("nome").innerText = dadosPix.nome;
+  document.getElementById("valor").innerText = dadosPix.valor;
+  document.getElementById("saldo").innerText = saldoAtual;
+
+  document.getElementById("confirmBox").style.display = "block";
+}
+
+// 💳 PAGAMENTO
 window.confirmarPagamento = async () => {
   if (!dadosPix) return;
 
@@ -208,7 +164,10 @@ window.confirmarPagamento = async () => {
   localStorage.setItem("comprovante", JSON.stringify(transacao));
 
   window.location.href = "comprovante.html";
-};
+};  
+  function abrirScanner() {
+  window.location.href = "scanner.html";
+  }
 
 </script></body>
 </html>
