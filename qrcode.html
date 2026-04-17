@@ -93,53 +93,99 @@ let html5QrCode = null;
 let dadosPix = null;
 let saldoAtual = 0;
 
-onAuthStateChanged(auth, async (user) => {
+let authCarregado = false;
+let scannerIniciado = false;
+
+onAuthStateChanged(auth, (user) => {
   const status = document.getElementById("status");
 
-  if (!user) {
-    status.innerText = "Sessão expirada...";
-    setTimeout(() => window.location.href = "login.html", 1500);
-    return;
+  // Primeira chamada (Firebase carregando)
+  if (!authCarregado) {
+    authCarregado = true;
+
+    if (!user) {
+      // espera Firebase restaurar sessão
+      setTimeout(() => {
+        if (!auth.currentUser) {
+          window.location.href = "login.html";
+        }
+      }, 2000);
+      return;
+    }
   }
 
-  userLogado = user;
-  iniciarScanner();
+  if (user && !scannerIniciado) {
+    scannerIniciado = true;
+    userLogado = user;
+    iniciarScanner();
+  }
 });
 
 async function iniciarScanner() {
   const status = document.getElementById("status");
 
-  html5QrCode = new Html5Qrcode("reader");
-
-  await html5QrCode.start(
-    { facingMode: "environment" },
-    { fps: 15, qrbox: { width: 250, height: 250 } },
-    async (text) => {
-      html5QrCode.stop();
-      navigator.vibrate?.(150);
-
+  try {
+    if (html5QrCode) {
       try {
-        dadosPix = JSON.parse(text);
-
-        const ref = doc(db, "usuarios", userLogado.uid);
-        const snap = await getDoc(ref);
-        saldoAtual = snap.data()?.saldo || 0;
-
-        document.getElementById("nome").innerText = dadosPix.nome;
-        document.getElementById("valor").innerText = dadosPix.valor;
-        document.getElementById("saldo").innerText = saldoAtual;
-
-        document.getElementById("confirmBox").style.display = "block";
-        document.getElementById("status").innerText = "Confirme o pagamento";
-
-      } catch {
-        alert("QR inválido");
-        location.reload();
-      }
+        await html5QrCode.stop();
+        await html5QrCode.clear();
+      } catch {}
     }
-  );
 
-  status.innerText = "Aponte para o QR Code";
+    html5QrCode = new Html5Qrcode("reader");
+
+    const cameras = await Html5Qrcode.getCameras();
+
+    if (!cameras.length) {
+      status.innerText = "Nenhuma câmera encontrada";
+      return;
+    }
+
+    const camera = cameras.find(c =>
+      c.label.toLowerCase().includes("back")
+    ) || cameras[0];
+
+    await html5QrCode.start(
+      camera.id,
+      {
+        fps: 10,
+        qrbox: 250
+      },
+      async (text) => {
+        navigator.vibrate?.(150);
+
+        try {
+          await html5QrCode.stop();
+        } catch {}
+
+        try {
+          dadosPix = JSON.parse(text);
+
+          const ref = doc(db, "usuarios", userLogado.uid);
+          const snap = await getDoc(ref);
+          saldoAtual = snap.data()?.saldo || 0;
+
+          document.getElementById("nome").innerText = dadosPix.nome;
+          document.getElementById("valor").innerText = dadosPix.valor;
+          document.getElementById("saldo").innerText = saldoAtual;
+
+          document.getElementById("confirmBox").style.display = "block";
+          status.innerText = "Confirme o pagamento";
+
+        } catch (e) {
+          console.error(e);
+          alert("QR inválido");
+          location.reload();
+        }
+      }
+    );
+
+    status.innerText = "Aponte para o QR";
+
+  } catch (err) {
+    console.error("ERRO CAMERA:", err);
+    status.innerText = "Erro ao abrir câmera";
+  }
 }
 
 window.confirmarPagamento = async () => {
