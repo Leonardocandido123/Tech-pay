@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZENTRY - Pagar</title>
+<title>ZENTRY - Qrcode</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -52,7 +52,7 @@ body { margin:0; background:var(--bg); color:white; }
 
 <div class="header">
   <button class="back-btn" onclick="history.back()">←</button>
-  <h2>Pagar</h2>
+  <h2>Qrcode</h2>
   <button class="btn" onclick="abrirScanner()">Ler QR</button>
 </div>
 
@@ -66,7 +66,6 @@ body { margin:0; background:var(--bg); color:white; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc, increment, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -76,42 +75,19 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 
-let userLogado = null;
 let dadosPix = null;
 let saldoAtual = 0;
 
-// 🔐 LOGIN
-  let jaVerificou = false;
+// 🔐 LOGIN VIA LOCALSTORAGE (SEM BUG)
+const uid = localStorage.getItem("userLogado");
 
-onAuthStateChanged(auth, (user) => {
+if (!uid) {
+  window.location.href = "login.html";
+}
 
-  // Primeira vez: Firebase ainda carregando
-  if (!jaVerificou) {
-    jaVerificou = true;
-
-    if (!user) {
-      setTimeout(() => {
-        if (!auth.currentUser) {
-          window.location.href = "login.html";
-        }
-      }, 8000); // ⬅️ AUMENTEI PRA 3s (IMPORTANTE)
-
-      return;
-    }
-  }
-
-  // Usuário confirmado
-  if (user) {
-    userLogado = user;
-    carregarPix();
-  }
-});
-  import { setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-setPersistence(auth, browserLocalPersistence);
+const userLogado = { uid };
 
 // 📥 RECEBER DADOS DO SCANNER
 function carregarPix() {
@@ -173,6 +149,9 @@ window.confirmarPagamento = async () => {
 window.abrirScanner = () => {
   window.location.href = "scanner.html";
 };
+
+// 🔥 CARREGAR AO ABRIR
+carregarPix();
 </script>
 
 </body>
