@@ -32,31 +32,53 @@ let qrAtual = null;
 // 🔥 SCANNER
 async function startScanner() {
   const scanner = new Html5Qrcode("reader");
-  const devices = await Html5Qrcode.getCameras();
 
-  const backCam =
-    devices.find(d => d.label.toLowerCase().includes("back"))?.id
-    || devices[0].id;
+  try {
+    const devices = await Html5Qrcode.getCameras();
 
-  scanner.start(
-    { deviceId: { exact: backCam } },
-    { fps: 10, qrbox: 250 },
+    if (!devices || devices.length === 0) {
+      alert("Nenhuma câmera encontrada");
+      return;
+    }
 
-    async (text) => {
-      try {
-        const data = JSON.parse(text);
+    // 🔥 pega traseira de forma segura
+    let cameraId = devices[0].id;
 
-        await scanner.stop();
-
-        await processarQR(data);
-
-      } catch {
-        alert("QR inválido");
+    for (let d of devices) {
+      if (
+        d.label &&
+        (
+          d.label.toLowerCase().includes("back") ||
+          d.label.toLowerCase().includes("traseira") ||
+          d.label.toLowerCase().includes("rear")
+        )
+      ) {
+        cameraId = d.id;
       }
     }
-  );
-}
 
+    await scanner.start(
+      cameraId, // 🔥 SEM {exact} (isso evita crash)
+      {
+        fps: 10,
+        qrbox: { width: 250, height: 250 }
+      },
+      async (text) => {
+        try {
+          const data = JSON.parse(text);
+          await scanner.stop();
+          await processarQR(data);
+        } catch (e) {
+          alert("QR inválido");
+        }
+      }
+    );
+
+  } catch (err) {
+    console.log("ERRO CAMERA:", err);
+    alert("Erro ao abrir câmera. Verifique permissão.");
+  }
+}
 // 🔥 NÚCLEO BANCO 3.0
 async function processarQR(data) {
 
