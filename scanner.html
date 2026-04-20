@@ -3,22 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scanner QR</title>
+<title>Zentry - Scanner</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
-<style>
-body {
-  margin:0;
-  background:#000;
-  color:#fff;
-  font-family:Arial;
-  text-align:center;
-}
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-#reader {
-  width:100%;
-}
+const firebaseConfig = {
+  apiKey: "SUA_KEY",
+  authDomain: "zentry-app-74275.firebaseapp.com",
+  projectId: "zentry-app-74275"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.salvarQR = async (dados) => {
+  const docRef = await addDoc(collection(db, "pix_temp"), {
+    ...dados,
+    criadoEm: Date.now()
+  });
+
+  // 🔥 salva ID pra próxima tela
+  localStorage.setItem("pixID", docRef.id);
+
+  window.location.href = "qrcode.html";
+};
+</script>
+
+<style>
+body { background:#000; color:#fff; text-align:center; }
+#reader { width:100%; margin-top:20px; }
 </style>
 </head>
 
@@ -28,35 +45,33 @@ body {
 <div id="reader"></div>
 
 <script>
-const html5QrCode = new Html5Qrcode("reader");
+async function iniciar() {
+  await navigator.mediaDevices.getUserMedia({ video: true });
 
-Html5Qrcode.getCameras().then(devices => {
-  if (devices.length) {
+  const html5QrCode = new Html5Qrcode("reader");
+  const devices = await Html5Qrcode.getCameras();
 
-    html5QrCode.start(
-      devices[0].id,
-      { fps: 10, qrbox: 250 },
-      (decodedText) => {
+  html5QrCode.start(
+    devices[0].id,
+    { fps: 10, qrbox: 250 },
 
-        try {
-          const dados = JSON.parse(decodedText);
+    (decodedText) => {
+      try {
+        const dados = JSON.parse(decodedText);
 
-          // 🔥 SALVA DADOS DO QR
-          localStorage.setItem("pixData", JSON.stringify(dados));
+        html5QrCode.stop();
 
-          window.location.href = "qrcode.html";
+        // envia pro Firebase
+        window.salvarQR(dados);
 
-        } catch (e) {
-          alert("QR inválido");
-        }
-
+      } catch {
+        alert("QR inválido");
       }
-    );
+    }
+  );
+}
 
-  }
-}).catch(err => {
-  alert("Erro câmera: " + err);
-});
+iniciar();
 </script>
 
 </body>
