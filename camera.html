@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<body style="margin:0;background:black;color:white;">
+
+<h3>Teste Câmera</h3>
+<video id="video" autoplay playsinline style="width:100%"></video>
+
+<script>
+navigator.mediaDevices.getUserMedia({ video: true })
+.then(stream => {
+  document.getElementById("video").srcObject = stream;
+})
+.catch(err => {
+  alert("ERRO CÂMERA: " + err);
+});
+</script>
+
+</body>
+</html>
