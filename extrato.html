@@ -2,151 +2,558 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movimentações - Zentry</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>Extrato - Zentry</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #050505; color: white; padding: 20px; }
+        :root {
+            --primary: #22c55e;
+            --primary-glow: rgba(34,197,94,0.15);
+            --bg: #060910;
+            --card: #0f1623;
+            --card2: #161f2e;
+            --border: rgba(255,255,255,0.07);
+            --text: #fff;
+            --text-muted: #6b7a99;
+            --red: #ef4444;
+            --green: #22c55e;
+        }
 
-        .header { display: flex; align-items: center; margin-bottom: 25px; gap: 15px; }
-        .btn-back { background: #131921; border: none; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; margin: 0; padding: 0; }
 
-        /* Card de Saldo Original */
-        .card-saldo { background: #131921; padding: 25px; border-radius: 24px; margin-bottom: 25px; border: 1px solid #1c252e; }
-        .card-saldo span { color: #8e97a3; font-size: 13px; text-transform: uppercase; font-weight: 600; }
-        .card-saldo h2 { font-size: 32px; margin-top: 8px; font-weight: 700; color: #fff; }
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
 
-        /* Filtros */
-        .filters { display: flex; gap: 10px; margin-bottom: 25px; }
-        .filter { flex: 1; padding: 12px; border-radius: 12px; border: none; background: #131921; color: #8e97a3; font-weight: 600; cursor: pointer; }
-        .filter.active { background: #22c55e; color: #000; }
+        /* ── HEADER ── */
+        .header {
+            padding: 16px 20px;
+            display: flex; align-items: center; gap: 14px;
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0;
+            background: var(--bg); z-index: 10;
+        }
+        .btn-back {
+            width: 40px; height: 40px;
+            background: var(--card2); border: 1px solid var(--border);
+            border-radius: 12px; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 20px; cursor: pointer; color: #fff;
+            flex-shrink: 0;
+        }
+        .header h3 { font-size: 17px; font-weight: 700; }
 
-        /* Itens da Lista */
-        .lista { display: flex; flex-direction: column; gap: 12px; }
-        .item { background: #0f141a; padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #161c24; cursor: pointer; }
-        
-        .item-left { display: flex; align-items: center; gap: 15px; }
-        .icon-box { width: 48px; height: 48px; background: #1a1f26; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        
-        .info b { display: block; font-size: 16px; margin-bottom: 2px; color: #fff; }
-        .info span { font-size: 12px; color: #667085; }
+        /* ── CARD SALDO ── */
+        .card-saldo {
+            margin: 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px;
+        }
+        .card-saldo span { color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .card-saldo h2 { font-size: 30px; font-weight: 800; margin-top: 8px; color: var(--primary); }
 
-        .val { font-size: 16px; font-weight: 700; }
-        .pos { color: #22c55e; }
-        .neg { color: #f04438; }
+        /* ── RESUMO DO MÊS ── */
+        .resumo {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; margin: 0 20px 20px;
+        }
+        .resumo-item {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 16px;
+        }
+        .resumo-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .resumo-val { font-size: 16px; font-weight: 800; }
+        .resumo-val.pos { color: var(--green); }
+        .resumo-val.neg { color: var(--red); }
+
+        /* ── FILTROS ── */
+        .filters {
+            display: flex; gap: 8px;
+            padding: 0 20px 16px;
+            overflow-x: auto;
+        }
+        .filters::-webkit-scrollbar { display: none; }
+        .filter {
+            flex-shrink: 0; padding: 8px 18px;
+            border-radius: 20px; border: 1px solid var(--border);
+            background: var(--card); color: var(--text-muted);
+            font-weight: 600; font-size: 13px;
+            cursor: pointer; font-family: 'Sora', sans-serif;
+            transition: all 0.2s;
+        }
+        .filter.active { background: var(--primary); color: #052e16; border-color: var(--primary); }
+
+        /* ── SEÇÃO DE DATA ── */
+        .data-header {
+            padding: 8px 20px;
+            font-size: 11px; font-weight: 700;
+            color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ── ITEM ── */
+        .lista { display: flex; flex-direction: column; gap: 2px; padding: 0 20px; }
+        .item {
+            background: var(--card);
+            padding: 16px;
+            border-radius: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: background 0.2s;
+            margin-bottom: 8px;
+        }
+        .item:active { background: var(--card2); }
+        .item-left { display: flex; align-items: center; gap: 14px; }
+        .icon-box {
+            width: 46px; height: 46px;
+            background: var(--card2); border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; flex-shrink: 0;
+        }
+        .info b { display: block; font-size: 14px; font-weight: 700; margin-bottom: 3px; color: #fff; }
+        .info span { font-size: 11px; color: var(--text-muted); }
+        .item-right { text-align: right; }
+        .val { font-size: 15px; font-weight: 800; }
+        .val.pos { color: var(--green); }
+        .val.neg { color: var(--red); }
+        .val-data { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+        /* ── EMPTY ── */
+        .empty {
+            text-align: center; padding: 60px 20px;
+            color: var(--text-muted); font-size: 14px;
+        }
+        .empty .icon { font-size: 48px; margin-bottom: 16px; }
+
+        /* ── MODAL COMPROVANTE ── */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85); z-index: 100;
+            align-items: flex-end; justify-content: center;
+        }
+        .modal-overlay.aberto { display: flex; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+        .modal {
+            background: var(--card);
+            border-radius: 28px 28px 0 0;
+            padding: 0 0 40px;
+            width: 100%; max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.35s cubic-bezier(0.34,1.2,0.64,1);
+        }
+        @keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+
+        .modal-handle {
+            width: 40px; height: 4px;
+            background: var(--border); border-radius: 4px;
+            margin: 14px auto 20px;
+        }
+
+        .modal-status {
+            text-align: center; padding: 10px 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .status-icon { font-size: 48px; margin-bottom: 12px; }
+        .status-titulo { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+        .status-sub { font-size: 13px; color: var(--text-muted); }
+
+        .comp-valor {
+            text-align: center; padding: 20px;
+            font-size: 32px; font-weight: 800;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comp-lista { padding: 8px 20px; }
+        .comp-row {
+            display: flex; justify-content: space-between;
+            padding: 14px 0; font-size: 13px;
+        }
+        .comp-row + .comp-row { border-top: 1px solid var(--border); }
+        .comp-label { color: var(--text-muted); }
+        .comp-val   { font-weight: 700; max-width: 60%; text-align: right; }
+
+        .comp-acoes {
+            display: flex; flex-direction: column; gap: 10px;
+            padding: 20px 20px 0;
+        }
+        .btn-comp {
+            width: 100%; padding: 15px; border-radius: 16px;
+            border: none; font-weight: 700; font-size: 15px;
+            font-family: 'Sora', sans-serif; cursor: pointer;
+        }
+        .btn-comp.primary { background: var(--primary); color: #052e16; }
+        .btn-comp.secondary { background: var(--card2); color: #fff; border: 1px solid var(--border); }
+
+        /* ── LOADING ── */
+        .loading-wrap {
+            text-align: center; padding: 60px 20px;
+            color: var(--text-muted); font-size: 14px;
+        }
+        .spinner {
+            width: 36px; height: 36px; border-radius: 50%;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <button class="btn-back" onclick="history.back()">‹</button>
-        <h3 style="font-size: 18px;">Movimentações</h3>
+<div class="header">
+    <button class="btn-back" onclick="history.back()">‹</button>
+    <h3>Movimentações</h3>
+</div>
+
+<div class="card-saldo">
+    <span>Saldo disponível</span>
+    <h2 id="txtSaldo">Carregando...</h2>
+</div>
+
+<div class="resumo">
+    <div class="resumo-item">
+        <div class="resumo-label">Entradas (30d)</div>
+        <div class="resumo-val pos" id="totalEntradas">R$ 0,00</div>
     </div>
-
-    <div class="card-saldo">
-        <span>Saldo disponível</span>
-        <h2 id="txtSaldo">R$ 0,00</h2>
+    <div class="resumo-item">
+        <div class="resumo-label">Saídas (30d)</div>
+        <div class="resumo-val neg" id="totalSaidas">R$ 0,00</div>
     </div>
+</div>
 
-    <div class="filters">
-        <button class="filter active" data-type="todos">Tudo</button>
-        <button class="filter" data-type="entrada">Entradas</button>
-        <button class="filter" data-type="saida">Saídas</button>
+<div class="filters">
+    <button class="filter active" data-type="todos">Tudo</button>
+    <button class="filter" data-type="entrada">Entradas</button>
+    <button class="filter" data-type="saida">Saídas</button>
+    <button class="filter" data-type="pix">Pix</button>
+    <button class="filter" data-type="recarga">Recargas</button>
+</div>
+
+<div id="listaExtrato" class="lista">
+    <div class="loading-wrap">
+        <div class="spinner"></div>
+        Carregando movimentações...
     </div>
+</div>
 
-    <div id="listaExtrato" class="lista"></div>
+<!-- MODAL COMPROVANTE -->
+<div class="modal-overlay" id="modalOverlay" onclick="fecharModal(event)">
+    <div class="modal" id="modalComp">
+        <div class="modal-handle"></div>
+        <div class="modal-status">
+            <div class="status-icon" id="compIcone"></div>
+            <div class="status-titulo" id="compTitulo"></div>
+            <div class="status-sub" id="compSub"></div>
+        </div>
+        <div class="comp-valor" id="compValorGrande"></div>
+        <div class="comp-lista" id="compLista"></div>
+        <div class="comp-acoes">
+            <button class="btn-comp primary" onclick="compartilharComprovante()">📤 Compartilhar Comprovante</button>
+            <button class="btn-comp secondary" onclick="fecharModal()">Fechar</button>
+        </div>
+    </div>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+<script type="module">
+    import { auth, db, ZentryAuth, ZentryUI } from './zentry-core.js';
+    import { collection, onSnapshot, query, orderBy, where, Timestamp }
+        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { doc, onSnapshot as onSnap }
+        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
-            authDomain: "zentry-app-74275.firebaseapp.com",
-            projectId: "zentry-app-74275",
-            storageBucket: "zentry-app-74275.appspot.com",
-            messagingSenderId: "571422826071",
-            appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
-        };
+    let transacoesCache = [];
+    let transacaoAtiva  = null;
+    let uidAtual        = "";
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+    // ── ÍCONE POR TIPO ──
+    function icone(t) {
+        const desc = (t.descricao || "").toLowerCase();
+        if (desc.includes("recarga"))     return "📱";
+        if (desc.includes("pix"))         return t.tipo === "entrada" ? "💚" : "💸";
+        if (desc.includes("transfer"))    return "🔄";
+        if (desc.includes("pagamento"))   return "🧾";
+        if (desc.includes("link"))        return "🔗";
+        if (t.tipo === "entrada")         return "💰";
+        return "💳";
+    }
 
-        let transacoesCache = [];
+    // ── LABEL AMIGÁVEL ──
+    function labelTipo(t) {
+        const desc = (t.descricao || "").toLowerCase();
+        if (desc.includes("recarga"))  return "Recarga Celular";
+        if (desc.includes("pix"))      return t.tipo === "entrada" ? "Pix Recebido" : "Pix Enviado";
+        if (desc.includes("transfer")) return "Transferência";
+        if (desc.includes("link"))     return "Cobrança por Link";
+        if (t.tipo === "entrada")      return "Entrada";
+        return "Pagamento";
+    }
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                onSnapshot(doc(db, "usuarios", user.uid), (ds) => {
-                    if(ds.exists()) {
-                        document.getElementById('txtSaldo').innerText = (ds.data().saldo || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                    }
-                });
+    // ── FORMATA DATA ──
+    function formatarData(t) {
+        let d = null;
+        if (t.timestamp?.toDate) d = t.timestamp.toDate();
+        else if (t.timestamp)    d = new Date(t.timestamp);
+        else if (t.data)         d = new Date(t.data);
+        if (!d || isNaN(d))      return "—";
+        return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+    }
 
-                onSnapshot(collection(db, "transacoes"), (snap) => {
-                    transacoesCache = [];
-                    snap.forEach(d => {
-                        const t = d.data();
-                        if (t.userId === user.uid || t.uidDestino === user.uid) {
-                            transacoesCache.push({ id: d.id, ...t });
-                        }
-                    });
-                    transacoesCache.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-                    const filtroAtivo = document.querySelector('.filter.active').dataset.type;
-                    renderizar(filtroAtivo);
-                });
-            } else { window.location.href = "login.html"; }
+    function formatarHora(t) {
+        let d = null;
+        if (t.timestamp?.toDate) d = t.timestamp.toDate();
+        else if (t.timestamp)    d = new Date(t.timestamp);
+        if (!d || isNaN(d))      return "";
+        return d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+    }
+
+    // ── FILTRO DE 30 DIAS ──
+    function dentro30Dias(t) {
+        let d = null;
+        if (t.timestamp?.toDate) d = t.timestamp.toDate();
+        else if (t.timestamp)    d = new Date(t.timestamp);
+        else if (t.data)         d = new Date(t.data);
+        if (!d) return true; // sem data, mantém
+        const diff = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24);
+        return diff <= 30;
+    }
+
+    // ── RENDERIZAR ──
+    function renderizar(filtro) {
+        const lista  = document.getElementById('listaExtrato');
+        const me     = uidAtual;
+
+        // Filtra por tipo e 30 dias
+        let filtradas = transacoesCache.filter(t => {
+            if (!dentro30Dias(t)) return false;
+            const ehEntrada = t.tipo === "entrada" || t.uidDestino === me;
+            const desc = (t.descricao || "").toLowerCase();
+            if (filtro === "entrada")  return ehEntrada;
+            if (filtro === "saida")    return !ehEntrada;
+            if (filtro === "pix")      return desc.includes("pix");
+            if (filtro === "recarga")  return desc.includes("recarga");
+            return true;
         });
 
-        function renderizar(filtro) {
-            const lista = document.getElementById('listaExtrato');
-            lista.innerHTML = "";
-            const me = auth.currentUser.uid;
+        // Calcula resumo (sempre sobre todas, sem filtro de tipo)
+        let somaEntradas = 0, somaSaidas = 0;
+        transacoesCache.filter(dentro30Dias).forEach(t => {
+            const v = Number(t.valor || 0);
+            if (t.tipo === "entrada" || t.uidDestino === me) somaEntradas += v;
+            else somaSaidas += v;
+        });
+        document.getElementById('totalEntradas').innerText = ZentryUI.formatarMoeda(somaEntradas);
+        document.getElementById('totalSaidas').innerText   = ZentryUI.formatarMoeda(somaSaidas);
 
-            let filtradas = transacoesCache.filter(t => {
-                const ehEntrada = t.uidDestino === me || t.tipo === "entrada";
-                if (filtro === "entrada") return ehEntrada;
-                if (filtro === "saida") return !ehEntrada;
-                return true;
-            });
+        if (filtradas.length === 0) {
+            lista.innerHTML = `
+                <div class="empty">
+                    <div class="icon">📭</div>
+                    Nenhuma movimentação encontrada.
+                </div>`;
+            return;
+        }
 
-            filtradas.forEach(t => {
-                const souEuRecebendo = t.uidDestino === me || t.tipo === "entrada";
-                let val = typeof t.valor === 'number' ? t.valor : parseFloat(String(t.valor).replace(/[^\d,.-]/g, '').replace(',', '.'));
-                
+        // Agrupa por data
+        const grupos = {};
+        filtradas.forEach(t => {
+            const d = formatarData(t);
+            if (!grupos[d]) grupos[d] = [];
+            grupos[d].push(t);
+        });
+
+        lista.innerHTML = "";
+        Object.entries(grupos).forEach(([data, itens]) => {
+            lista.innerHTML += `<div class="data-header">${data}</div>`;
+            itens.forEach(t => {
+                const ehEntrada = t.tipo === "entrada" || t.uidDestino === me;
+                const v = Number(t.valor || 0);
+                const nome = t.descricao || (ehEntrada
+                    ? (t.nomeRemetente || "Pix Recebido")
+                    : (t.nomeDestino   || "Pix Enviado"));
+
                 lista.innerHTML += `
-                    <div class="item" onclick="abrirComprovante('${t.id}')">
+                    <div class="item" onclick="window.abrirComprovante('${t.id}')">
                         <div class="item-left">
-                            <div class="icon-box">${souEuRecebendo ? '💰' : '💸'}</div>
+                            <div class="icon-box">${icone(t)}</div>
                             <div class="info">
-                                <b>${souEuRecebendo ? (t.nomeRemetente || "Pix Recebido") : (t.nomeDestino || "Pix Enviado")}</b>
-                                <span>${t.data || 'Pix realizado'}</span>
+                                <b>${labelTipo(t)}</b>
+                                <span>${nome}</span>
                             </div>
                         </div>
-                        <div class="val ${souEuRecebendo ? 'pos' : 'neg'}">
-                            ${souEuRecebendo ? '+' : '-'} ${val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                        <div class="item-right">
+                            <div class="val ${ehEntrada ? 'pos' : 'neg'}">
+                                ${ehEntrada ? '+' : '-'} ${ZentryUI.formatarMoeda(v)}
+                            </div>
+                            <div class="val-data">${formatarHora(t)}</div>
                         </div>
                     </div>`;
             });
-        }
+        });
+    }
 
-        document.querySelectorAll('.filter').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                renderizar(btn.dataset.type);
-            };
+    // ── INIT ──
+    async function init() {
+        const user = await ZentryAuth.exigirLogin();
+        uidAtual = user.uid;
+
+        // Escuta saldo em tempo real
+        onSnap(doc(db, "usuarios", user.uid), (ds) => {
+            if (ds.exists()) {
+                document.getElementById('txtSaldo').innerText =
+                    ZentryUI.formatarMoeda(ds.data().saldo || 0);
+            }
         });
 
-        window.abrirComprovante = (id) => {
-            const t = transacoesCache.find(x => x.id === id);
-            if (t) {
-                localStorage.setItem("comprovante_ativo", JSON.stringify(t));
-                window.location.href = "comprovante.html";
-            }
+        // ── ESCUTA SUBCOLEÇÃO NOVA: usuarios/{uid}/transacoes ──
+        const qNova = query(
+            collection(db, "usuarios", user.uid, "transacoes"),
+            orderBy("timestamp", "desc")
+        );
+
+        // ── ESCUTA COLEÇÃO RAIZ ANTIGA: transacoes (histórico anterior) ──
+        const qAntiga = query(
+            collection(db, "transacoes"),
+            where("userId", "==", user.uid),
+            orderBy("timestamp", "desc")
+        );
+
+        let novas   = [];
+        let antigas = [];
+
+        function mesclarEAtualizar() {
+            // Junta as duas, remove duplicatas pelo id
+            const todas = [...novas, ...antigas];
+            const ids   = new Set();
+            transacoesCache = todas.filter(t => {
+                if (ids.has(t.id)) return false;
+                ids.add(t.id);
+                return true;
+            });
+            transacoesCache.sort((a, b) => {
+                const ta = a.timestamp?.toDate?.() || new Date(a.timestamp || a.data || 0);
+                const tb = b.timestamp?.toDate?.() || new Date(b.timestamp || b.data || 0);
+                return tb - ta;
+            });
+            const filtroAtivo = document.querySelector('.filter.active').dataset.type;
+            renderizar(filtroAtivo);
+        }
+
+        onSnapshot(qNova, (snap) => {
+            novas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            mesclarEAtualizar();
+        });
+
+        onSnapshot(qAntiga, (snap) => {
+            antigas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            mesclarEAtualizar();
+        });
+    }
+
+    init();
+
+    // ── FILTROS ──
+    document.querySelectorAll('.filter').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderizar(btn.dataset.type);
         };
-    </script>
+    });
+
+    // ── ABRIR COMPROVANTE ──
+    window.abrirComprovante = function(id) {
+        const t = transacoesCache.find(x => x.id === id);
+        if (!t) return;
+        transacaoAtiva = t;
+
+        const me        = uidAtual;
+        const ehEntrada = t.tipo === "entrada" || t.uidDestino === me;
+        const v         = Number(t.valor || 0);
+
+        document.getElementById('compIcone').textContent        = ehEntrada ? "✅" : "📤";
+        document.getElementById('compTitulo').textContent       = ehEntrada ? "Recebido" : "Enviado";
+        document.getElementById('compSub').textContent          = formatarData(t) + " às " + formatarHora(t);
+        document.getElementById('compValorGrande').textContent  = ZentryUI.formatarMoeda(v);
+        document.getElementById('compValorGrande').style.color  = ehEntrada ? 'var(--green)' : 'var(--red)';
+
+        const rows = [
+            { label: "Tipo",      val: labelTipo(t) },
+            { label: "Descrição", val: t.descricao || "—" },
+            t.nomeRemetente ? { label: "De",   val: t.nomeRemetente } : null,
+            t.nomeDestino   ? { label: "Para",  val: t.nomeDestino  } : null,
+            { label: "Valor",     val: ZentryUI.formatarMoeda(v) },
+            { label: "Data",      val: formatarData(t) + " às " + formatarHora(t) },
+            { label: "ID",        val: t.id.substring(0, 12) + "..." },
+        ].filter(Boolean);
+
+        document.getElementById('compLista').innerHTML = rows.map(r =>
+            `<div class="comp-row">
+                <span class="comp-label">${r.label}</span>
+                <span class="comp-val">${r.val}</span>
+            </div>`
+        ).join('');
+
+        document.getElementById('modalOverlay').classList.add('aberto');
+    };
+
+    // ── FECHAR MODAL ──
+    window.fecharModal = function(e) {
+        if (!e || e.target === document.getElementById('modalOverlay')) {
+            document.getElementById('modalOverlay').classList.remove('aberto');
+        }
+    };
+
+    // ── COMPARTILHAR COMPROVANTE ──
+    window.compartilharComprovante = async function() {
+     if (!transacaoAtiva) return;
+        const t  = transacaoAtiva;
+        const me = uidAtual;
+        const ehEntrada = t.tipo === "entrada" || t.uidDestino === me;
+        const v  = Number(t.valor || 0);
+
+        const texto = `🧾 *Comprovante Zentry*
+━━━━━━━━━━━━━━━
+${ehEntrada ? "✅ Recebido" : "📤 Enviado"}
+💰 Valor: ${ZentryUI.formatarMoeda(v)}
+📋 Tipo: ${labelTipo(t)}
+📝 Descrição: ${t.descricao || "—"}
+📅 Data: ${formatarData(t)} às ${formatarHora(t)}
+🔑 ID: ${t.id.substring(0, 12)}
+━━━━━━━━━━━━━━━
+Transferência realizada pelo Zentry`;
+
+        // Tenta share nativo primeiro
+        if (navigator.share) {
+            try {
+                await navigator.share({ title: 'Comprovante Zentry', text: texto });
+                return;
+            } catch(e) { /* usuário cancelou ou não suportado */ }
+        }
+
+        // Fallback: copia para área de transferência
+        try {
+            await navigator.clipboard.writeText(texto);
+            ZentryUI.toast("Comprovante copiado! Cole onde quiser 📋", "sucesso");
+        } catch(e) {
+            // Fallback final para dispositivos antigos
+            const el = document.createElement('textarea');
+            el.value = texto;
+            el.style.position = 'fixed';
+            el.style.opacity  = '0';
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            el.remove();
+            ZentryUI.toast("Comprovante copiado! Cole onde quiser 📋", "sucesso");
+        }
+    };
+</script>
 </body>
 </html>
