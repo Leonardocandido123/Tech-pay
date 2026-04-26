@@ -3,295 +3,216 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <title>ZENTRY - Área Pix Premium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <title>ZENTRY - Área Pix</title>
   <style>
-    :root { 
-      --primary: #22C55E; 
-      --bg: radial-gradient(circle at 20% 0%, #0f172a, #000 65%);
-      --card-dark: #121826; 
-      --border: rgba(255, 255, 255, 0.1); 
-      --text-sec: #9CA3AF; 
+    :root {
+      --primary: #22c55e;
+      --primary-glow: rgba(34,197,94,0.2);
+      --bg: #060910;
+      --card: #0f1623;
+      --card2: #161f2e;
+      --border: rgba(255,255,255,0.07);
+      --text-muted: #6b7a99;
     }
-    
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    
-    body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background: #000;
-      color: white;
-      overflow-x: hidden;
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+    body { font-family: 'Sora', sans-serif; background: var(--bg); color: #fff; overflow-x: hidden; min-height: 100vh; }
 
-    .btn-touch:active { transform: scale(0.96); opacity: 0.8; }
+    .btn-touch:active { transform: scale(0.96); opacity: 0.85; }
     .btn-touch { transition: 0.2s; cursor: pointer; }
 
-    /* HEADER PREMIUM */
-    .header { 
-      padding: 35px 20px 15px; 
-      position: sticky; 
-      top: 0; 
-      background: rgba(0, 0, 0, 0.7);
+    /* HEADER */
+    .header {
+      padding: 20px 20px 14px;
+      position: sticky; top: 0;
+      background: rgba(6,9,16,0.85);
       backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
       z-index: 100;
     }
-    
     .nav-top { display: flex; align-items: center; justify-content: space-between; }
-    .nav-left { display: flex; align-items: center; gap: 15px; }
-    
-    .back-btn { 
-      background: var(--card-dark); 
-      border: 1px solid var(--border); 
-      color: white; 
-      width: 40px; 
-      height: 40px; 
-      border-radius: 50%; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center;
+    .back-btn {
+      background: var(--card2); border: 1px solid var(--border);
+      color: white; width: 40px; height: 40px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
     }
-    
-    .header h2 { font-size: 20px; margin: 0; font-weight: 700; letter-spacing: -0.5px; }
-    
-    /* CAMPO DE SALDO ESTILIZADO */
+    .back-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+    .header-info h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+    .header-badge {
+      color: var(--primary); font-size: 9px;
+      background: var(--primary-glow);
+      padding: 2px 8px; border-radius: 6px;
+      font-weight: 700; text-transform: uppercase;
+      margin-top: 2px; width: fit-content;
+    }
+
+    /* SALDO */
     .balance-field {
-      margin: 20px;
-      padding: 20px;
-      background: linear-gradient(145deg, #121826, #000);
-      border-radius: 24px;
+      margin: 16px 20px;
+      padding: 18px 20px;
+      background: var(--card);
+      border-radius: 20px;
       border: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: flex; justify-content: space-between; align-items: center;
     }
-    
-    .balance-small { color: var(--text-sec); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-    .balance-value { font-size: 22px; font-weight: 700; margin-top: 4px; color: var(--primary); }
-    .eye-btn { color: var(--text-sec); padding: 5px; }
+    .balance-small { color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .balance-value { font-size: 22px; font-weight: 800; margin-top: 4px; color: var(--primary); }
+    .eye-btn { color: var(--text-muted); }
+    .eye-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; }
 
-    .container { padding: 5px 20px 30px; }
+    .container { padding: 4px 20px 40px; }
 
-    /* GRID PIX - CARDS COM GLOW */
-    .pix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 35px; }
-    
-    .pix-item { 
-      background: var(--card-dark);
-      border: 1px solid var(--border);
-      border-radius: 24px; 
-      padding: 24px 18px; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 12px;
-      position: relative;
-      transition: 0.2s;
+    /* GRID PIX */
+    .pix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
+    .pix-item {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 22px; padding: 22px 16px;
+      display: flex; flex-direction: column; gap: 10px;
+      position: relative; overflow: hidden; transition: 0.2s;
     }
-
     .pix-item::before {
-      content: '';
-      position: absolute;
+      content: ''; position: absolute;
       top: 0; left: 20%; right: 20%; height: 1px;
       background: linear-gradient(90deg, transparent, var(--primary), transparent);
     }
-
-    .icon-wrapper { 
-      width: 40px; height: 40px; 
-      color: var(--primary);
-      display: flex; align-items: center; justify-content: flex-start; 
+    .pix-item:active { transform: scale(0.97); background: var(--card2); }
+    .icon-wrap {
+      width: 38px; height: 38px; color: var(--primary);
+      display: flex; align-items: center; justify-content: flex-start;
     }
-    
-    .icon-wrapper svg { width: 28px; height: 28px; stroke-width: 2.2; stroke: currentColor; fill: none; }
-    
-    .pix-item b { font-size: 16px; color: #FFF; font-weight: 600; }
-    .pix-item span { font-size: 11px; color: var(--text-sec); line-height: 1.4; }
+    .icon-wrap svg { width: 26px; height: 26px; stroke-width: 2; stroke: currentColor; fill: none; }
+    .pix-item b    { font-size: 15px; color: #fff; font-weight: 700; }
+    .pix-item span { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
 
-    /* RECENTES */
-    .section-title { 
-      font-size: 12px; font-weight: 700; text-transform: uppercase; 
-      letter-spacing: 1.2px; margin: 25px 0 15px; color: var(--text-sec); 
-      display: flex; align-items: center; gap: 10px; 
+    /* SEÇÃO */
+    .section-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.2px; margin: 24px 0 14px; color: var(--text-muted);
+      display: flex; align-items: center; gap: 10px;
     }
     .section-title::after { content: ''; flex-grow: 1; height: 1px; background: var(--border); }
 
-    .recent-list { display: flex; gap: 18px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+    /* CONTATOS RECENTES */
+    .recent-list { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
     .recent-list::-webkit-scrollbar { display: none; }
-    
-    .recent-user { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 65px; }
-    .user-thumb { 
-        width: 55px; height: 55px; 
-        background: var(--card-dark); 
-        border: 1px solid var(--border); 
-        border-radius: 50%; 
-        display: flex; align-items: center; justify-content: center; 
-        font-size: 14px; font-weight: 600; color: var(--primary);
+    .recent-user { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 60px; }
+    .user-thumb {
+      width: 52px; height: 52px;
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: var(--primary);
     }
-    .recent-user span { font-size: 12px; color: var(--text-sec); }
+    .recent-user p { font-size: 11px; color: var(--text-muted); }
 
-    /* GESTÃO */
-    .manage-card { background: var(--card-dark); border-radius: 24px; border: 1px solid var(--border); padding: 0 20px; }
-    .manage-item { 
-      display: flex; justify-content: space-between; align-items: center; 
-      padding: 18px 0; border-bottom: 1px solid var(--border); 
+    /* GERENCIAR */
+    .manage-card { background: var(--card); border-radius: 20px; border: 1px solid var(--border); padding: 0 20px; }
+    .manage-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 0; border-bottom: 1px solid var(--border);
     }
     .manage-item:last-child { border: none; }
-    .manage-info b { font-size: 15px; color: #FFF; font-weight: 500; }
-    
-    .chevron { color: var(--primary); opacity: 0.8; }
-
+    .manage-item b { font-size: 15px; font-weight: 600; }
+    .chevron { color: var(--primary); }
+    .chevron svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; }
   </style>
 </head>
 <body>
 
 <header class="header">
   <div class="nav-top">
-    <div class="nav-left">
-      <button class="back-btn btn-touch" onclick="location.href='home.html'">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-          <path d="M15 18l-6-6 6-6"/>
-        </svg>
-      </button>
-
-      <div style="display:flex; flex-direction:column;">
-        <h2>Área Pix</h2>
-        <span style="
-          color: var(--primary);
-          font-size:9px;
-          background: rgba(34,197,94,0.1);
-          padding: 2px 8px;
-          border-radius: 6px;
-          font-weight: 700;
-          width: fit-content;
-          text-transform: uppercase;
-          margin-top: 2px;
-        ">
-          ⚡ Sistema Ativo
-        </span>
-      </div>
+    <button class="back-btn btn-touch" onclick="location.href='home.html'">
+      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="header-info">
+      <h2>Área Pix</h2>
+      <div class="header-badge">⚡ Sistema Ativo</div>
     </div>
+    <div style="width:40px"></div>
   </div>
 </header>
-    
+
 <div class="balance-field btn-touch" onclick="toggleSaldo()">
   <div>
     <div class="balance-small">Saldo na conta</div>
-    <div class="balance-value" id="saldo-txt">R$ 0,00</div>
+    <div class="balance-value" id="saldo-txt">Carregando...</div>
   </div>
   <div class="eye-btn">
-    <svg id="eye-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-    </svg>
+    <svg id="eye-icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
   </div>
 </div>
 
 <div class="container">
   <div class="pix-grid">
     <div class="pix-item btn-touch" onclick="location.href='transferir.html'">
-      <div class="icon-wrapper"><svg viewBox="0 0 24 24"><path d="M12 19V5m-7 7l7-7 7 7"/></svg></div>
-      <b>Transferir</b><span>Envie agora por chave ou dados</span>
+      <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 19V5m-7 7l7-7 7 7"/></svg></div>
+      <b>Transferir</b><span>Envie por chave ou dados</span>
     </div>
-
     <div class="pix-item btn-touch" onclick="location.href='copia_cola.html'">
-      <div class="icon-wrapper"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></div>
-      <b>Copia e Cola</b><span>Pague códigos gerados</span>
+      <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></div>
+      <b>Copia e Cola</b><span>Pague com código Pix</span>
     </div>
-
     <div class="pix-item btn-touch" onclick="location.href='qrcode.html'">
-      <div class="icon-wrapper"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2m10 0h2a2 2 0 0 1 2 2v2m0 10v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 7h10v10H7z"/></svg></div>
+      <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2m10 0h2a2 2 0 0 1 2 2v2m0 10v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 7h10v10H7z"/></svg></div>
       <b>Ler QR Code</b><span>Escaneie para pagar</span>
     </div>
-
     <div class="pix-item btn-touch" onclick="location.href='agendar.html'">
-      <div class="icon-wrapper"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div class="icon-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
       <b>Programar</b><span>Agende para depois</span>
     </div>
   </div>
 
   <div class="section-title">Contatos Recentes</div>
-  <div class="recent-list">
-    <div class="recent-user"><div class="user-thumb">AM</div><span>Ana</span></div>
-    <div class="recent-user"><div class="user-thumb">JR</div><span>João</span></div>
-    <div class="recent-user"><div class="user-thumb">LC</div><span>Lucas</span></div>
-    <div class="recent-user"><div class="user-thumb">BT</div><span>Bia</span></div>
-    <div class="recent-user"><div class="user-thumb">GL</div><span>Gabi</span></div>
+  <div class="recent-list" id="recentList">
+    <div class="recent-user"><div class="user-thumb">AM</div><p>Ana</p></div>
+    <div class="recent-user"><div class="user-thumb">JR</div><p>João</p></div>
+    <div class="recent-user"><div class="user-thumb">LC</div><p>Lucas</p></div>
+    <div class="recent-user"><div class="user-thumb">BT</div><p>Bia</p></div>
+    <div class="recent-user"><div class="user-thumb">GL</div><p>Gabi</p></div>
   </div>
 
   <div class="section-title">Gerenciar</div>
   <div class="manage-card">
-      <div class="manage-item btn-touch" onclick="location.href='pix_chaves.html'">
-        <div class="manage-info"><b>Minhas chaves</b></div>
-        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-      <div class="manage-item btn-touch" onclick="location.href='pix_limites.html'">
-        <div class="manage-info"><b>Meus limites Pix</b></div>
-        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
+    <div class="manage-item btn-touch" onclick="location.href='pix_chaves.html'">
+      <b>Minhas chaves</b>
+      <div class="chevron"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+    <div class="manage-item btn-touch" onclick="location.href='pix_limites.html'">
+      <b>Meus limites Pix</b>
+      <div class="chevron"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
   </div>
 </div>
-  <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
-    authDomain: "zentry-app-74275.firebaseapp.com",
-    projectId: "zentry-app-74275",
-    storageBucket: "zentry-app-74275.appspot.com",
-    messagingSenderId: "571422826071",
-    appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
+<script type="module">
+  import { auth, db, ZentryAuth, ZentryUser, ZentryUI } from './zentry-core.js';
 
   let saldoOculto = false;
+  let saldoReal   = 0;
 
-  // 1. MONITORAR LOGIN E SALDO (SEM EXPULSAR NA HORA)
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      console.log("Logado com sucesso!");
-      const userRef = doc(db, "usuarios", user.uid);
-      
-      onSnapshot(userRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const dados = docSnap.data();
-          const saldo = parseFloat(dados.saldo || 0);
-          
-          localStorage.setItem("saldo_atual", saldo);
-          
-          if (!saldoOculto) {
-            const el = document.getElementById('saldo-txt');
-            if(el) el.innerText = saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-          }
-        }
-      });
-    } else {
-        // COMENTEI O REDIRECIONAMENTO PARA TESTE
-        // Assim a página não vai fechar sozinha e você pode ver se o saldo carrega
-        console.log("Aguardando Firebase autenticar...");
-    }
-  });
+  async function init() {
+    const user = await ZentryAuth.exigirLogin();
+
+    // Escuta saldo em tempo real
+    ZentryUser.escutar(user.uid, (dados) => {
+      saldoReal = Number(dados.saldo || 0);
+      localStorage.setItem("saldo_atual", saldoReal);
+      if (!saldoOculto) {
+        document.getElementById('saldo-txt').innerText = ZentryUI.formatarMoeda(saldoReal);
+      }
+    });
+  }
+
+  init();
 
   window.toggleSaldo = function() {
     saldoOculto = !saldoOculto;
     const txt = document.getElementById('saldo-txt');
     const eye = document.getElementById('eye-icon');
-    
-    if (saldoOculto) {
-      txt.innerText = "••••••••";
-      eye.style.opacity = "0.4";
-    } else {
-      const saldoReal = parseFloat(localStorage.getItem("saldo_atual") || 0);
-      txt.innerText = saldoReal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-      eye.style.opacity = "1";
-    }
+    txt.innerText = saldoOculto ? "••••••••" : ZentryUI.formatarMoeda(saldoReal);
+    eye.style.opacity = saldoOculto ? "0.4" : "1";
   };
-  </script>
-  
-  
-
+</script>
 </body>
 </html>
