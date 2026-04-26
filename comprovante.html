@@ -3,174 +3,431 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <title>Comprovante - ZENTRY</title>
 <style>
-:root{
-  --bg: radial-gradient(circle at 20% 0%, #0f172a, #000 70%);
-  --card: rgba(18,24,38,0.95);
-  --green:#22C55E;
-  --text-muted: #94a3b8;
+:root {
+  --green: #22c55e;
+  --green-dark: #16a34a;
+  --bg: #060910;
+  --card: #0f1623;
+  --border: rgba(255,255,255,0.07);
+  --muted: #6b7a99;
+  --red: #ef4444;
 }
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+
 body {
-  margin:0; font-family:'Inter',sans-serif; background:var(--bg); color:#fff;
-  display:flex; flex-direction:column; align-items:center; padding:20px; min-height: 100vh;
-}
-.card{
-  width:100%; max-width:420px; border-radius:28px; padding:30px 20px;
-  backdrop-filter:blur(20px); background:var(--card); border: 1px solid rgba(255,255,255,0.05);
-}
-.check{ width:60px; height:60px; margin:0 auto 15px; }
-circle{ fill:none; stroke:var(--green); stroke-width:2; stroke-dasharray:200; stroke-dashoffset:200; animation:circle 0.6s forwards;}
-path{ fill:none; stroke:var(--green); stroke-width:3; stroke-dasharray:50; stroke-dashoffset:50; animation:check 0.4s 0.6s forwards;}
-@keyframes circle{to{stroke-dashoffset:0}}
-@keyframes check{to{stroke-dashoffset:0}}
-
-.valor{ font-size:32px; font-weight:800; text-align:center; margin-bottom: 5px; letter-spacing: -1px;}
-.status{ text-align:center; color:var(--green); margin-bottom:30px; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px;}
-
-.secao-titulo { 
-    font-size: 12px; font-weight: 700; color: var(--text-muted); 
-    text-transform: uppercase; margin: 20px 0 10px; padding-bottom: 5px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 20px 40px;
 }
 
-.linha{ display:flex; justify-content:space-between; margin-bottom:12px; font-size:14px;}
-.linha span:first-child { color: var(--text-muted); }
-.linha span:last-child { font-weight: 600; text-align: right; max-width: 65%; color: #fff; }
+/* ── HEADER ── */
+.top-bar {
+  width: 100%; max-width: 420px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.btn-back {
+  width: 40px; height: 40px;
+  background: #161f2e; border: 1px solid var(--border);
+  border-radius: 12px; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; color: #fff;
+}
+.top-bar-title { font-size: 15px; font-weight: 700; }
 
-.footer-contato {
-    margin-top: 25px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1);
-    text-align: center; font-size: 12px; color: var(--text-muted); line-height: 1.6;
+/* ── CARD ── */
+.card {
+  width: 100%; max-width: 420px;
+  border-radius: 28px;
+  background: #0f1623;
+  border: 1px solid var(--border);
+  overflow: hidden;
 }
 
-.actions{ margin-top:20px; display:flex; flex-direction:column; gap:10px; width: 100%; max-width: 420px;}
-button{ padding:16px; border-radius:16px; border:none; font-weight:700; font-size: 15px; cursor: pointer;}
-.primary{ background:var(--green); color:#000;}
-.secondary{ background:rgba(255,255,255,0.05); color:#fff; border: 1px solid rgba(255,255,255,0.1);}
+/* TOPO DO CARD — cor dinâmica */
+.card-top {
+  padding: 28px 24px 24px;
+  text-align: center;
+  background: linear-gradient(160deg, #0a1f12 0%, #0f1623 100%);
+  border-bottom: 1px solid var(--border);
+}
+.card-top.saida {
+  background: linear-gradient(160deg, #1f0a0a 0%, #0f1623 100%);
+}
 
-/* Export Mode */
-.export-mode { background: #fff !important; }
-.export-mode .card { background:#fff !important; color:#000 !important; border:1px solid #eee !important; }
-.export-mode .linha span:first-child, .export-mode .secao-titulo, .export-mode .footer-contato { color: #666 !important; }
-.export-mode .linha span:last-child { color: #000 !important; }
-.export-mode .secao-titulo { border-bottom-color: #eee !important; }
+/* Logo */
+.logo-wrap {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin-bottom: 20px;
+}
+.logo-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--green); display: flex;
+  align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800; color: #052e16;
+}
+.logo-nome { font-size: 16px; font-weight: 800; letter-spacing: 1px; }
+
+/* Check animado */
+.check-wrap {
+  width: 68px; height: 68px; margin: 0 auto 16px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.check-wrap.pos { background: rgba(34,197,94,0.15); border: 2px solid var(--green); }
+.check-wrap.neg { background: rgba(239,68,68,0.15); border: 2px solid var(--red); }
+.check-wrap svg circle { fill: none; stroke-width: 0; }
+.check-wrap svg path  { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.check-wrap.pos svg path { stroke: var(--green); stroke-dasharray: 50; stroke-dashoffset: 50; animation: drawCheck 0.4s 0.2s ease forwards; }
+.check-wrap.neg svg path { stroke: var(--red); }
+@keyframes drawCheck { to { stroke-dashoffset: 0; } }
+
+.card-status {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; margin-bottom: 10px;
+}
+.card-status.pos { color: var(--green); }
+.card-status.neg { color: var(--red); }
+
+.card-valor {
+  font-size: 36px; font-weight: 800; letter-spacing: -1px;
+  margin-bottom: 6px;
+}
+.card-valor.pos { color: var(--green); }
+.card-valor.neg { color: var(--red); }
+
+.card-data {
+  font-size: 12px; color: var(--muted);
+}
+
+/* ── SEÇÕES ── */
+.secao {
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+}
+.secao:last-of-type { border-bottom: none; }
+
+.secao-titulo {
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 1.5px;
+  padding: 16px 0 10px;
+}
+
+.linha {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 9px 0; font-size: 13px;
+  border-top: 1px solid var(--border);
+}
+.linha:first-of-type { border-top: none; }
+.linha-label { color: var(--muted); flex-shrink: 0; margin-right: 12px; }
+.linha-val { font-weight: 600; text-align: right; color: #fff; word-break: break-word; max-width: 65%; }
+
+/* ID da transação com estilo especial */
+.tx-id {
+  font-family: monospace; font-size: 11px;
+  color: var(--muted); background: #161f2e;
+  border-radius: 8px; padding: 4px 8px;
+  letter-spacing: 0.5px;
+}
+
+/* ── RODAPÉ DO CARD ── */
+.card-footer {
+  padding: 16px 24px;
+  text-align: center;
+  background: #080d15;
+  border-top: 1px dashed rgba(255,255,255,0.06);
+}
+.card-footer p {
+  font-size: 11px; color: var(--muted); line-height: 1.7;
+}
+.card-footer b { color: var(--green); }
+
+/* ── AÇÕES ── */
+.actions {
+  width: 100%; max-width: 420px;
+  display: flex; flex-direction: column; gap: 10px;
+  margin-top: 16px;
+}
+.btn {
+  width: 100%; padding: 16px; border-radius: 16px; border: none;
+  font-weight: 700; font-size: 15px; cursor: pointer;
+  font-family: 'Sora', sans-serif; transition: all 0.2s;
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary   { background: var(--green); color: #052e16; }
+.btn-secondary { background: #161f2e; color: #fff; border: 1px solid var(--border); }
+
+/* ══ MODO EXPORT (fundo branco para imagem) ══ */
+body.export-mode {
+  background: #f8fafc !important;
+  padding: 16px !important;
+}
+body.export-mode .top-bar   { display: none !important; }
+body.export-mode .actions   { display: none !important; }
+body.export-mode .card {
+  background: #fff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+body.export-mode .card-top {
+  background: linear-gradient(160deg, #f0fdf4, #fff) !important;
+}
+body.export-mode .card-top.saida {
+  background: linear-gradient(160deg, #fef2f2, #fff) !important;
+}
+body.export-mode .secao        { background: #fff !important; }
+body.export-mode .linha-label  { color: #94a3b8 !important; }
+body.export-mode .linha-val    { color: #0f172a !important; }
+body.export-mode .secao-titulo { color: #94a3b8 !important; }
+body.export-mode .linha        { border-top-color: #f1f5f9 !important; }
+body.export-mode .card-footer  { background: #f8fafc !important; border-top-color: #e2e8f0 !important; }
+body.export-mode .card-footer p { color: #94a3b8 !important; }
+body.export-mode .card-status.pos { color: #16a34a !important; }
+body.export-mode .card-valor.pos  { color: #16a34a !important; }
+body.export-mode .tx-id { background: #f1f5f9 !important; color: #64748b !important; }
+body.export-mode .logo-nome { color: #0f172a !important; }
 </style>
 </head>
 <body>
 
+<div class="top-bar">
+  <div class="btn-back" onclick="voltar()">←</div>
+  <span class="top-bar-title">Comprovante</span>
+  <div style="width:40px"></div>
+</div>
+
 <div class="card" id="card">
-  <div class="check">
-    <svg viewBox="0 0 52 52">
-      <circle cx="26" cy="26" r="25"/>
-      <path d="M14 27 L22 34 L38 18"/>
-    </svg>
+
+  <!-- TOPO -->
+  <div class="card-top" id="cardTop">
+    <div class="logo-wrap">
+      <div class="logo-icon">Z</div>
+      <span class="logo-nome">ZENTRY</span>
+    </div>
+    <div class="check-wrap pos" id="checkWrap">
+      <svg viewBox="0 0 52 52" width="36" height="36">
+        <circle cx="26" cy="26" r="25"/>
+        <path d="M14 27 L22 34 L38 18"/>
+      </svg>
+    </div>
+    <div class="card-status pos" id="cardStatus">Transação Realizada</div>
+    <div class="card-valor pos" id="cardValor">R$ 0,00</div>
+    <div class="card-data" id="cardData"></div>
   </div>
 
-  <div class="valor" id="txtValor">R$ 0,00</div>
-  <div class="status" id="txtStatus">Transação Realizada</div>
+  <!-- CONTEÚDO DINÂMICO -->
+  <div id="conteudo"></div>
 
-  <div id="conteudo">
-      </div>
-
-  <div class="footer-contato">
-      Em caso de dúvidas, entre em contato com a <b>Zentry</b> através do nosso chat no app ou e-mail: <b>suporte@zentry.com</b>
+  <!-- RODAPÉ -->
+  <div class="card-footer">
+    <p>Dúvidas? Fale com a <b>Zentry</b> pelo chat do app<br>ou pelo e-mail <b>suporte@zentry.com.br</b></p>
   </div>
+
 </div>
 
 <div class="actions">
-    <button class="primary" onclick="compartilhar()">Compartilhar Comprovante</button>
-    <button class="secondary" onclick="voltar()">Voltar ao Início</button>
+  <button class="btn btn-primary"   onclick="compartilhar()">📤 Compartilhar Comprovante</button>
+  <button class="btn btn-secondary" onclick="voltar()">Voltar ao Início</button>
 </div>
-  <script>
-// 1. Tenta pegar o ativo (extrato) ou o final (revisão)
-// Importante: a ordem aqui garante que o clique no extrato tenha prioridade
-const dados = JSON.parse(localStorage.getItem("comprovante_ativo")) || 
-              JSON.parse(localStorage.getItem("comprovante_final")) || null;
 
+<script>
+// ── DADOS ──
+const dados = JSON.parse(localStorage.getItem("comprovante_ativo"))
+           || JSON.parse(localStorage.getItem("comprovante_final"))
+           || null;
+
+// ── HELPERS ──
+function fmtMoeda(v) {
+  const n = typeof v === 'number' ? v : parseFloat(String(v).replace(/[^\d,.-]/g,'').replace(',','.'));
+  return isNaN(n) ? "R$ 0,00" : n.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+}
+
+function fmtData(d) {
+  if (!d) return new Date().toLocaleString('pt-BR');
+  if (typeof d === 'string' && d.includes('T')) {
+    return new Date(d).toLocaleString('pt-BR', { dateStyle:'long', timeStyle:'short' });
+  }
+  return d;
+}
+
+function gerarTxId(id) {
+  if (!id) return 'ZNT' + Date.now().toString(36).toUpperCase();
+  return id.length > 16 ? id.substring(0,16).toUpperCase() : id.toUpperCase();
+}
+
+// ── LABELS POR TIPO ──
+const LABELS = {
+  pix:          { status: "Pix Enviado",        cor: "neg" },
+  entrada:      { status: "Pix Recebido",        cor: "pos" },
+  saida:        { status: "Pagamento Enviado",   cor: "neg" },
+  recarga:      { status: "Recarga Realizada",   cor: "neg" },
+  transferencia:{ status: "Transferência",       cor: "neg" },
+  link:         { status: "Cobrança por Link",   cor: "pos" },
+  pdv:          { status: "Venda no PDV",        cor: "pos" },
+  cartao:       { status: "Pagamento com Cartão",cor: "neg" },
+};
+
+function getTipo() {
+  if (!dados) return { status: "Transação Realizada", cor: "pos" };
+  const desc = (dados.descricao || "").toLowerCase();
+  if (dados.tipo === "entrada" || dados.uidDestino) return LABELS.entrada;
+  if (desc.includes("recarga"))      return LABELS.recarga;
+  if (desc.includes("link"))         return LABELS.link;
+  if (desc.includes("pdv") || desc.includes("venda")) return LABELS.pdv;
+  if (desc.includes("cartao") || desc.includes("cartão")) return LABELS.cartao;
+  if (desc.includes("transfer"))     return LABELS.transferencia;
+  if (dados.tipo === "saida")        return LABELS.saida;
+  return LABELS.pix;
+}
+
+// ── INICIALIZAR ──
 function inicializar() {
-    if (!dados || (!dados.valor && !dados.valorNumerico)) {
-        document.body.innerHTML = `
-            <div style='padding:50px; text-align:center;'>
-                <h2>Comprovante não encontrado</h2>
-                <button onclick="voltar()" class="secondary">Voltar</button>
-            </div>`;
-        return;
-    }
+  if (!dados) {
+    document.body.innerHTML = `
+      <div style="padding:60px 20px; text-align:center; font-family:Sora,sans-serif; color:#fff;">
+        <div style="font-size:48px; margin-bottom:16px;">📭</div>
+        <h2 style="margin-bottom:8px;">Comprovante não encontrado</h2>
+        <p style="color:#6b7a99; margin-bottom:24px;">Acesse pelo extrato ou após uma transação.</p>
+        <button onclick="window.location.href='home.html'"
+          style="background:#22c55e; color:#052e16; border:none; padding:14px 28px; border-radius:14px; font-weight:700; font-size:15px; cursor:pointer;">
+          Ir ao Início
+        </button>
+      </div>`;
+    return;
+  }
 
-    // Trata o valor: se for número vindo do banco, formata. Se for string (R$), mantém.
-    let valorExibir = dados.valor;
-    if (typeof dados.valor === 'number') {
-        valorExibir = dados.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
+  const tipo    = getTipo();
+  const valorFmt = fmtMoeda(dados.valor);
+  const ehEntrada = tipo.cor === "pos";
 
-    document.getElementById("txtValor").innerText = valorExibir;
-    
-    // Define o Título baseado no tipo ou no sinal
-    const labels = { pix: "Pix Enviado", recarga: "Recarga realizada", entrada: "Pix Recebido", saida: "Pix Enviado" };
-    document.getElementById("txtStatus").innerText = labels[dados.tipo] || "Transferência Realizada";
+  // Header
+  document.getElementById('cardTop').classList.toggle('saida', !ehEntrada);
+  document.getElementById('checkWrap').className = 'check-wrap ' + tipo.cor;
+  document.getElementById('cardStatus').className = 'card-status ' + tipo.cor;
+  document.getElementById('cardStatus').textContent = tipo.status;
+  document.getElementById('cardValor').className  = 'card-valor ' + tipo.cor;
+  document.getElementById('cardValor').textContent = valorFmt;
+  document.getElementById('cardData').textContent  = fmtData(dados.data || dados.timestamp);
 
-    let html = "";
-    
-    // --- SEÇÃO DADOS DA TRANSAÇÃO ---
-    html += `<div class="secao-titulo">Dados da Transação</div>`;
-    html += `<div class="linha"><span>Valor</span><span>${valorExibir}</span></div>`;
-    html += `<div class="linha"><span>Data e Hora</span><span>${dados.data || new Date().toLocaleString()}</span></div>`;
-    html += `<div class="linha"><span>ID da Transação</span><span>${dados.id || 'ZNT-S/N'}</span></div>`;
+  // Ícone no check (X para saída)
+  if (!ehEntrada) {
+    document.getElementById('checkWrap').innerHTML = `
+      <svg viewBox="0 0 52 52" width="36" height="36">
+        <path d="M16 16 L36 36 M36 16 L16 36" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+      </svg>`;
+  }
 
-    // --- SEÇÃO DESTINO ---
-    html += `<div class="secao-titulo">Destino</div>`;
-    // Se eu recebi o dinheiro, o "Destino" sou eu (Remetente no banco)
-    const nomeDestino = (dados.uidDestino === "externo" || dados.tipo === "saida") ? (dados.nomeDestino || "---") : (dados.nomeRemetente || "Eu");
-    html += `<div class="linha"><span>Nome</span><span>${nomeDestino}</span></div>`;
-    if(dados.chavePix) html += `<div class="linha"><span>Chave Pix</span><span>${dados.chavePix}</span></div>`;
-    html += `<div class="linha"><span>Instituição</span><span>${dados.bancoDestino || 'Zentry Bank'}</span></div>`;
+  let html = "";
 
-    // --- SEÇÃO ORIGEM ---
-    html += `<div class="secao-titulo">Origem</div>`;
-    // Se eu enviei, a origem sou eu. Se recebi, a origem é o nomeRemetente.
-    const nomeOrigem = (dados.uidDestino === "externo" || dados.tipo === "saida") ? (dados.nomeRemetente || "Minha Conta") : (dados.nomeDestino || "Outro Usuário");
-    html += `<div class="linha"><span>Nome</span><span>${nomeOrigem}</span></div>`;
-    html += `<div class="linha"><span>Instituição</span><span>ZENTRY</span></div>`;
-    html += `<div class="linha"><span>CNPJ</span><span>98.768.908/0001-01</span></div>`;
+  // ── SEÇÃO TRANSAÇÃO ──
+  html += `<div class="secao">
+    <div class="secao-titulo">Dados da Transação</div>
+    <div class="linha"><span class="linha-label">Valor</span><span class="linha-val">${valorFmt}</span></div>
+    <div class="linha"><span class="linha-label">Tipo</span><span class="linha-val">${tipo.status}</span></div>
+    <div class="linha"><span class="linha-label">Data e Hora</span><span class="linha-val">${fmtData(dados.data || dados.timestamp)}</span></div>
+    ${dados.descricao ? `<div class="linha"><span class="linha-label">Descrição</span><span class="linha-val">${dados.descricao}</span></div>` : ''}
+    <div class="linha"><span class="linha-label">ID</span><span class="linha-val"><span class="tx-id">${gerarTxId(dados.id)}</span></span></div>
+  </div>`;
 
-    document.getElementById("conteudo").innerHTML = html;
+  // ── SEÇÃO DESTINO ──
+  const nomeDestino = ehEntrada
+    ? (dados.nomeRemetente || "Zentry")
+    : (dados.nomeDestino   || "—");
+  const labelDestino = ehEntrada ? "Remetente" : "Destinatário";
+
+  html += `<div class="secao">
+    <div class="secao-titulo">${labelDestino}</div>
+    <div class="linha"><span class="linha-label">Nome</span><span class="linha-val">${nomeDestino}</span></div>
+    ${dados.chavePix     ? `<div class="linha"><span class="linha-label">Chave Pix</span><span class="linha-val">${dados.chavePix}</span></div>` : ''}
+    ${dados.telefone     ? `<div class="linha"><span class="linha-label">Telefone</span><span class="linha-val">${dados.telefone}</span></div>` : ''}
+    ${dados.operadora    ? `<div class="linha"><span class="linha-label">Operadora</span><span class="linha-val">${dados.operadora}</span></div>` : ''}
+    <div class="linha"><span class="linha-label">Instituição</span><span class="linha-val">${dados.bancoDestino || (ehEntrada ? 'Zentry' : 'Zentry')}</span></div>
+  </div>`;
+
+  // ── SEÇÃO ORIGEM ──
+  const nomeOrigem = ehEntrada
+    ? (dados.nomeDestino   || "Minha Conta")
+    : (dados.nomeRemetente || "Minha Conta");
+
+  html += `<div class="secao">
+    <div class="secao-titulo">Origem</div>
+    <div class="linha"><span class="linha-label">Nome</span><span class="linha-val">${nomeOrigem}</span></div>
+    <div class="linha"><span class="linha-label">Instituição</span><span class="linha-val">ZENTRY</span></div>
+    <div class="linha"><span class="linha-label">CNPJ</span><span class="linha-val">98.768.908/0001-01</span></div>
+  </div>`;
+
+  document.getElementById('conteudo').innerHTML = html;
 }
 
+// ── COMPARTILHAR ──
 async function compartilhar() {
-    const card = document.getElementById("card");
-    document.body.classList.add("export-mode");
-    
-    try {
-        const canvas = await html2canvas(card, { scale: 3, backgroundColor: "#ffffff" });
-        document.body.classList.remove("export-mode");
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-        const file = new File([blob], "comprovante_zentry.png", { type: "image/png" });
+  const card = document.getElementById("card");
+  document.body.classList.add("export-mode");
 
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'Comprovante Zentry' });
-        } else {
-            const link = document.createElement("a");
-            link.download = "comprovante_zentry.png";
-            link.href = canvas.toDataURL();
-            link.click();
-        }
-    } catch (err) {
-        document.body.classList.remove("export-mode");
+  try {
+    await new Promise(r => setTimeout(r, 150)); // aguarda render
+    const canvas = await html2canvas(card, {
+      scale: 3,
+      backgroundColor: "#ffffff",
+      useCORS: true,
+      logging: false
+    });
+    document.body.classList.remove("export-mode");
+
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    const file = new File([blob], "comprovante_zentry.png", { type: "image/png" });
+
+    // Tenta share nativo com arquivo (celular)
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Comprovante Zentry' });
+      return;
     }
+
+    // Tenta share nativo sem arquivo
+    if (navigator.share) {
+      const tipo = getTipo();
+      await navigator.share({
+        title: 'Comprovante Zentry',
+        text: `${tipo.status} de ${fmtMoeda(dados.valor)} realizado pelo Zentry em ${fmtData(dados.data || dados.timestamp)}`
+      });
+      return;
+    }
+
+    // Fallback: baixa como imagem
+    const link = document.createElement("a");
+    link.download = "comprovante_zentry.png";
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+
+  } catch (err) {
+    document.body.classList.remove("export-mode");
+    // Fallback final: copia texto
+    try {
+      const tipo = getTipo();
+      const texto = `🧾 Comprovante Zentry\n${tipo.status}\nValor: ${fmtMoeda(dados.valor)}\nData: ${fmtData(dados.data)}\nID: ${gerarTxId(dados.id)}`;
+      await navigator.clipboard.writeText(texto);
+      alert("Comprovante copiado para a área de transferência!");
+    } catch(e2) {}
+  }
 }
 
-// Quando voltar, limpa o cache do comprovante ativo para não bugar o extrato
-function voltar() { 
-    localStorage.removeItem("comprovante_ativo");
-    window.location.href = 'home.html'; 
+// ── VOLTAR ──
+function voltar() {
+  localStorage.removeItem("comprovante_ativo");
+  window.location.href = 'home.html';
 }
 
 inicializar();
-  </script>
-  
-  
-
+</script>
 </body>
 </html>
