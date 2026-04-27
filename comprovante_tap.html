@@ -1,82 +1,285 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        body { margin: 0; padding: 20px; font-family: 'Inter', sans-serif; background: #eee; display: flex; flex-direction: column; align-items: center; }
-        
-        /* O COMPROVANTE ESTILO NUBANK */
-        #comprovante-final {
-            background: #fff; width: 100%; max-width: 350px;
-            padding: 30px; border-radius: 4px; color: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<title>Comprovante PDV - ZENTRY</title>
+<style>
+:root {
+  --primary: #22c55e; --primary-glow: rgba(34,197,94,0.2);
+  --bg: #060910; --card: #0f1623; --card2: #161f2e;
+  --border: rgba(255,255,255,0.07); --muted: #6b7a99;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+body {
+  font-family: 'Sora', sans-serif; background: var(--bg); color: #fff;
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; padding: 20px 20px 40px;
+}
 
-        .check-icon { width: 80px; height: 80px; border: 3px solid #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: #22c55e; font-size: 40px; font-weight: bold; }
-        .valor { font-size: 36px; font-weight: 800; text-align: center; margin-bottom: 5px; }
-        .status-txt { color: #22c55e; text-align: center; font-weight: 600; margin-bottom: 30px; }
-        .linha { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px; }
-        .label { color: #666; }
-        .info { font-weight: 600; text-align: right; }
+/* ── TOP BAR ── */
+.top-bar {
+  width: 100%; max-width: 420px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.btn-back {
+  width: 40px; height: 40px; background: var(--card2);
+  border: 1px solid var(--border); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; color: #fff;
+}
+.top-title { font-size: 15px; font-weight: 700; }
 
-        /* BOTÕES */
-        .area-botoes { width: 100%; max-width: 350px; margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .btn { padding: 18px; border-radius: 15px; border: none; font-weight: 800; font-size: 16px; cursor: pointer; }
-        .btn-compartilhar { background: #22c55e; color: #fff; }
-        .btn-concluir { background: #000; color: #fff; }
-    </style>
+/* ── CARD ESCURO (UI) ── */
+.card-ui {
+  width: 100%; max-width: 420px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 28px; overflow: hidden; margin-bottom: 16px;
+}
+.card-ui-top {
+  padding: 28px 24px 24px; text-align: center;
+  background: linear-gradient(160deg, #0a1f12, #0f1623);
+  border-bottom: 1px solid var(--border);
+}
+.ui-logo { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; }
+.ui-logo-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #052e16; }
+.ui-logo-txt { font-size: 15px; font-weight: 800; letter-spacing: 2px; }
+
+.ui-check { width: 68px; height: 68px; border-radius: 50%; border: 2px solid var(--primary); background: rgba(34,197,94,0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+
+.ui-status { font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+.ui-valor  { font-size: 40px; font-weight: 800; color: var(--primary); letter-spacing: -2px; margin-bottom: 6px; }
+.ui-data   { font-size: 12px; color: var(--muted); }
+
+.ui-secao { padding: 0 24px; border-bottom: 1px solid var(--border); }
+.ui-secao:last-of-type { border-bottom: none; }
+.ui-sec-titulo { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; padding: 14px 0 8px; }
+.ui-linha { display: flex; justify-content: space-between; padding: 10px 0; font-size: 13px; border-top: 1px solid var(--border); }
+.ui-linha:first-of-type { border-top: none; }
+.ui-label { color: var(--muted); }
+.ui-val   { font-weight: 700; }
+.ui-txid  { font-family: monospace; font-size: 11px; background: var(--card2); border-radius: 6px; padding: 3px 8px; color: var(--muted); }
+
+.ui-footer { padding: 14px 24px; text-align: center; background: #080d15; border-top: 1px dashed rgba(255,255,255,0.06); }
+.ui-footer p { font-size: 11px; color: var(--muted); line-height: 1.7; }
+.ui-footer b { color: var(--primary); }
+
+/* ── MÉTODOS ICONS ── */
+.metodo-icon { font-size: 20px; }
+
+/* ── AÇÕES ── */
+.actions { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 10px; }
+.btn { width: 100%; padding: 16px; border-radius: 16px; border: none; font-weight: 700; font-size: 15px; cursor: pointer; font-family: 'Sora', sans-serif; transition: all 0.2s; }
+.btn:active { transform: scale(0.98); }
+.btn-primary   { background: var(--primary); color: #052e16; box-shadow: 0 8px 30px var(--primary-glow); }
+.btn-secondary { background: var(--card2); color: #fff; border: 1px solid var(--border); }
+
+/* ══ CARD BRANCO EXPORTÁVEL (fora da tela) ══ */
+#cardExport {
+  position: fixed; left: -9999px; top: 0;
+  width: 420px; font-family: 'Sora', sans-serif;
+  background: #fff; border-radius: 0; overflow: hidden;
+}
+/* TOPO */
+#cardExport .exp-top { padding: 32px 28px 24px; text-align: center; background: linear-gradient(160deg,#f0fdf4,#fff); border-bottom: 1px solid #f1f5f9; }
+#cardExport .exp-logo { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:24px; }
+#cardExport .exp-logo-icon { width:32px; height:32px; border-radius:8px; background:#22c55e; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#052e16; }
+#cardExport .exp-logo-txt { font-size:15px; font-weight:800; letter-spacing:2px; color:#0f172a; }
+#cardExport .exp-check { width:64px; height:64px; border-radius:50%; border:2px solid #22c55e; background:#f0fdf4; display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 16px; }
+#cardExport .exp-status { font-size:11px; font-weight:700; color:#16a34a; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; }
+#cardExport .exp-valor  { font-size:40px; font-weight:800; color:#16a34a; letter-spacing:-2px; margin-bottom:6px; }
+#cardExport .exp-data   { font-size:12px; color:#94a3b8; }
+/* SECOES */
+#cardExport .exp-secao { padding:0 24px; border-bottom:1px solid #f1f5f9; }
+#cardExport .exp-secao:last-of-type { border-bottom:none; }
+#cardExport .exp-sec-titulo { font-size:10px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:1.5px; padding:14px 0 8px; }
+#cardExport .exp-linha { display:flex; justify-content:space-between; padding:10px 0; font-size:13px; border-top:1px solid #f1f5f9; }
+#cardExport .exp-linha:first-of-type { border-top:none; }
+#cardExport .exp-label { color:#94a3b8; }
+#cardExport .exp-val   { font-weight:700; color:#0f172a; }
+#cardExport .exp-txid  { font-family:monospace; font-size:11px; background:#f1f5f9; border-radius:6px; padding:3px 8px; color:#64748b; }
+/* FOOTER */
+#cardExport .exp-footer { padding:16px 24px; text-align:center; background:#f8fafc; border-top:1px dashed #e2e8f0; }
+#cardExport .exp-footer p { font-size:11px; color:#94a3b8; line-height:1.7; }
+#cardExport .exp-footer b { color:#16a34a; }
+</style>
 </head>
 <body>
 
-    <div id="comprovante-final">
-        <div class="check-icon">✓</div>
-        <div class="valor" id="v-valor">R$ 0,00</div>
-        <div class="status-txt">Pagamento aprovado</div>
+<div class="top-bar">
+  <div class="btn-back" onclick="window.location.href='pdv.html'">←</div>
+  <span class="top-title">Comprovante de Venda</span>
+  <div style="width:40px"></div>
+</div>
 
-        <div class="linha"><span class="label">Método</span><span class="info" id="v-metodo">Pix</span></div>
-        <div class="linha"><span class="label">Data</span><span class="info" id="v-data">09/04/2026</span></div>
-        <div class="linha"><span class="label">ID Transação</span><span class="info" id="v-id">#77002026</span></div>
-        <div class="linha"><span class="label">Estabelecimento</span><span class="info">ZENTRY PAY</span></div>
+<!-- CARD ESCURO (UI) -->
+<div class="card-ui">
+  <div class="card-ui-top">
+    <div class="ui-logo">
+      <div class="ui-logo-icon">Z</div>
+      <span class="ui-logo-txt">ZENTAP</span>
     </div>
+    <div class="ui-check">✓</div>
+    <div class="ui-status">Pagamento Aprovado</div>
+    <div class="ui-valor" id="uiValor">R$ 0,00</div>
+    <div class="ui-data"  id="uiData"></div>
+  </div>
 
-    <div class="area-botoes">
-        <button class="btn btn-compartilhar" onclick="enviarFoto()">COMPARTILHAR COMPROVANTE</button>
-        <button class="btn btn-concluir" onclick="finalizar()">CONCLUIR</button>
+  <div class="ui-secao">
+    <div class="ui-sec-titulo">Pagamento</div>
+    <div class="ui-linha"><span class="ui-label">Método</span><span class="ui-val" id="uiMetodo">—</span></div>
+    <div class="ui-linha"><span class="ui-label">Status</span><span class="ui-val" style="color:var(--primary)">✓ Aprovado</span></div>
+    <div class="ui-linha"><span class="ui-label">Data e Hora</span><span class="ui-val" id="uiDataLinha">—</span></div>
+    <div class="ui-linha"><span class="ui-label">ID Transação</span><span class="ui-val"><span class="ui-txid" id="uiTxId">—</span></span></div>
+  </div>
+
+  <div class="ui-secao">
+    <div class="ui-sec-titulo">Estabelecimento</div>
+    <div class="ui-linha"><span class="ui-label">Nome</span><span class="ui-val" id="uiVendedor">—</span></div>
+    <div class="ui-linha"><span class="ui-label">Sistema</span><span class="ui-val">Zentap PDV</span></div>
+    <div class="ui-linha"><span class="ui-label">Instituição</span><span class="ui-val">ZENTRY</span></div>
+    <div class="ui-linha"><span class="ui-label">CNPJ</span><span class="ui-val">98.768.908/0001-01</span></div>
+  </div>
+
+  <div class="ui-footer">
+    <p>Dúvidas? <b>suporte@zentry.com.br</b><br>ou pelo chat no app Zentry</p>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="btn btn-primary"   onclick="compartilhar()">📤 Compartilhar Comprovante</button>
+  <button class="btn btn-secondary" onclick="novaVenda()">+ Nova Venda</button>
+</div>
+
+<!-- CARD BRANCO EXPORTÁVEL -->
+<div id="cardExport">
+  <div class="exp-top">
+    <div class="exp-logo">
+      <div class="exp-logo-icon">Z</div>
+      <span class="exp-logo-txt">ZENTAP</span>
     </div>
+    <div class="exp-check">✓</div>
+    <div class="exp-status">Pagamento Aprovado</div>
+    <div class="exp-valor" id="expValor">R$ 0,00</div>
+    <div class="exp-data"  id="expData"></div>
+  </div>
 
-    <script>
-        // Pega os dados que o PDV salvou
-        const dados = JSON.parse(localStorage.getItem("comprovante")) || {};
-        document.getElementById('v-valor').innerText = dados.valor || "R$ 0,00";
-        document.getElementById('v-metodo').innerText = dados.metodo || "Pix";
-        document.getElementById('v-data').innerText = new Date().toLocaleString();
-        document.getElementById('v-id').innerText = "#TP" + Math.floor(Math.random() * 999999);
+  <div class="exp-secao">
+    <div class="exp-sec-titulo">Pagamento</div>
+    <div class="exp-linha"><span class="exp-label">Método</span><span class="exp-val" id="expMetodo">—</span></div>
+    <div class="exp-linha"><span class="exp-label">Status</span><span class="exp-val" style="color:#16a34a">✓ Aprovado</span></div>
+    <div class="exp-linha"><span class="exp-label">Data e Hora</span><span class="exp-val" id="expDataLinha">—</span></div>
+    <div class="exp-linha"><span class="exp-label">ID Transação</span><span class="exp-val"><span class="exp-txid" id="expTxId">—</span></span></div>
+  </div>
 
-        async function enviarFoto() {
-            const area = document.getElementById("comprovante-final");
-            
-            // Tira a "print" da área branca (html2canvas)
-            const canvas = await html2canvas(area, { backgroundColor: "#ffffff", scale: 3 });
-            const dataUrl = canvas.toDataURL("image/png");
-            
-            // Transforma em arquivo real para o celular compartilhar
-            const blob = await (await fetch(dataUrl)).blob();
-            const file = new File([blob], "comprovante_zentry.png", { type: "image/png" });
+  <div class="exp-secao">
+    <div class="exp-sec-titulo">Estabelecimento</div>
+    <div class="exp-linha"><span class="exp-label">Nome</span><span class="exp-val" id="expVendedor">—</span></div>
+    <div class="exp-linha"><span class="exp-label">Sistema</span><span class="exp-val">Zentap PDV</span></div>
+    <div class="exp-linha"><span class="exp-label">Instituição</span><span class="exp-val">ZENTRY</span></div>
+    <div class="exp-linha"><span class="exp-label">CNPJ</span><span class="exp-val">98.768.908/0001-01</span></div>
+  </div>
 
-            if (navigator.share) {
-                await navigator.share({
-                    files: [file], // ENVIA A FOTO AQUI
-                    title: 'Comprovante Zentry',
-                });
-            } else {
-                alert("Erro ao abrir galeria de compartilhamento.");
-            }
-        }
+  <div class="exp-footer">
+    <p>Dúvidas? <b>suporte@zentry.com.br</b><br>ou pelo chat no app Zentry</p>
+  </div>
+</div>
 
-        function finalizar() {
-            window.location.href = "pdv.html"; // Volta pro início
-        }
-    </script>
+<script>
+const dados = JSON.parse(localStorage.getItem("comprovante_pdv")) || {};
+
+function init() {
+  if (!dados || !dados.valor) {
+    document.body.innerHTML = `
+      <div style="padding:60px 20px;text-align:center;font-family:Sora,sans-serif;color:#fff;">
+        <div style="font-size:48px;margin-bottom:16px;">📭</div>
+        <h2 style="margin-bottom:12px;">Comprovante não encontrado</h2>
+        <button onclick="window.location.href='pdv.html'"
+          style="background:#22c55e;color:#052e16;border:none;padding:14px 28px;border-radius:14px;font-weight:700;font-size:15px;cursor:pointer;">
+          Voltar ao PDV
+        </button>
+      </div>`;
+    return;
+  }
+
+  const v    = dados.valorFmt || "R$ " + Number(dados.valor).toFixed(2).replace('.',',');
+  const data = dados.data || new Date().toLocaleString('pt-BR');
+  const txid = (dados.id || 'ZNT'+Date.now()).toUpperCase().substring(0,16);
+  const vend = dados.vendedor || "Zentry";
+  const met  = dados.metodo  || "Pix";
+  const metIcon = met.toLowerCase().includes('pix') ? '⚡ ' : met.toLowerCase().includes('créd') ? '💜 ' : '💳 ';
+
+  // UI escura
+  document.getElementById('uiValor').textContent     = v;
+  document.getElementById('uiData').textContent      = data;
+  document.getElementById('uiMetodo').textContent    = metIcon + met;
+  document.getElementById('uiDataLinha').textContent = data;
+  document.getElementById('uiTxId').textContent      = txid;
+  document.getElementById('uiVendedor').textContent  = vend;
+
+  // Card branco
+  document.getElementById('expValor').textContent     = v;
+  document.getElementById('expData').textContent      = data;
+  document.getElementById('expMetodo').textContent    = met;
+  document.getElementById('expDataLinha').textContent = data;
+  document.getElementById('expTxId').textContent      = txid;
+  document.getElementById('expVendedor').textContent  = vend;
+}
+
+async function compartilhar() {
+  const btn = document.querySelector('.btn-primary');
+  btn.textContent = "Gerando imagem...";
+  btn.disabled = true;
+
+  try {
+    await document.fonts.ready;
+    await new Promise(r => setTimeout(r, 200));
+
+    const canvas = await html2canvas(document.getElementById('cardExport'), {
+      scale: 3, backgroundColor: "#ffffff",
+      useCORS: true, logging: false,
+      width: 420, windowWidth: 420
+    });
+
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png', 1.0));
+    const file = new File([blob], "comprovante_zentap.png", { type:"image/png" });
+
+    if (navigator.canShare && navigator.canShare({ files:[file] })) {
+      await navigator.share({ files:[file], title:'Comprovante Zentap' });
+    } else if (navigator.share) {
+      await navigator.share({
+        title: 'Comprovante Zentap',
+        text: `Pagamento de ${dados.valorFmt} via ${dados.metodo} aprovado! ✓`
+      });
+    } else {
+      const link = document.createElement("a");
+      link.download = "comprovante_zentap.png";
+      link.href = canvas.toDataURL('image/png', 1.0);
+      link.click();
+    }
+  } catch(err) {
+    try {
+      const txt = `✓ Pagamento Aprovado - Zentap\nValor: ${dados.valorFmt}\nMétodo: ${dados.metodo}\nData: ${dados.data}\nID: ${dados.id}`;
+      await navigator.clipboard.writeText(txt);
+      alert("Comprovante copiado!");
+    } catch(e) {}
+  }
+
+  btn.textContent = "📤 Compartilhar Comprovante";
+  btn.disabled = false;
+}
+
+function novaVenda() {
+  localStorage.removeItem("comprovante_pdv");
+  window.location.href = "pdv.html";
+}
+
+init();
+</script>
 </body>
-</html>
+    </html>
+    
