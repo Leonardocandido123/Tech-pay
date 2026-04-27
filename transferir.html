@@ -413,34 +413,79 @@
     }
   });
 
-  async function buscarDestinatario(chave) {
-    try {
-      // Tenta por CPF, celular, email ou chavepix
-      const campos = ['cpf','celular','email','chavepix'];
-      for (const campo of campos) {
-        const q = query(collection(db, "usuarios"), where(campo, "==", chave), limit(1));
-        const snap = await getDocs(q);
-        if (!snap.empty) {
-          const d = snap.docs[0];
-          if (d.id === userUid) { ZentryUI.toast("Você não pode transferir para si mesmo", "aviso"); return; }
-          destinoEncontrado = { uid: d.id, ...d.data() };
-          const iniciais = destinoEncontrado.nome.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
-          document.getElementById('destAvatar').textContent = iniciais;
-          document.getElementById('destNome').textContent   = destinoEncontrado.nome;
-          document.getElementById('destinoCard').classList.add('visivel');
-          document.getElementById('destinoExterno').classList.remove('visivel');
-          document.getElementById('btnMain').disabled = false;
-          return;
-        }
-      }
-      // Não encontrou — Pix externo
-      destinoEncontrado = { uid: 'externo', nome: 'Pix Externo', banco: 'Banco Externo' };
-      document.getElementById('destinoCard').classList.remove('visivel');
-      document.getElementById('destinoExterno').classList.add('visivel');
-      document.getElementById('btnMain').disabled = false;
-    } catch(e) { ZentryUI.toast("Erro ao buscar destinatário", "erro"); }
-  }
+async function buscarDestinatario(chave) {
+  try {
+    // Normaliza chave
+    let chaveBusca = chave;
 
+    if (tipoChave === 'email') {
+      chaveBusca = chave.trim().toLowerCase();
+    } else {
+      chaveBusca = chave.replace(/\D/g, '');
+    }
+
+    // 🔥 IMPORTANTE: agora busca correto
+    const campos = {
+      cpf: 'cpf',
+      celular: 'celular',
+      email: 'chavepix', // 👈 CORREÇÃO AQUI
+      cnpj: 'cnpj'
+    };
+
+    const campo = campos[tipoChave];
+
+    const q = query(
+      collection(db, "usuarios"),
+      where(campo, "==", chaveBusca),
+      limit(1)
+    );
+
+    const snap = await getDocs(q);
+
+    if (!snap.empty) {
+      const d = snap.docs[0];
+
+      if (d.id === userUid) {
+        ZentryUI.toast("Você não pode transferir para si mesmo", "aviso");
+        return;
+      }
+
+      destinoEncontrado = { uid: d.id, ...d.data() };
+
+      const iniciais = destinoEncontrado.nome
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .substring(0, 2)
+        .toUpperCase();
+
+      document.getElementById('destAvatar').textContent = iniciais;
+      document.getElementById('destNome').textContent = destinoEncontrado.nome;
+
+      document.getElementById('destinoCard').classList.add('visivel');
+      document.getElementById('destinoExterno').classList.remove('visivel');
+
+      document.getElementById('btnMain').disabled = false;
+      return;
+    }
+
+    // NÃO ENCONTROU
+    destinoEncontrado = {
+      uid: 'externo',
+      nome: 'Pix Externo',
+      banco: 'Banco Externo'
+    };
+
+    document.getElementById('destinoCard').classList.remove('visivel');
+    document.getElementById('destinoExterno').classList.add('visivel');
+
+    document.getElementById('btnMain').disabled = false;
+
+  } catch (e) {
+    console.error(e);
+    ZentryUI.toast("Erro ao buscar destinatário", "erro");
+  }
+}
   // ── VALOR ──
   document.getElementById('valorInput').addEventListener('input', function(e) {
     let v = e.target.value.replace(/\D/g,'');
