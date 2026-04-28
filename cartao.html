@@ -201,56 +201,35 @@
         <button class="btn-order" onclick="solicitarCartao()">Solicitar meu ZENTRY Card</button>
     </div>
 </div>
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
-        authDomain: "zentry-app-74275.firebaseapp.com",
-        projectId: "zentry-app-74275",
-        storageBucket: "zentry-app-74275.appspot.com",
-        messagingSenderId: "571422826071",
-        appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+    <script type="module">
+    // Importando o padrão do projeto
+    import { auth, db, ZentryAuth, ZentryUser } from './zentry-core.js';
+    import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     let userUid = "";
     let tipoSelecionado = "virtual";
 
-    // --- ESTABILIZADOR DE SESSÃO (AQUI ESTAVA O ERRO) ---
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
+    // 1. INICIALIZAÇÃO (Padrão Zentry)
+    async function init() {
+        try {
+            const user = await ZentryAuth.exigirLogin();
             userUid = user.uid;
-            console.log("Usuário autenticado:", userUid);
-            
-            try {
-                const userSnap = await getDoc(doc(db, "usuarios", user.uid));
-                if(userSnap.exists()) {
-                    const nome = userSnap.data().nome || "MEMBRO ZENTRY";
-                    document.getElementById("nomeCartao").value = nome.toUpperCase();
-                    document.getElementById("previewName").innerText = nome.toUpperCase();
-                }
-            } catch (error) {
-                console.error("Erro ao carregar dados:", error);
-            }
-        } else {
-            // Em vez de redirecionar na hora, esperamos 3 segundos.
-            // Se após 3s o Firebase realmente não achar ninguém, aí sim vai pro login.
-            console.warn("Verificando sessão...");
-            setTimeout(() => {
-                if (!auth.currentUser) {
-                    window.location.href = "login.html";
-                }
-            }, 3000);
-        }
-    });
 
-    // --- LÓGICA DE INTERAÇÃO ---
+            // Escuta os dados do usuário para preencher o nome no cartão
+            ZentryUser.escutar(userUid, (dados) => {
+                if(dados && dados.nome) {
+                    const nomeFormatado = dados.nome.toUpperCase();
+                    document.getElementById("nomeCartao").value = nomeFormatado;
+                    document.getElementById("previewName").innerText = nomeFormatado;
+                }
+            });
+        } catch (error) {
+            console.error("Erro na sessão:", error);
+        }
+    }
+    init();
+
+    // 2. INTERAÇÕES DE TELA (Funções Globais)
     window.selectType = (type, el) => {
         tipoSelecionado = type;
         document.querySelectorAll('.type-opt').forEach(opt => opt.classList.remove('active'));
@@ -259,34 +238,43 @@
     };
 
     window.updateName = (el) => {
+        // Remove números para manter o padrão de cartão bancário
         el.value = el.value.replace(/[^a-zA-Z\s]/g, "");
         document.getElementById("previewName").innerText = el.value.toUpperCase() || "NOME NO CARTÃO";
     };
 
     window.updateColor = (cor) => {
         const card = document.getElementById("mainCard");
-        card.className = "card-preview " + cor; // Corrigido para a classe correta do CSS
+        // Remove classes antigas e adiciona a nova preservando a base
+        card.className = "card-preview " + cor;
     };
 
+    // 3. AÇÃO PRINCIPAL
     window.solicitarCartao = async () => {
         const nomeGravado = document.getElementById("nomeCartao").value;
         const corEscolhida = document.getElementById("corCartao").value;
         const btn = document.querySelector('.btn-order');
         
-        if(!userUid) return alert("Erro de autenticação. Tente novamente.");
-        if(!nomeGravado || nomeGravado.length < 5) return alert("Digite seu nome completo.");
+        if(!userUid) return; // ZentryAuth já cuida do redirecionamento
+        
+        if(!nomeGravado || nomeGravado.length < 5) {
+            // Se tiver ZentryUI.toast no seu core, use aqui:
+            alert("Digite seu nome completo para a gravação."); 
+            return;
+        }
         
         if(tipoSelecionado === 'fisico') {
             const cep = document.getElementById("cep").value;
             const rua = document.getElementById("rua").value;
-            if(!cep || cep.length < 8) return alert("CEP inválido.");
-            if(!rua || rua.length < 10) return alert("Endereço incompleto.");
+            if(!cep || cep.length < 8) { alert("CEP inválido."); return; }
+            if(!rua || rua.length < 10) { alert("Endereço incompleto."); return; }
         }
 
         btn.innerText = "PROCESSANDO...";
         btn.disabled = true;
 
         try {
+            // Grava a solicitação no Firestore
             await setDoc(doc(db, "cartoes", userUid), {
                 userId: userUid,
                 tipo: tipoSelecionado,
@@ -296,21 +284,23 @@
                 dataPedido: new Date().toISOString()
             });
 
+            // Feedback de Sucesso
             document.getElementById("msgSucesso").innerText = tipoSelecionado === 'virtual' 
-                ? "Seu ZENTRY Virtual está liberado!" 
-                : "Seu ZENTRY Físico está em produção e chegará em breve!";
+                ? "Seu ZENTRY Virtual está liberado para uso imediato!" 
+                : "Pedido recebido! Seu ZENTRY Físico chegará em breve no seu endereço.";
             
             document.getElementById("modalSucesso").style.display = "flex";
             
         } catch (e) { 
-            alert("Erro ao solicitar. Tente de novo.");
+            console.error(e);
+            alert("Erro ao processar pedido. Tente novamente.");
             btn.innerText = "Solicitar meu ZENTRY Card";
             btn.disabled = false;
         }
     };
         </script>
     
-    
+
 </body>
     </html>
     
