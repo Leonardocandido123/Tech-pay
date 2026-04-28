@@ -115,157 +115,103 @@ body {
 
   <button class="btn" onclick="copiar()">Copiar comprovante</button>
 </div>
+  <script type="module">
+    import { db, auth, ZentryAuth } from './zentry-core.js';
+    import { doc, updateDoc, increment, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-<script>
+    // MASCARA DE MOEDA
+    window.mascaraMoeda = (input) => {
+        let v = input.value.replace(/\D/g, '');
+        v = (v / 100).toFixed(2) + '';
+        v = v.replace(".", ",");
+        v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
+        input.value = "R$ " + v;
+    };
 
-// FORMATA MOEDA
-function mascaraMoeda(input){
-  let v = input.value.replace(/\D/g,'');
-  v = (v/100).toFixed(2)+'';
-  v = v.replace(".",",");
-  v = v.replace(/(\d)(\d{3}),/g,"$1.$2,");
-  input.value = "R$ "+v;
-}
-
-// AUTO FORMATAR
-document.getElementById("valor").addEventListener("input", function(){
-  mascaraMoeda(this);
-});
-
-// PEGAR PARAMETROS DO LINK
-window.onload = () => {
-  const params = new URLSearchParams(window.location.search);
-
-  const v = params.get("v");
-  const d = params.get("d");
-
-  if(v){
-    const valorFormatado = (parseInt(v)/100).toLocaleString('pt-BR',{
-      style:'currency',
-      currency:'BRL'
+    document.getElementById("valor").addEventListener("input", function() {
+        mascaraMoeda(this);
     });
 
-    document.getElementById("valor").value = valorFormatado;
-  }
+    // AO CARREGAR: PEGAR PARAMETROS DA URL
+    window.onload = () => {
+        const params = new URLSearchParams(window.location.search);
+        const v = params.get("v");
+        const d = params.get("d");
 
-  if(d){
-    document.getElementById("descricao").value = d;
-  }
-};
-
-// PAGAMENTO
-function pagar(){
-
-  const valor = document.getElementById("valor").value;
-  const desc = document.getElementById("descricao").value || "Sem descrição";
-  const metodo = document.getElementById("metodo").value;
-
-  if(!valor || valor === "R$ 0,00"){
-    alert("Digite um valor");
-    return;
-  }
-
-  const id = "TP" + Date.now();
-  const data = new Date().toLocaleString();
-
-  // SALVAR COMO PAGO
-  let lista = JSON.parse(localStorage.getItem("cobrancas") || "[]");
-
-  lista.unshift({
-    valor,
-    desc,
-    status: "pago",
-    id,
-    data
-  });
-
-  localStorage.setItem("cobrancas", JSON.stringify(lista));
-
-  // MOSTRAR COMPROVANTE
-  document.getElementById("c-valor").innerText = valor;
-  document.getElementById("c-desc").innerText = desc;
-  document.getElementById("c-data").innerText = data;
-  document.getElementById("c-id").innerText = id;
-
-  document.getElementById("c-link").innerText = window.location.href;
-
-  document.getElementById("comprovante").style.display = "block";
-
-}
-
-// COPIAR
-function copiar(){
-  const texto = `
-Comprovante Tech Pay
-
-Valor: ${document.getElementById("c-valor").innerText}
-Descrição: ${document.getElementById("c-desc").innerText}
-Data: ${document.getElementById("c-data").innerText}
-ID: ${document.getElementById("c-id").innerText}
-`;
-
-  navigator.clipboard.writeText(texto);
-  alert("Copiado!");
-}
-  function finalizarPagamento() {
-    const params = new URLSearchParams(window.location.search);
-
-    const id = params.get("id");
-    const valorParam = params.get("v");
-
-    if (!id || !valorParam) return;
-
-    const valorNumero = parseInt(valorParam) / 100;
-
-    // 🟢 1. ATUALIZA COBRANÇAS
-    let cobrancas = JSON.parse(localStorage.getItem("cobrancas") || "[]");
-
-    cobrancas = cobrancas.map(c => {
-        if (c.id === id) {
-            c.status = "pago";
+        if (v) {
+            const valorFormatado = (parseInt(v) / 100).toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+            document.getElementById("valor").value = valorFormatado;
         }
-        return c;
-    });
+        if (d) document.getElementById("descricao").value = d;
+    };
 
-    localStorage.setItem("cobrancas", JSON.stringify(cobrancas));
+    // FUNÇÃO PRINCIPAL DE PAGAMENTO
+    window.pagar = async () => {
+        const valorTexto = document.getElementById("valor").value;
+        const desc = document.getElementById("descricao").value || "Venda via Checkout";
+        
+        if (!valorTexto || valorTexto === "R$ 0,00") {
+            alert("Digite um valor válido");
+            return;
+        }
 
-    // 🟢 2. ATUALIZA TRANSAÇÕES
-    let transacoes = JSON.parse(localStorage.getItem("transacoes") || "[]");
-transacoes = transacoes.map(t => 
-    t.id === id 
-        ? { ...t, status: "pago" } 
-        : t
-);
- 
-    localStorage.setItem("transacoes", JSON.stringify(transacoes));
+        // Converte "R$ 1.500,50" para o número 1500.50
+        const valorLimpo = valorTexto.replace("R$", "").replace(/\./g, "").replace(",", ".");
+        const valorNumero = parseFloat(valorLimpo);
 
-    // 🟢 3. ATUALIZA SALDO
-    let saldo = parseFloat(localStorage.getItem("saldo") || "0");
+        try {
+            // 1. Verifica se o usuário está logado para receber o dinheiro
+            const user = auth.currentUser;
+            if (!user) {
+                alert("Erro: Você precisa estar logado para processar vendas.");
+                return;
+            }
 
-    saldo += valorNumero;
+            const idTransacao = "ZNT" + Date.now();
+            const dataAtual = new Date().toLocaleString('pt-BR');
 
-    localStorage.setItem("saldo", saldo.toString());
+            // 2. ATUALIZAÇÃO NO FIRESTORE (Saldo + Transação)
+            const userRef = doc(db, "usuarios", user.uid);
+            
+            await updateDoc(userRef, {
+                saldo: increment(valorNumero), // Soma o valor ao saldo atual
+                transacoes: arrayUnion({
+                    id: idTransacao,
+                    valor: valorNumero,
+                    descricao: desc,
+                    tipo: "entrada",
+                    metodo: document.getElementById("metodo").value,
+                    data: dataAtual,
+                    status: "concluido"
+                })
+            });
 
-    // 🟢 4. SALVA COMPROVANTE (opcional)
-    let historico = JSON.parse(localStorage.getItem("historico") || "[]");
+            // 3. MOSTRAR COMPROVANTE NA TELA
+            document.getElementById("c-valor").innerText = valorTexto;
+            document.getElementById("c-desc").innerText = desc;
+            document.getElementById("c-data").innerText = dataAtual;
+            document.getElementById("c-id").innerText = idTransacao;
+            document.getElementById("comprovante").style.display = "block";
 
-    historico.unshift({
-        id: id,
-        valor: valorNumero,
-        tipo: "entrada",
-        status: "pago",
-        data: new Date().toLocaleString()
-    });
+            console.log("Saldo atualizado no Firebase!");
 
-    localStorage.setItem("historico", JSON.stringify(historico));
+        } catch (error) {
+            console.error("Erro no processamento:", error);
+            alert("Falha ao processar pagamento.");
+        }
+    };
 
-    console.log("Pagamento finalizado com sucesso!");
-  }
-  setTimeout(() => {
-    finalizarPagamento();
-}, 1500);
+    window.copiar = () => {
+        const texto = `Comprovante ZENTRY\n\nValor: ${document.getElementById("c-valor").innerText}\nDescrição: ${document.getElementById("c-desc").innerText}\nID: ${document.getElementById("c-id").innerText}`;
+        navigator.clipboard.writeText(texto);
+        alert("Copiado com sucesso!");
+    };
+  </script>
+  
 
-</script>
 
 </body>
 </html>
