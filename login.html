@@ -118,6 +118,16 @@
     animation: pop 0.3s ease;
   }
   @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0,0,0,0.2);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+                                                                   
 </style>
 
 </head>
@@ -159,10 +169,9 @@
       <a href="cadastro_unificado.html" class="create-acc">Criar conta</a>
     </div>
   </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
@@ -188,6 +197,11 @@ document.getElementById('zBtnClose').onclick = () => {
   document.getElementById('zModalGlobal').style.display = 'none';
 };
 
+// Verificação Automática: Se já estiver logado, pula essa tela
+onAuthStateChanged(auth, (user) => {
+  if (user) window.location.href = "home.html";
+});
+
 window.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("senha");
   const btn = document.getElementById("btnEntrar");
@@ -210,29 +224,38 @@ window.addEventListener("DOMContentLoaded", () => {
 
   window.entrar = function(){
     if(input.value.length < 6) return;
+    
+    // Pegamos o e-mail que deve ter sido salvo no cadastro ou tela anterior
     const email = localStorage.getItem("usuarioEmail");
     
     if(!email){
-      showZModal("Sessão Expirada", "Não identificamos seu e-mail. Por favor, reinicie o acesso.", "⚠️");
+      showZModal("E-mail não encontrado", "Não conseguimos identificar sua conta. Por favor, volte e verifique seu e-mail ou crie uma nova conta.", "👤");
       return;
     }
 
-    // Feedback visual de carregamento
-    btn.innerHTML = `<div style="width:20px; height:20px; border:3px solid #000; border-top-color:transparent; border-radius:50%; animation: spin 0.8s linear infinite;"></div>`;
+    // Feedback visual: Troca a seta pelo spinner
+    btn.innerHTML = `<div class="spinner"></div>`;
+    btn.style.pointerEvents = "none";
     
     signInWithEmailAndPassword(auth, email, input.value)
       .then(() => {
+        // Sucesso: Animação de saída
         document.body.style.opacity = "0";
-        setTimeout(() => { window.location.href = "home.html"; }, 400);
+        document.body.style.transform = "scale(1.1)";
+        document.body.style.transition = "0.5s ease";
+        setTimeout(() => { window.location.href = "home.html"; }, 500);
       })
       .catch((error) => {
-        console.error(error);
+        console.error(error.code);
+        // Volta o ícone original
         btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+        btn.style.pointerEvents = "all";
         
-        let msg = "A senha digitada está incorreta ou o usuário não existe.";
-        if(error.code === 'auth/too-many-requests') msg = "Muitas tentativas falhas. Tente novamente mais tarde.";
+        let msg = "A senha digitada está incorreta.";
+        if(error.code === 'auth/invalid-credential') msg = "Senha incorreta ou conta inexistente.";
+        if(error.code === 'auth/too-many-requests') msg = "Muitas tentativas falhas. Sua conta foi bloqueada temporariamente por segurança.";
         
-        showZModal("Acesso Negado", msg, "🔒");
+        showZModal("Bloqueio de Segurança", msg, "🔒");
       });
   };
 
@@ -241,10 +264,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 });
 </script>
-
-<style>
-  @keyframes spin { to { transform: rotate(360deg); } }
-</style>
+  
 
 </body>
 </html>
