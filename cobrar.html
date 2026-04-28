@@ -1,457 +1,234 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ZENTRY- Business Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<style>
-    :root{
-        --primary:#22c55e;
-        --card-bg: rgba(18,24,38,0.9);
-        --border-white: rgba(255,255,255,0.08);
-        --text-secondary:#94a3b8;
-    }
-    *{ box-sizing:border-box; margin:0; padding:0; }
-   body{
-    font-family:'Inter',sans-serif;
-    background: radial-gradient(circle at 20% 0%, #0f172a,#000 70%) no-repeat fixed;
-    color:#fff;
-    min-height:100vh;
-    padding:20px;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zentry - Cobranças</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #22c55e;
+            --card-bg: rgba(18,24,38,0.9);
+            --border: rgba(255,255,255,0.08);
+            --text-sec: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 20% 0%, #0f172a, #000 70%) no-repeat fixed;
+            color: #fff; min-height: 100vh; padding: 20px;
+        }
+        .container { width: 100%; max-width: 420px; margin: 0 auto; }
 
-    overflow-x: hidden; /* remove scroll lateral */
-}
-    .container{ width:100%; max-width:420px; margin: 0 auto; }
+        /* Cabeçalho */
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .back-btn { background: none; border: none; cursor: pointer; padding: 10px; border-radius: 50%; }
+        .back-btn svg { width: 24px; height: 24px; stroke: #fff; fill: none; stroke-width: 2.5; }
 
-    .nav-tabs{
-        display:flex; background: rgba(255,255,255,0.03);
-        padding:4px; border-radius:16px; margin-bottom:24px;
-        border:1px solid var(--border-white);
-    }
-    .tab-btn{
-        flex:1; padding:12px; border:none; background:transparent; color:var(--text-secondary);
-        font-weight:600; font-size:13px; cursor:pointer; border-radius:12px; transition:.3s;
-    }
-    .tab-btn.active{ background: var(--card-bg); color:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+        /* Tabs */
+        .nav-tabs {
+            display: flex; background: rgba(255,255,255,0.03);
+            padding: 4px; border-radius: 16px; margin-bottom: 24px; border: 1px solid var(--border);
+        }
+        .tab-btn {
+            flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-sec);
+            font-weight: 600; font-size: 12px; cursor: pointer; border-radius: 12px; transition: .3s;
+        }
+        .tab-btn.active { background: var(--card-bg); color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
-    .card{
-        background: var(--card-bg); backdrop-filter: blur(12px);
-        border:1px solid var(--border-white); border-radius:28px; padding:24px; 
-        display:none; animation:fadeIn 0.4s ease;
-    }
-    .card.active{ display:block; }
+        /* Cards */
+        .card {
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 28px; 
+            padding: 24px; display: none; animation: fadeIn 0.4s ease;
+        }
+        .card.active { display: block; }
 
-    .input-group{ margin-bottom:18px; }
-    .input-group label{ display:block; font-size:10px; font-weight:800; color:var(--text-secondary); margin-bottom:8px; text-transform: uppercase;}
-    .input-group input{
-        width:100%; background: rgba(0,0,0,0.3); border:1px solid var(--border-white);
-        border-radius:14px; padding:14px; color:#fff; font-size:16px; outline:none;
-    }
+        .input-group { margin-bottom: 18px; }
+        .input-group label { display: block; font-size: 10px; font-weight: 800; color: var(--text-sec); margin-bottom: 8px; text-transform: uppercase; }
+        .input-group input {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+            border-radius: 14px; padding: 14px; color: #fff; font-size: 16px; outline: none;
+        }
 
-    .btn-main{
-        width:100%; background:var(--primary); color:#052e16; border:none; border-radius:16px;
-        padding:16px; font-weight:800; font-size:15px; cursor:pointer;
-    }
+        .btn-main {
+            width: 100%; background: var(--primary); color: #052e16; border: none; border-radius: 16px;
+            padding: 16px; font-weight: 800; font-size: 15px; cursor: pointer;
+        }
 
-    .section-title { font-size: 11px; font-weight: 800; color: var(--text-secondary); margin: 20px 5px 10px; text-transform: uppercase; }
-    
-    /* Card de Cliente que Aceita Clique */
-    .item-cliente{
-        background: var(--card-bg); border:1px solid var(--border-white);
-        padding:16px; border-radius:18px; display:flex; justify-content:space-between; align-items:center;
-        margin-bottom:10px; cursor: pointer; transition: 0.2s;
-    }
-    .item-cliente:active { transform: scale(0.98); background: rgba(255,255,255,0.05); }
-    .item-info b{ display:block; font-size:15px; }
-    .item-info span{ font-size:11px; color:var(--text-secondary); }
-    .badge-ativo { color:var(--primary); font-size:10px; font-weight:800; border: 1px solid var(--primary); padding: 2px 8px; border-radius: 20px; }
+        .section-title { font-size: 11px; font-weight: 800; color: var(--text-sec); margin: 25px 5px 10px; text-transform: uppercase; }
 
-    @keyframes fadeIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-    /* Estilo para o botão da lixeira (SVG) */
-.btn-delete {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.2s;
-    opacity: 0.6; /* Deixa apagadinha quando não tá pago */
-}
+        /* Itens de Lista */
+        .item-list {
+            background: var(--card-bg); border: 1px solid var(--border);
+            padding: 16px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 10px; cursor: pointer;
+        }
+        .item-info b { display: block; font-size: 15px; }
+        .item-info span { font-size: 11px; color: var(--text-sec); }
+        
+        .status-badge { font-size: 9px; font-weight: 900; padding: 3px 8px; border-radius: 20px; border: 1px solid currentColor; }
 
-.btn-delete:hover { opacity: 1; } /* Acende ao passar o mouse */
-.btn-delete:active { transform: scale(0.9); } /* Efeito de clique */
-
-/* Ícone da Lixeira (Cor Chumbo) */
-.btn-delete svg {
-    width: 22px;
-    height: 22px;
-    fill: #64748b; /* Cor slate/chumbo */
-}
-
-/* Badge de Pago */
-.badge-pago {
-    background: #052e16; /* Fundo verde bem escuro */
-    color: var(--primary); /* Texto verde vivo */
-    font-size: 9px;
-    font-weight: 900;
-    padding: 2px 8px;
-    border-radius: 20px;
-    border: 1px solid var(--primary);
-    animation: anim-pago-pulsa 1.5s infinite; /* Efeito pisca */
-}
-
-/* Animação que pisca (Excluir) */
-@keyframes anim-pago-pulsa {
-    0% { opacity: 0.5; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.3); }
-    50% { opacity: 1; box-shadow: 0 0 10px rgba(34, 197, 94, 0.6); }
-    100% { opacity: 0.5; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
-}
-/* Container do Cabeçalho */
-.main-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
-    margin-bottom: 20px;
-}
-
-/* Botão de Voltar */
-.back-arrow-btn {
-    background: none;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    transition: background 0.2s;
-}
-
-.back-arrow-btn:active {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-/* Seta Branca Estilo Inter/Nubank */
-.back-arrow-btn svg {
-    width: 24px;
-    height: 24px;
-    fill: none;
-    stroke: #ffffff;
-    stroke-width: 2.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-/* Título Centralizado */
-.logo-title {
-    font-size: 20px;
-    font-weight: 800;
-    flex: 1;
-    text-align: center;
-    margin: 0;
-}
-
-.logo-title span {
-    color: var(--primary);
-}
-    
-
-</style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="main-header">
-    <button class="back-arrow-btn" onclick="window.location.href='home.html'">
-        <svg viewBox="0 0 24 24">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-    </button>
-    <h1 class="logo-title">ZEN<span>TRY</span></h1>
-    <div style="width: 44px;"></div> 
+    <div class="header">
+        <button class="back-btn" onclick="location.href='home.html'">
+            <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <h1 style="font-size: 20px; font-weight: 800;">ZEN<span style="color:var(--primary)">TRY</span> PAY</h1>
+        <div style="width:44px"></div>
     </div>
-    
-     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab(event,'gerar')">Gerar Link</button>
-        <button class="tab-btn" onclick="switchTab(event,'cadastro')">Cadastrar Cliente</button>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab(event,'gerar')">COBRAR</button>
+        <button class="tab-btn" onclick="switchTab(event,'clientes')">CLIENTES</button>
+        <button class="tab-btn" onclick="switchTab(event,'historico')">HISTÓRICO</button>
     </div>
 
     <div id="tab-gerar" class="card active">
         <div class="input-group">
             <label>NOME DO CLIENTE</label>
-            <input type="text" id="link-nome" placeholder="Selecione abaixo ou digite">
+            <input type="text" id="cob-nome" placeholder="Para quem é a cobrança?">
         </div>
         <div class="input-group">
-            <label>VALOR DO PAGAMENTO</label>
-            <input type="text" id="link-valor" placeholder="R$ 0,00" oninput="mascaraMoeda(this)">
+            <label>VALOR</label>
+            <input type="text" id="cob-valor" placeholder="R$ 0,00" oninput="mascaraMoeda(this)">
         </div>
         <div class="input-group">
-            <label>O QUE ESTÁ SENDO VENDIDO?</label>
-            <input type="text" id="link-desc" placeholder="Ex: Upgrade de Plano">
+            <label>DESCRIÇÃO</label>
+            <input type="text" id="cob-desc" placeholder="Ex: Venda de Produto">
         </div>
-        <button class="btn-main" onclick="enviarLink()">Enviar Link de Cobrança</button>
+        <button class="btn-main" onclick="enviarCobranca()">Gerar & Enviar no WhatsApp</button>
     </div>
 
-    <div id="tab-cadastro" class="card">
-    <h3 style="font-size:16px; margin-bottom:15px;">Novo Cadastro</h3>
-    <div class="input-group">
-        <label>NOME COMPLETO</label>
-        <input type="text" id="cad-nome" placeholder="Ex: Ricardo Frete">
-    </div>
-    <div class="input-group">
-        <label>VALOR PADRÃO</label>
-        <input type="text" id="cad-valor" placeholder="R$ 0,00" oninput="mascaraMoeda(this)">
-    </div>
-    <div class="input-group">
-        <label>SERVIÇO RECORRENTE</label>
-        <input type="text" id="cad-desc" placeholder="Ex: Mensalidade Frete">
-    </div>
-    <div class="input-group">
-        <label>DATA DE VENCIMENTO / COBRANÇA</label>
-        <input type="date" id="cad-data" style="color-scheme: dark;">
-    </div>
-    <button class="btn-main" style="background:white; color:black;" onclick="salvarCliente()">Salvar no Banco</button>
-    </div>
-    
-
-    <div class="section-title">SELECIONE PARA PREENCHER</div>
-    <div id="lista-clientes"></div>
-</div>
-
-   <div id="comprovante-wrapper" style="position: absolute; top: 0; left: 0; z-index: -1; opacity: 0.01; pointer-events: none;">
-   <div style="position: absolute; top: 0; left: 0; z-index: -9999; opacity: 0.01; pointer-events: none;">
-    <div id="comprovante-template" style="width: 400px; min-height: 500px; background-color: #ffffff !important; color: #000000 !important; padding: 40px; font-family: Arial, sans-serif; box-sizing: border-box;">
+    <div id="tab-clientes" class="card">
+        <div class="input-group">
+            <label>NOME COMPLETO</label>
+            <input type="text" id="cad-nome" placeholder="Nome do cliente">
+        </div>
+        <div class="input-group">
+            <label>VALOR PADRÃO (OPCIONAL)</label>
+            <input type="text" id="cad-valor" placeholder="R$ 0,00" oninput="mascaraMoeda(this)">
+        </div>
+        <button class="btn-main" onclick="salvarCliente()">Salvar Cliente no Banco</button>
         
-        <div style="background-color: #ffffff !important; border-top: 6px solid #22c55e; padding-top: 20px;">
-            <div style="display: flex; justify-content: space-between; background-color: #ffffff !important;">
-                <span style="color: #22c55e !important; font-weight: 900; font-size: 22px; text-transform: lowercase;">tech pay</span>
-                <span style="color: #999999 !important; font-size: 10px; font-weight: bold;">VIA DO CLIENTE</span>
-            </div>
+        <div class="section-title">MEUS CLIENTES</div>
+        <div id="lista-clientes"></div>
+    </div>
 
-            <h2 style="color: #000000 !important; margin: 30px 0 10px; font-size: 26px; font-weight: 800;">Ordem de Cobrança</h2>
-         <p id="pdf-mensagem" style="color: #333333; font-size: 14px; line-height: 1.6; margin-bottom: 30px;"></p>
-            <div style="background-color: #f1f5f9 !important; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 30px;">
-                <span style="color: #64748b !important; font-size: 11px; font-weight: 800; text-transform: uppercase;">Valor a Pagar</span>
-                <div id="pdf-valor" style="color: #166534 !important; font-size: 40px; font-weight: 900; margin-top: 5px;">R$ 0,00</div>
-            </div>
-
-            <div style="border-top: 2px dashed #dddddd; padding-top: 25px; background-color: #ffffff !important;">
-                <div style="margin-bottom: 15px; background-color: #ffffff !important;">
-                    <span style="color: #999999 !important; font-size: 11px; font-weight: bold;">REFERÊNCIA:</span><br>
-                    <b id="pdf-desc" style="color: #000000 !important; font-size: 15px;">...</b>
-                </div>
-                <div style="margin-bottom: 15px; background-color: #ffffff !important;">
-                    <span style="color: #999999 !important; font-size: 11px; font-weight: bold;">EMITIDO EM:</span><br>
-                    <b id="pdf-data" style="color: #000000 !important; font-size: 15px;">00/00/0000</b>
-                </div>
-                <div style="background-color: #ffffff !important;">
-                    <span style="color: #999999 !important; font-size: 11px; font-weight: bold;">EMISSOR:</span><br>
-                    <b style="color: #000000 !important; font-size: 15px;">ZENTRY S.A.</b>
-                </div>
-            </div>
-            <div style="margin-top:20px; font-size:12px; color:#666;">
-Pagamento via link seguro ZENTRY
+    <div id="tab-historico" class="card">
+        <div class="section-title">LINKS GERADOS</div>
+        <div id="lista-links"></div>
+    </div>
 </div>
 
-            <div style="margin-top: 50px; text-align: center; border-top: 1px solid #eeeeee; padding-top: 20px; background-color: #ffffff !important;">
-                <p style="color: #999999 !important; font-size: 10px;">Documento gerado digitalmente. <br> O pagamento confirma a aceitação dos termos.</p>
-            </div>
-        </div>
-    </div>
-   </div>
-       <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, collection, query, where, onSnapshot, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<script type="module">
+    import { db, ZentryAuth, ZentryUser } from './zentry-core.js';
+    import { collection, addDoc, query, where, onSnapshot, deleteDoc, doc, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
-    authDomain: "zentry-app-74275.firebaseapp.com",
-    projectId: "zentry-app-74275",
-    storageBucket: "zentry-app-74275.appspot.com",
-    messagingSenderId: "571422826071",
-    appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
-};
+    let uid = "";
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+    // MASCARA MOEDA
+    window.mascaraMoeda = (i) => {
+        let v = i.value.replace(/\D/g,'');
+        v = (v/100).toFixed(2) + '';
+        v = v.replace(".", ",");
+        v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+        i.value = "R$ " + v;
+    };
 
-let usuarioLogadoId = "";
-
-// --- FUNÇÃO PARA TROCAR ABAS (CORRIGIDA) ---
-window.switchTab = (event, tabName) => {
-    // Esconde todos os cards
-    document.querySelectorAll('.card').forEach(card => card.classList.remove('active'));
-    // Remove active de todos os botões
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    
-    // Mostra a aba clicada
-    document.getElementById('tab-' + tabName).classList.add('active');
-    // Ativa o botão clicado
-    if(event.currentTarget) {
+    // SWITCH TABS
+    window.switchTab = (event, tabName) => {
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + tabName).classList.add('active');
         event.currentTarget.classList.add('active');
-    }
-};
+    };
 
-// --- MÁSCARA DE MOEDA ---
-window.mascaraMoeda = (i) => {
-    let v = i.value.replace(/\D/g,'');
-    v = (v/100).toFixed(2) + '';
-    v = v.replace(".", ",");
-    v = v.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
-    i.value = "R$ " + v;
-};
-
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        usuarioLogadoId = user.uid;
-        ouvirClientes();
-    } else {
-        window.location.href = "login.html";
-    }
-});
-
-function ouvirClientes() {
-    const q = query(collection(db, "clientes_cadastrados"), where("vendedorId", "==", usuarioLogadoId));
-    
-    onSnapshot(q, (snapshot) => {
-        const lista = document.getElementById('lista-clientes');
-        lista.innerHTML = "";
-        const hoje = new Date().setHours(0,0,0,0);
-
-        snapshot.forEach((docSnap) => {
-            const c = docSnap.data();
-            const id = docSnap.id;
-            
-            let cor = "#94a3b8";
-            let statusTxt = "AGENDADO";
-            
-            if(c.dataVenc) {
-                const dVenc = new Date(c.dataVenc).setHours(24,0,0,0);
-                if(dVenc === hoje) {
-                    cor = "#22c55e";
-                    statusTxt = "VENCE HOJE";
-                } else if (dVenc < hoje) {
-                    cor = "#ff4444";
-                    statusTxt = "VENCIDO";
-                }
-            }
-
-            const item = document.createElement('div');
-            item.className = `item-cliente`;
-            item.style.borderLeft = `4px solid ${cor}`;
-            item.innerHTML = `
-                <div class="item-info" style="flex:1">
-                    <b>${c.nome}</b>
-                    <span>${c.desc} • ${c.valor}</span>
-                    <span style="display:block; color:${cor}; font-size:10px; margin-top:4px; font-weight:800;">📅 ${c.dataVenc || 'Sem data'}</span>
-                </div>
-                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
-                    <span style="font-size:9px; font-weight:900; color:${cor}">${statusTxt}</span>
-                    <button class="btn-delete" onclick="event.stopPropagation(); window.removerCliente('${id}')">
-                        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="#64748b"></path></svg>
-                    </button>
-                </div>
-            `;
-            
-            item.onclick = () => {
-                document.getElementById('link-nome').value = c.nome;
-                document.getElementById('link-valor').value = c.valor;
-                document.getElementById('link-desc').value = c.desc;
-                window.switchTab({currentTarget: document.querySelector('.tab-btn:first-child')}, 'gerar');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            };
-
-            lista.appendChild(item);
-        });
+    // INICIALIZAÇÃO
+    ZentryAuth.exigirLogin().then(user => {
+        uid = user.uid;
+        ouvirDados();
     });
-}
 
-window.salvarCliente = async () => {
-    const nome = document.getElementById('cad-nome').value;
-    const valor = document.getElementById('cad-valor').value;
-    const desc = document.getElementById('cad-desc').value;
-    const data = document.getElementById('cad-data').value;
+    function ouvirDados() {
+        // Ouvir Clientes
+        const qClientes = query(collection(db, "clientes"), where("vendedorId", "==", uid));
+        onSnapshot(qClientes, snap => {
+            const lista = document.getElementById('lista-clientes');
+            lista.innerHTML = "";
+            snap.forEach(d => {
+                const c = d.data();
+                const div = document.createElement('div');
+                div.className = 'item-list';
+                div.innerHTML = `
+                    <div class="item-info"><b>${c.nome}</b><span>${c.valor || 'Sem valor padrão'}</span></div>
+                    <button style="background:none;border:none;color:#ef4444;" onclick="event.stopPropagation(); excluirCliente('${d.id}')">Excluir</button>
+                `;
+                div.onclick = () => {
+                    document.getElementById('cob-nome').value = c.nome;
+                    document.getElementById('cob-valor').value = c.valor || "";
+                    switchTab({currentTarget: document.querySelector('.tab-btn')}, 'gerar');
+                };
+                lista.appendChild(div);
+            });
+        });
 
-    if(!nome || valor === "R$ 0,00" || !valor) {
-        alert("Preencha o nome e o valor do cliente.");
-        return;
+        // Ouvir Links (Histórico)
+        const qLinks = query(collection(db, "links_pagamento"), where("vendedorId", "==", uid));
+        onSnapshot(qLinks, snap => {
+            const lista = document.getElementById('lista-links');
+            lista.innerHTML = "";
+            snap.forEach(d => {
+                const l = d.data();
+                lista.innerHTML += `
+                    <div class="item-list">
+                        <div class="item-info"><b>${l.valor}</b><span>${l.clienteNome} • ${l.status}</span></div>
+                        <span class="status-badge" style="color:${l.status==='pago'?'#22c55e':'#94a3b8'}">${l.status.toUpperCase()}</span>
+                    </div>
+                `;
+            });
+        });
     }
 
-    try {
-        await addDoc(collection(db, "clientes_cadastrados"), {
-            vendedorId: usuarioLogadoId,
-            nome: nome,
-            valor: valor,
-            desc: desc,
-            dataVenc: data,
-            dataCriacao: new Date().toISOString()
-        });
-        
-        // Limpa campos e volta para a lista
+    window.salvarCliente = async () => {
+        const nome = document.getElementById('cad-nome').value;
+        const valor = document.getElementById('cad-valor').value;
+        if(!nome) return alert("Nome é obrigatório");
+        await addDoc(collection(db, "clientes"), { vendedorId: uid, nome, valor });
+        alert("Cliente Salvo!");
         document.getElementById('cad-nome').value = "";
-        document.getElementById('cad-valor').value = "";
-        document.getElementById('cad-desc').value = "";
-        document.getElementById('cad-data').value = "";
-        
-        alert("Cliente salvo com sucesso!");
-        window.switchTab({currentTarget: document.querySelector('.tab-btn:first-child')}, 'gerar');
-    } catch (e) {
-        console.error("Erro ao salvar:", e);
-        alert("Erro ao salvar cliente.");
-    }
-};
+    };
 
-window.removerCliente = async (id) => {
-    if(confirm("Deseja excluir este cliente?")) {
-        try {
-            await deleteDoc(doc(db, "clientes_cadastrados", id));
-        } catch (e) {
-            alert("Erro ao excluir cliente.");
-        }
-    }
-};
+    window.excluirCliente = async (id) => {
+        if(confirm("Excluir cliente?")) await deleteDoc(doc(db, "clientes", id));
+    };
 
-window.enviarLink = async () => {
-    const nome = document.getElementById('link-nome').value;
-    const valor = document.getElementById('link-valor').value;
-    const desc = document.getElementById('link-desc').value;
+    window.enviarCobranca = async () => {
+        const nome = document.getElementById('cob-nome').value;
+        const valor = document.getElementById('cob-valor').value;
+        const desc = document.getElementById('cob-desc').value || "Venda Zentry";
 
-    if (!nome || valor === "R$ 0,00") {
-        alert("Selecione um cliente ou preencha os dados.");
-        return;
-    }
+        if(!nome || valor === "R$ 0,00") return alert("Preencha nome e valor");
 
-    const vClean = valor.replace(/\D/g, ''); 
-    const cobrancaId = "COB" + Date.now();
-
-    try {
-        await setDoc(doc(db, "links_pagamento", cobrancaId), {
-            vendedorId: usuarioLogadoId,
+        const cobId = "ZNT" + Date.now();
+        await addDoc(collection(db, "links_pagamento"), {
+            vendedorId: uid,
             clienteNome: nome,
-            valorCentavos: vClean,
+            valor,
             descricao: desc,
-            status: "aberto",
-            dataCriacao: new Date().toISOString()
+            status: "pendente",
+            data: new Date().toLocaleDateString()
         });
 
-        const linkFinal = `https://zentry-app.web.app/checkout.html?id=${cobrancaId}`;
-        const msg = `Olá ${nome}, segue o link para pagamento de ${desc}: ${linkFinal}`;
+        const link = `https://zentry-app.web.app/checkout.html?id=${cobId}&v=${valor.replace(/\D/g,'')}&d=${encodeURIComponent(desc)}`;
+        const msg = `Olá ${nome}, segue o link de pagamento: ${link}`;
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
-    } catch (e) {
-        alert("Erro ao gerar cobrança.");
-    }
-};
-        </script>
-       
-       
+    };
+</script>
+
 </body>
-</html> 
+</html>
