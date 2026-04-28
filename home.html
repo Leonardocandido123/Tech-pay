@@ -242,57 +242,69 @@ body {
     <button class="nav-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sair</button>
   </nav>
 </div> 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
-        authDomain: "zentry-app-74275.firebaseapp.com",
-        projectId: "zentry-app-74275",
-        storageBucket: "zentry-app-74275.appspot.com",
-        messagingSenderId: "571422826071",
-        appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+<script type="module">
+    // Importando o padrão Zentry Core
+    import { auth, db, ZentryAuth, ZentryUser } from './zentry-core.js';
+    import { doc, onSnapshot, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     let saldoOculto = false;
     window.currentSaldo = 0;
     let usuarioLogadoId = "";
 
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
+    async function initHome() {
+        try {
+            // 1. Valida login via Core
+            const user = await ZentryAuth.exigirLogin();
             usuarioLogadoId = user.uid;
-            
-            // BUSCA NOME E SALDO EM TEMPO REAL
+
+            // 2. Escuta dados do usuário e PREFERÊNCIAS em tempo real
             onSnapshot(doc(db, "usuarios", user.uid), (docSnap) => {
                 if (docSnap.exists()) {
                     const d = docSnap.data();
+                    
+                    // Atualiza Nome e Saldo
                     document.getElementById("nome-usuario").innerText = (d.nome || "Usuário") + "!";
                     window.currentSaldo = parseFloat(d.saldo || 0);
+
+                    // --- LÓGICA DE CONFIGURAÇÕES ---
+                    if (d.preferencias) {
+                        // MODO DISCRETO: Se estiver ativo no banco, começa com saldo oculto
+                        // Mas só aplica ao carregar a primeira vez para não irritar o usuário
+                        if (d.preferencias.modoDiscreto === true && !sessionStorage.getItem('ja_abriu')) {
+                            saldoOculto = true;
+                            sessionStorage.setItem('ja_abriu', 'true');
+                        }
+                    }
+
                     renderSaldo();
                     atualizarSaudacao();
                 }
             });
 
-            // ATIVA O BANNER E OS SCANNERS
             verificarAlertasGerais();
-        } else {
-            window.location.href = "login.html";
+        } catch (error) {
+            console.error("Erro ao iniciar Home:", error);
         }
-    });
+    }
 
     function renderSaldo() {
         const el = document.getElementById("saldo-home");
-        if(el) el.innerText = saldoOculto ? "••••••••" : window.currentSaldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        if(el) {
+            el.innerText = saldoOculto 
+                ? "••••••••" 
+                : window.currentSaldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
     }
 
-    window.toggleSaldoHome = () => { saldoOculto = !saldoOculto; renderSaldo(); };
-    window.logout = () => { signOut(auth).then(() => { window.location.href = 'login.html'; }); };
+    // Função do ícone do Olhinho
+    window.toggleSaldoHome = () => { 
+        saldoOculto = !saldoOculto; 
+        renderSaldo(); 
+    };
+
+    window.logout = () => { 
+        auth.signOut().then(() => { window.location.href = 'login.html'; }); 
+    };
 
     function atualizarSaudacao() {
         const hora = new Date().getHours();
@@ -302,16 +314,7 @@ body {
         else el.innerText = "Boa noite,";
     }
 
-    // LÓGICA DO BANNER DINÂMICO
-    async function verificarAlertasGerais() {
-        const slides = [
-            { t: 'Contas a Pagar', p: 'Organize seus gastos de hoje.', b: 'Ver', c: '#3b82f6', h: 'contas.html' },
-            { t: 'Recarga Celular', p: 'Crédito em segundos.', b: 'Recarregar', c: '#22c55e', h: 'recarga.html' },
-            { t: 'Cobranças Pix', p: 'Crie um QR Code agora.', b: 'Cobrar', c: '#ff5f1f', h: 'cobrar.html' }
-        ];
-        renderizarBanners(slides);
-    }
-
+    // BANNER DINÂMICO
     function renderizarBanners(slides) {
         const bannerSlider = document.getElementById('banner-slider');
         const bannerDots = document.getElementById('banner-dots');
@@ -332,14 +335,19 @@ body {
             document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === cur));
         }, 5000);
     }
-    function abrirLeitor() {
-    // Por enquanto deixei um alerta, depois você coloca o código da câmera aqui
-    alert('Abrindo leitor de código de barras...');
-    // window.location.href = 'pagar_camera.html'; (exemplo de futuro uso)
-    }
-    
-          </script>
-  
 
+    async function verificarAlertasGerais() {
+        const slides = [
+            { t: 'Contas a Pagar', p: 'Organize seus gastos de hoje.', b: 'Ver', c: '#3b82f6', h: 'contas.html' },
+            { t: 'Recarga Celular', p: 'Crédito em segundos.', b: 'Recarregar', c: '#22c55e', h: 'recarga.html' },
+            { t: 'Cobranças Pix', p: 'Crie um QR Code agora.', b: 'Cobrar', c: '#ff5f1f', h: 'cobrar.html' }
+        ];
+        renderizarBanners(slides);
+    }
+
+    // Inicializa tudo
+    initHome();
+      </script>
+  
 </body>
 </html>
