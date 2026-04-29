@@ -1,22 +1,62 @@
 {
   "name": "Zentry",
   "short_name": "Zentry",
-  "start_url": "./index.html",
+  "description": "Sua conta digital Zentry",
+  "start_url": "./home.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#000000",
+  "orientation": "portrait",
+  "background_color": "#060910",
   "theme_color": "#22c55e",
+  "lang": "pt-BR",
+  "categories": ["finance", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "./logo-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "./logo-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Transferir Pix",
+      "short_name": "Pix",
+      "url": "./pix.html",
+      "icons": [{ "src": "./logo-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Extrato",
+      "short_name": "Extrato",
+      "url": "./extrato.html",
+      "icons": [{ "src": "./logo-192.png", "sizes": "192x192" }]
     }
   ]
 }
