@@ -8,7 +8,6 @@
     <style>
         :root {
             --primary: #22c55e;
-            --primary-glow: rgba(34,197,94,0.15);
             --bg: #060910;
             --card: #0f1623;
             --card2: #161f2e;
@@ -20,188 +19,33 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; margin: 0; padding: 0; }
+        body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
 
-        body {
-            font-family: 'Sora', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding-bottom: 40px;
-        }
-
-        /* ── HEADER ── */
-        .header {
-            padding: 16px 20px;
-            display: flex; align-items: center; gap: 14px;
-            border-bottom: 1px solid var(--border);
-            position: sticky; top: 0;
-            background: var(--bg); z-index: 10;
-        }
-        .btn-back {
-            width: 40px; height: 40px;
-            background: var(--card2); border: 1px solid var(--border);
-            border-radius: 12px; display: flex;
-            align-items: center; justify-content: center;
-            font-size: 20px; cursor: pointer; color: #fff;
-            flex-shrink: 0;
-        }
-        .header h3 { font-size: 17px; font-weight: 700; }
-
-        /* ── CARD SALDO ── */
-        .card-saldo {
-            margin: 20px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 24px;
-        }
-        .card-saldo span { color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .header { padding: 16px 20px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10; }
+        .btn-back { width: 40px; height: 40px; background: var(--card2); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; color: #fff; }
+        
+        .card-saldo { margin: 20px; background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 24px; }
+        .card-saldo span { color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; }
         .card-saldo h2 { font-size: 30px; font-weight: 800; margin-top: 8px; color: var(--primary); }
 
-        /* ── RESUMO DO MÊS ── */
-        .resumo {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 12px; margin: 0 20px 20px;
-        }
-        .resumo-item {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 16px;
-        }
-        .resumo-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-        .resumo-val { font-size: 16px; font-weight: 800; }
-        .resumo-val.pos { color: var(--green); }
-        .resumo-val.neg { color: var(--red); }
-
-        /* ── FILTROS ── */
-        .filters {
-            display: flex; gap: 8px;
-            padding: 0 20px 16px;
-            overflow-x: auto;
-        }
+        .filters { display: flex; gap: 8px; padding: 0 20px 16px; overflow-x: auto; }
         .filters::-webkit-scrollbar { display: none; }
-        .filter {
-            flex-shrink: 0; padding: 8px 18px;
-            border-radius: 20px; border: 1px solid var(--border);
-            background: var(--card); color: var(--text-muted);
-            font-weight: 600; font-size: 13px;
-            cursor: pointer; font-family: 'Sora', sans-serif;
-            transition: all 0.2s;
-        }
+        .filter { flex-shrink: 0; padding: 8px 18px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--text-muted); font-weight: 600; font-size: 13px; cursor: pointer; }
         .filter.active { background: var(--primary); color: #052e16; border-color: var(--primary); }
 
-        /* ── SEÇÃO DE DATA ── */
-        .data-header {
-            padding: 8px 20px;
-            font-size: 11px; font-weight: 700;
-            color: var(--text-muted); text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .data-header { padding: 8px 20px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
 
-        /* ── ITEM ── */
         .lista { display: flex; flex-direction: column; gap: 2px; padding: 0 20px; }
-        .item {
-            background: var(--card);
-            padding: 16px;
-            border-radius: 16px;
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; transition: background 0.2s;
-            margin-bottom: 8px;
-        }
-        .item:active { background: var(--card2); }
-        .item-left { display: flex; align-items: center; gap: 14px; }
-        .icon-box {
-            width: 46px; height: 46px;
-            background: var(--card2); border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; flex-shrink: 0;
-        }
-        .info b { display: block; font-size: 14px; font-weight: 700; margin-bottom: 3px; color: #fff; }
+        .item { background: var(--card); padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; cursor: pointer; }
+        .icon-box { width: 46px; height: 46px; background: var(--card2); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .info b { display: block; font-size: 14px; font-weight: 700; color: #fff; }
         .info span { font-size: 11px; color: var(--text-muted); }
-        .item-right { text-align: right; }
         .val { font-size: 15px; font-weight: 800; }
         .val.pos { color: var(--green); }
         .val.neg { color: var(--red); }
-        .val-data { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
 
-        /* ── EMPTY ── */
-        .empty {
-            text-align: center; padding: 60px 20px;
-            color: var(--text-muted); font-size: 14px;
-        }
-        .empty .icon { font-size: 48px; margin-bottom: 16px; }
-
-        /* ── MODAL COMPROVANTE ── */
-        .modal-overlay {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.85); z-index: 100;
-            align-items: flex-end; justify-content: center;
-        }
-        .modal-overlay.aberto { display: flex; animation: fadeIn 0.2s ease; }
-        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-
-        .modal {
-            background: var(--card);
-            border-radius: 28px 28px 0 0;
-            padding: 0 0 40px;
-            width: 100%; max-height: 90vh;
-            overflow-y: auto;
-            animation: slideUp 0.35s cubic-bezier(0.34,1.2,0.64,1);
-        }
-        @keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
-
-        .modal-handle {
-            width: 40px; height: 4px;
-            background: var(--border); border-radius: 4px;
-            margin: 14px auto 20px;
-        }
-
-        .modal-status {
-            text-align: center; padding: 10px 20px 24px;
-            border-bottom: 1px solid var(--border);
-        }
-        .status-icon { font-size: 48px; margin-bottom: 12px; }
-        .status-titulo { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
-        .status-sub { font-size: 13px; color: var(--text-muted); }
-
-        .comp-valor {
-            text-align: center; padding: 20px;
-            font-size: 32px; font-weight: 800;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .comp-lista { padding: 8px 20px; }
-        .comp-row {
-            display: flex; justify-content: space-between;
-            padding: 14px 0; font-size: 13px;
-        }
-        .comp-row + .comp-row { border-top: 1px solid var(--border); }
-        .comp-label { color: var(--text-muted); }
-        .comp-val   { font-weight: 700; max-width: 60%; text-align: right; }
-
-        .comp-acoes {
-            display: flex; flex-direction: column; gap: 10px;
-            padding: 20px 20px 0;
-        }
-        .btn-comp {
-            width: 100%; padding: 15px; border-radius: 16px;
-            border: none; font-weight: 700; font-size: 15px;
-            font-family: 'Sora', sans-serif; cursor: pointer;
-        }
-        .btn-comp.primary { background: var(--primary); color: #052e16; }
-        .btn-comp.secondary { background: var(--card2); color: #fff; border: 1px solid var(--border); }
-
-        /* ── LOADING ── */
-        .loading-wrap {
-            text-align: center; padding: 60px 20px;
-            color: var(--text-muted); font-size: 14px;
-        }
-        .spinner {
-            width: 36px; height: 36px; border-radius: 50%;
-            border: 3px solid var(--border);
-            border-top-color: var(--primary);
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 16px;
-        }
+        .loading-wrap { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .spinner { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--primary); animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
@@ -217,169 +61,99 @@
     <h2 id="txtSaldo">...</h2>
 </div>
 
-<div class="resumo">
-    <div class="resumo-item">
-        <div class="resumo-label">Entradas (30d)</div>
-        <div class="resumo-val pos" id="totalEntradas">R$ 0,00</div>
-    </div>
-    <div class="resumo-item">
-        <div class="resumo-label">Saídas (30d)</div>
-        <div class="resumo-val neg" id="totalSaidas">R$ 0,00</div>
-    </div>
-</div>
-
 <div class="filters">
     <button class="filter active" data-type="todos">Tudo</button>
     <button class="filter" data-type="entrada">Entradas</button>
     <button class="filter" data-type="saida">Saídas</button>
-    <button class="filter" data-type="pix">Pix</button>
-    <button class="filter" data-type="recarga">Recargas</button>
 </div>
 
 <div id="listaExtrato" class="lista">
     <div class="loading-wrap">
         <div class="spinner"></div>
-        Carregando movimentações...
+        Carregando...
     </div>
 </div>
 
-<div id="compartilharCard" style="position:fixed; left:-9999px; top:0; width:420px; background:#fff; border-radius:24px; padding:24px; font-family:'Sora'; color:#000;"></div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script type="module">
-    import { auth, db, ZentryAuth, ZentryUI } from './zentry-core.js';
-    import { collection, onSnapshot, query, orderBy, where, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { doc, onSnapshot as onSnap } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { db, ZentryUI } from './zentry-core.js';
+    import { collection, onSnapshot, query, orderBy, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    let transacoesCache = [];
     let uidAtual = "";
+    let transacoesCache = [];
 
-    function icone(t) {
-        const desc = (t.descricao || "").toLowerCase();
-        if (desc.includes("recarga")) return "📱";
-        if (desc.includes("pix")) return t.tipo === "entrada" ? "💚" : "💸";
-        if (t.tipo === "entrada") return "💰";
-        return "💳";
-    }
+    // ── IGUAL A MAQUININHA: PEGA O ID DO LOCALSTORAGE ──
+    async function init() {
+        const docID = localStorage.getItem("idUsuarioLogado");
+        
+        if (!docID) {
+            console.log("Sem login. Tchau!");
+            window.location.href = "login.html";
+            return;
+        }
 
-    function labelTipo(t) {
-        const desc = (t.descricao || "").toLowerCase();
-        if (desc.includes("recarga")) return "Recarga Celular";
-        if (desc.includes("pix")) return t.tipo === "entrada" ? "Pix Recebido" : "Pix Enviado";
-        return t.tipo === "entrada" ? "Entrada" : "Pagamento";
-    }
+        uidAtual = docID;
 
-    function formatarData(t) {
-        let d = t.timestamp?.toDate ? t.timestamp.toDate() : new Date(t.timestamp || t.data || 0);
-        return isNaN(d) ? "—" : d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
-    }
+        // 1. Escutar Saldo em Tempo Real
+        onSnapshot(doc(db, "usuarios", uidAtual), (ds) => {
+            if (ds.exists()) {
+                document.getElementById('txtSaldo').innerText = ZentryUI.formatarMoeda(ds.data().saldo || 0);
+            }
+        });
 
-    function formatarHora(t) {
-        let d = t.timestamp?.toDate ? t.timestamp.toDate() : new Date(t.timestamp || 0);
-        return isNaN(d) ? "" : d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
-    }
+        // 2. Escutar Transações (A coleção que você me mostrou no print)
+        const q = query(
+            collection(db, "usuarios", uidAtual, "transacoes"), 
+            orderBy("timestamp", "desc")
+        );
 
-    function dentro30Dias(t) {
-        let d = t.timestamp?.toDate ? t.timestamp.toDate() : new Date(t.timestamp || t.data || Date.now());
-        const diff = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24);
-        return diff <= 30;
+        onSnapshot(q, (snap) => {
+            transacoesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderizar("todos");
+        });
     }
 
     function renderizar(filtro) {
         const lista = document.getElementById('listaExtrato');
-        const me = uidAtual;
-
+        
         let filtradas = transacoesCache.filter(t => {
-            if (!dentro30Dias(t)) return false;
-            const ehEntrada = t.tipo === "entrada" || t.uidDestino === me;
-            if (filtro === "entrada") return ehEntrada;
-            if (filtro === "saida") return !ehEntrada;
-            if (filtro === "pix") return (t.descricao || "").toLowerCase().includes("pix");
-            if (filtro === "recarga") return (t.descricao || "").toLowerCase().includes("recarga");
+            if (filtro === "entrada") return t.tipo === "entrada";
+            if (filtro === "saida") return t.tipo === "saida";
             return true;
         });
 
-        let somaEntradas = 0, somaSaidas = 0;
-        transacoesCache.filter(dentro30Dias).forEach(t => {
-            const v = Number(t.valor || 0);
-            if (t.tipo === "entrada" || t.uidDestino === me) somaEntradas += v;
-            else somaSaidas += v;
-        });
-        document.getElementById('totalEntradas').innerText = ZentryUI.formatarMoeda(somaEntradas);
-        document.getElementById('totalSaidas').innerText = ZentryUI.formatarMoeda(somaSaidas);
-
         if (filtradas.length === 0) {
-            lista.innerHTML = `<div class="empty">📭 Nenhuma movimentação.</div>`;
+            lista.innerHTML = `<div style="text-align:center; padding:40px; color:#6b7a99;">Nenhuma movimentação.</div>`;
             return;
         }
 
-        const grupos = {};
-        filtradas.forEach(t => {
-            const d = formatarData(t);
-            if (!grupos[d]) grupos[d] = [];
-            grupos[d].push(t);
-        });
-
         lista.innerHTML = "";
-        Object.entries(grupos).forEach(([data, itens]) => {
-            lista.innerHTML += `<div class="data-header">${data}</div>`;
-            itens.forEach(t => {
-                const ehEntrada = t.tipo === "entrada" || t.uidDestino === me;
-                const nome = t.descricao || (ehEntrada ? (t.nomeRemetente || "Pix Recebido") : (t.nomeDestino || "Pix Enviado"));
-                lista.innerHTML += `
-                    <div class="item" onclick="window.location.href='comprovante.html?id=${t.id}'">
-                        <div class="item-left">
-                            <div class="icon-box">${icone(t)}</div>
-                            <div class="info"><b>${labelTipo(t)}</b><span>${nome}</span></div>
+        filtradas.forEach(t => {
+            const ehEntrada = t.tipo === "entrada";
+            const data = t.timestamp?.toDate ? t.timestamp.toDate().toLocaleDateString('pt-BR') : "Hoje";
+            const hora = t.timestamp?.toDate ? t.timestamp.toDate().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) : "";
+
+            lista.innerHTML += `
+                <div class="item" onclick="window.location.href='comprovante.html?id=${t.id}'">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div class="icon-box">${ehEntrada ? '💚' : '💸'}</div>
+                        <div class="info">
+                            <b>${t.descricao || 'Transação'}</b>
+                            <span>${data} • ${hora}</span>
                         </div>
-                        <div class="item-right">
-                            <div class="val ${ehEntrada ? 'pos' : 'neg'}">${ehEntrada ? '+' : '-'} ${ZentryUI.formatarMoeda(t.valor)}</div>
-                            <div class="val-data">${formatarHora(t)}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div class="val ${ehEntrada ? 'pos' : 'neg'}">
+                            ${ehEntrada ? '+' : '-'} ${ZentryUI.formatarMoeda(t.valor)}
                         </div>
-                    </div>`;
-            });
+                    </div>
+                </div>`;
         });
     }
 
-    async function init() {
-        // 🔥 CORREÇÃO AQUI: Espera o Firebase confirmar o login antes de qualquer coisa
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                uidAtual = user.uid;
-                
-                // Escuta saldo
-                onSnap(doc(db, "usuarios", user.uid), (ds) => {
-                    if (ds.exists()) document.getElementById('txtSaldo').innerText = ZentryUI.formatarMoeda(ds.data().saldo || 0);
-                });
-
-                // Queries
-                const qNova = query(collection(db, "usuarios", user.uid, "transacoes"), orderBy("timestamp", "desc"));
-                const qAntiga = query(collection(db, "transacoes"), where("userId", "==", user.uid), orderBy("timestamp", "desc"));
-
-                let novas = [], antigas = [];
-                const atualizarTudo = () => {
-                    const todas = [...novas, ...antigas];
-                    const ids = new Set();
-                    transacoesCache = todas.filter(t => {
-                        if (ids.has(t.id)) return false;
-                        ids.add(t.id);
-                        return true;
-                    }).sort((a,b) => (b.timestamp?.toDate?.() || 0) - (a.timestamp?.toDate?.() || 0));
-                    renderizar(document.querySelector('.filter.active').dataset.type);
-                };
-
-                onSnapshot(qNova, (s) => { novas = s.docs.map(d => ({id:d.id, ...d.data()})); atualizarTudo(); });
-                onSnapshot(qAntiga, (s) => { antigas = s.docs.map(d => ({id:d.id, ...d.data()})); atualizarTudo(); });
-
-            } else {
-                // Só redireciona se realmente não estiver logado
-                window.location.href = "login.html";
-            }
-        });
-    }
-
+    // Inicializa
     init();
 
+    // Filtros
     document.querySelectorAll('.filter').forEach(btn => {
         btn.onclick = () => {
             document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
@@ -388,5 +162,6 @@
         };
     });
 </script>
+
 </body>
 </html>
