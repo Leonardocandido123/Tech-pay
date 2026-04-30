@@ -261,4 +261,19 @@ export const ZentryUI = {
         });
     }
 })();
+
+// ── DENTRO DO ZENTRYUSER (no seu zentry-core.js) ──
+export const ZentryUser = {
+
+  // NOVA FUNÇÃO: Acha o usuário pelo e-mail salvo no LocalStorage
+  async obterIdPorEmail() {
+    const email = localStorage.getItem("usuarioEmail");
+    if (!email) return null;
+    const q = query(collection(db, "usuarios"), where("email", "==", email), limit(1));
+    const snap = await getDocs(q);
+    if (snap.empty) return null;
+    return snap.docs[0].id; // Retorna o ID (Ex: "ABC123XYZ")
+  },
+
+  // ... (mantenha o resto das funções buscar, buscarPorCPF, etc)
   
