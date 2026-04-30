@@ -73,43 +73,59 @@
         Carregando...
     </div>
 </div>
-
 <script type="module">
-    import { db, ZentryUI } from './zentry-core.js';
-    import { collection, onSnapshot, query, orderBy, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    // Importamos as ferramentas do seu core
+    import { db, ZentryUI, ZentryUser } from './zentry-core.js';
+    import { collection, onSnapshot, query, orderBy, doc, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     let uidAtual = "";
     let transacoesCache = [];
 
-    // ── IGUAL A MAQUININHA: PEGA O ID DO LOCALSTORAGE ──
     async function init() {
-        const docID = localStorage.getItem("idUsuarioLogado");
+        // 1. Pegamos o e-mail que o novo cadastro/login salvou
+        const emailLogado = localStorage.getItem("usuarioEmail");
         
-        if (!docID) {
-            console.log("Sem login. Tchau!");
+        if (!emailLogado) {
+            console.log("Sem e-mail salvo. Redirecionando...");
             window.location.href = "login.html";
             return;
         }
 
-        uidAtual = docID;
+        // 2. BUSCA O ID (UID) NO FIREBASE USANDO O EMAIL
+        // Isso resolve o problema de você conseguir testar sem ser expulso
+        try {
+            const qUser = query(collection(db, "usuarios"), where("email", "==", emailLogado), limit(1));
+            const userSnap = await getDocs(qUser);
 
-        // 1. Escutar Saldo em Tempo Real
-        onSnapshot(doc(db, "usuarios", uidAtual), (ds) => {
-            if (ds.exists()) {
-                document.getElementById('txtSaldo').innerText = ZentryUI.formatarMoeda(ds.data().saldo || 0);
+            if (userSnap.empty) {
+                console.log("Usuário não encontrado no banco.");
+                return;
             }
-        });
 
-        // 2. Escutar Transações (A coleção que você me mostrou no print)
-        const q = query(
-            collection(db, "usuarios", uidAtual, "transacoes"), 
-            orderBy("timestamp", "desc")
-        );
+            // Pegamos o ID do documento (Ex: ABC123XYZ)
+            uidAtual = userSnap.docs[0].id;
 
-        onSnapshot(q, (snap) => {
-            transacoesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderizar("todos");
-        });
+            // 3. AGORA SIM: Escutar Saldo em Tempo Real usando o ID encontrado
+            onSnapshot(doc(db, "usuarios", uidAtual), (ds) => {
+                if (ds.exists()) {
+                    document.getElementById('txtSaldo').innerText = ZentryUI.formatarMoeda(ds.data().saldo || 0);
+                }
+            });
+
+            // 4. Escutar Transações em Tempo Real
+            const qTx = query(
+                collection(db, "usuarios", uidAtual, "transacoes"), 
+                orderBy("timestamp", "desc")
+            );
+
+            onSnapshot(qTx, (snap) => {
+                transacoesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderizar("todos");
+            });
+
+        } catch (error) {
+            console.error("Erro no carregamento:", error);
+        }
     }
 
     function renderizar(filtro) {
@@ -129,16 +145,26 @@
         lista.innerHTML = "";
         filtradas.forEach(t => {
             const ehEntrada = t.tipo === "entrada";
-            const data = t.timestamp?.toDate ? t.timestamp.toDate().toLocaleDateString('pt-BR') : "Hoje";
-            const hora = t.timestamp?.toDate ? t.timestamp.toDate().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) : "";
+            
+            // Tratamento da data para não dar erro de toDate()
+            let dataFinal = "Recentemente";
+            let horaFinal = "";
+            
+            if (t.timestamp && t.timestamp.toDate) {
+                const d = t.timestamp.toDate();
+                dataFinal = d.toLocaleDateString('pt-BR');
+                horaFinal = d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+            }
 
             lista.innerHTML += `
                 <div class="item" onclick="window.location.href='comprovante.html?id=${t.id}'">
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <div class="icon-box">${ehEntrada ? '💚' : '💸'}</div>
+                        <div class="icon-box" style="background: ${ehEntrada ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'};">
+                            ${ehEntrada ? '💚' : '💸'}
+                        </div>
                         <div class="info">
                             <b>${t.descricao || 'Transação'}</b>
-                            <span>${data} • ${hora}</span>
+                            <span>${dataFinal} • ${horaFinal}</span>
                         </div>
                     </div>
                     <div style="text-align:right;">
@@ -150,7 +176,7 @@
         });
     }
 
-    // Inicializa
+    // Inicializa tudo
     init();
 
     // Filtros
@@ -162,6 +188,7 @@
         };
     });
 </script>
+    
 
 </body>
 </html>
