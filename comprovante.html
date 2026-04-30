@@ -105,7 +105,6 @@
   <button class="btn btn-share" onclick="compartilhar()">📤 Compartilhar Comprovante</button>
   <button class="btn btn-back" onclick="window.history.back()">Voltar</button>
 </div> 
-
   <script type="module">
 import { db, ZentryUI, ZentryUser } from "./zentry-core.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -122,23 +121,21 @@ async function renderizar() {
             return;
         }
 
-        // 1. TENTATIVA A: Pegar o ID que salvamos no login (mais rápido)
+        // --- LÓGICA DE RECUPERAÇÃO DE USUÁRIO ---
         let userDocId = localStorage.getItem("idUsuarioLogado");
 
-        // 2. TENTATIVA B: Se não tiver o ID, busca pelo e-mail (teu fallback)
+        // Se não tiver o ID, tenta buscar pelo e-mail salvo
         if (!userDocId) {
+            console.log("ID não no local, tentando via e-mail...");
             userDocId = await ZentryUser.obterIdPorEmail();
         }
 
-        // 3. LOG DE SEGURANÇA (Verifica no console se aparece user_914718)
-        console.log("Caminho: usuarios /", userDocId, "/ transacoes /", txId);
-
         if (!userDocId) {
-            container.innerHTML = "<div style='padding:40px; text-align:center;'>Erro: Utilizador não identificado.</div>";
+            container.innerHTML = "<div style='padding:40px; text-align:center;'>Utilizador não identificado. Faça login novamente.</div>";
             return;
         }
 
-        // 4. BUSCA DIRETA NO CAMINHO QUE VIMOS NA FOTO
+        // Busca a transação
         const docRef = doc(db, "usuarios", userDocId, "transacoes", txId);
         const snap = await getDoc(docRef);
         
@@ -146,20 +143,23 @@ async function renderizar() {
             container.innerHTML = `
                 <div style='padding:40px; text-align:center;'>
                     <p>Transação não encontrada.</p>
-                    <small style="color:gray">ID: ${txId}</small><br>
-                    <small style="color:gray">Caminho: ${userDocId}</small>
+                    <small style="color:gray">ID: ${txId}</small>
                 </div>`;
             return;
         }
 
         const d = snap.data();
+        // Verifica se é saída (tudo que não for entrada)
         const isSaida = d.tipo !== 'entrada';
+
+        // Formata a data com segurança
+        const dataTxt = d.timestamp ? ZentryUI.formatarData(d.timestamp) : "Data pendente";
 
         container.innerHTML = `
             <div class="top-info ${isSaida ? 'saida' : 'entrada'}">
                 <div class="status-label ${isSaida ? 'saida' : 'entrada'}">${d.descricao || 'Transação'}</div>
                 <div class="valor-principal ${isSaida ? 'saida' : 'entrada'}">${ZentryUI.formatarMoeda(d.valor)}</div>
-                <div class="data-hora">${ZentryUI.formatarData(d.timestamp)}</div>
+                <div class="data-hora">${dataTxt}</div>
             </div>
 
             <div class="section">
@@ -168,7 +168,7 @@ async function renderizar() {
             </div>
 
             <div class="section">
-                <div class="row"><span class="label">Tipo</span><span class="value">${d.tipo === 'recarga' ? 'Recarga de Telemóvel' : 'Transferência'}</span></div>
+                <div class="row"><span class="label">Tipo</span><span class="value">${d.tipo === 'recarga' ? 'Recarga de Telemóvel' : 'Pagamento'}</span></div>
                 <div class="row"><span class="label">Instituição</span><span class="value">ZENTRY BANK</span></div>
             </div>
 
@@ -179,7 +179,7 @@ async function renderizar() {
 
     } catch (e) {
         console.error("Erro no Comprovante:", e);
-        container.innerHTML = "<div style='padding:40px; text-align:center;'>Erro de conexão com o banco.</div>";
+        container.innerHTML = "<div style='padding:40px; text-align:center;'>Erro ao carregar banco de dados.</div>";
     }
 }
 
