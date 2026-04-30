@@ -8,7 +8,7 @@
 <style>
     :root {
         --accent: #22c55e; 
-        --bg-gradient: radial-gradient(circle at top, #0f172a, #000); /* PADRÃO ZENTRY */
+        --bg-gradient: radial-gradient(circle at top, #0f172a, #000);
         --card: rgba(255, 255, 255, 0.03); 
         --card-active: rgba(34, 197, 94, 0.1);
         --border: rgba(255, 255, 255, 0.1);
@@ -30,7 +30,7 @@
     }
 
     .app-bar { padding: 20px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-    .back-btn { width: 44px; height: 44px; background: var(--card); border-radius: 14px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .back-btn { width: 44px; height: 44px; background: var(--card); border-radius: 14px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-weight: bold; }
     
     .saldo-pill { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: var(--accent); font-weight: 700; font-size: 13px; padding: 8px 14px; border-radius: 20px; }
 
@@ -47,54 +47,39 @@
     .tela-titulo { font-size: 24px; font-weight: 800; margin: 25px 0 8px; letter-spacing: -0.5px; }
     .tela-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 30px; }
 
-    /* Estilização dos Inputs igual ao Cadastro */
-    .num-box { 
-        background: var(--card); 
-        border: 1.5px solid var(--border); 
-        border-radius: 20px; 
-        padding: 20px; 
-        display: flex; 
-        align-items: center; 
-        gap: 15px; 
-        transition: 0.3s; 
-    }
+    .num-box { background: var(--card); border: 1.5px solid var(--border); border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
     .num-box:focus-within { border-color: var(--accent); background: rgba(255,255,255,0.05); }
     .num-box input { background: transparent; border: none; color: #fff; font-size: 22px; font-weight: 700; width: 100%; }
 
-    /* Operadoras */
     .op-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
-    .op-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 20px; padding: 15px; display: flex; align-items: center; gap: 12px; transition: 0.3s; }
+    .op-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 20px; padding: 15px; display: flex; align-items: center; gap: 12px; transition: 0.3s; cursor: pointer; }
     .op-card.active { border-color: var(--accent); background: var(--card-active); }
+    .op-icon { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #fff; }
     
-    /* Planos */
-    .plano-card { 
-        background: var(--card); 
-        border: 1.5px solid var(--border); 
-        border-radius: 24px; 
-        padding: 20px; 
-        margin-bottom: 12px; 
-        transition: 0.3s; 
-    }
+    .plano-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 12px; transition: 0.3s; cursor: pointer; }
     .plano-card.active { border-color: var(--accent); background: var(--card-active); }
     .plano-valor { font-size: 24px; font-weight: 800; color: #fff; }
-    
-    /* Botões */
+    .plano-tag { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 8px; font-size: 11px; color: var(--text-muted); margin-top: 10px; display: inline-block; }
+
+    .confirm-hero { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 20px; }
+    .confirm-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .confirm-total { font-size: 20px; font-weight: 800; color: var(--accent); border: none; }
+
+    .sucesso-wrap { text-align: center; padding-top: 40px; }
+    .sucesso-circle { width: 80px; height: 80px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 40px; color: #000; }
+
     .footer-action { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px 20px 40px; background: linear-gradient(transparent, #000 70%); }
-    .btn-main { 
-        width: 100%; padding: 20px; border-radius: 20px; border: none; 
-        background: var(--accent); color: #000; font-weight: 800; font-size: 16px; 
-        box-shadow: 0 10px 25px rgba(34, 197, 94, 0.2); transition: 0.3s;
-    }
+    .btn-main { width: 100%; padding: 20px; border-radius: 20px; border: none; background: var(--accent); color: #000; font-weight: 800; font-size: 16px; box-shadow: 0 10px 25px rgba(34, 197, 94, 0.2); transition: 0.3s; cursor: pointer; }
     .btn-main:active { transform: scale(0.96); }
-                 </style>
-    
+    .btn-sec { width: 100%; margin-top: 10px; background: transparent; border: 1px solid var(--border); color: #fff; padding: 15px; border-radius: 15px; font-weight: 600; cursor: pointer; }
+</style>
 </head>
 <body>
 
 <div class="app-bar">
-    <div class="back-btn" onclick="voltarEtapa()"><</div>
+    <div class="back-btn" id="btnVoltar"><</div>
     <span class="bar-title" id="barTitle">Recarga</span>
-    <div class="saldo-pill" id="displaySaldo">Carregando...</div>
+    <div class="saldo-pill" id="displaySaldo">R$ 0,00</div>
 </div>
 
 <div class="steps">
@@ -105,97 +90,68 @@
 </div>
 
 <div class="content">
-
-    <!-- ETAPA 1 -->
     <div class="tela ativa" id="tela0">
         <p class="tela-titulo">Qual é o número?</p>
         <p class="tela-sub">Digite o número que vai receber a recarga.</p>
         <div class="num-box">
             <span style="font-size:22px;">🇧🇷</span>
-            <input type="tel" id="numTel" placeholder="(00) 00000-0000" maxlength="15" inputmode="numeric">
+            <input type="text" id="numTel" placeholder="(00) 00000-0000" maxlength="15" inputmode="numeric">
         </div>
-        <div class="op-detectada" id="opDetectada">
-            <div class="op-badge" id="opBadge"></div>
-            <div style="font-size:13px;">
-                <span style="color:var(--text-muted)">Detectada: </span>
-                <b id="opNomeDetectado"></b>
-            </div>
-        </div>
-        <p class="tela-titulo" style="margin-top:28px;">Ou escolha a operadora</p>
+        <p class="tela-titulo" style="margin-top:28px;">Escolha a operadora</p>
         <div class="op-grid">
-            <div class="op-card" data-op="Vivo" onclick="escolherOp(this)">
+            <div class="op-card" data-op="Vivo">
                 <div class="op-icon" style="background:#662d91;">VI</div>
-                <div><div class="op-name">Vivo</div><div class="op-desc">Telecom Brasil</div></div>
+                <div><div class="op-name">Vivo</div></div>
             </div>
-            <div class="op-card" data-op="Tim" onclick="escolherOp(this)">
+            <div class="op-card" data-op="Tim">
                 <div class="op-icon" style="background:#0038a8;">TM</div>
-                <div><div class="op-name">TIM</div><div class="op-desc">TIM Brasil</div></div>
+                <div><div class="op-name">TIM</div></div>
             </div>
-            <div class="op-card" data-op="Claro" onclick="escolherOp(this)">
+            <div class="op-card" data-op="Claro">
                 <div class="op-icon" style="background:#ee1d23;">CL</div>
-                <div><div class="op-name">Claro</div><div class="op-desc">Claro Brasil</div></div>
+                <div><div class="op-name">Claro</div></div>
             </div>
-            <div class="op-card" data-op="Oi" onclick="escolherOp(this)">
+            <div class="op-card" data-op="Oi">
                 <div class="op-icon" style="background:#f7941d;">OI</div>
-                <div><div class="op-name">Oi</div><div class="op-desc">Oi Móvel</div></div>
+                <div><div class="op-name">Oi</div></div>
             </div>
         </div>
     </div>
 
-    <!-- ETAPA 2 -->
     <div class="tela" id="tela1">
         <p class="tela-titulo" id="tituloPlanos">Planos</p>
         <p class="tela-sub">Escolha o pacote ideal para recarregar.</p>
         <div id="listaPlanos"></div>
     </div>
 
-    <!-- ETAPA 3 -->
     <div class="tela" id="tela2">
-        <p class="tela-titulo">Confirme a recarga</p>
-        <p class="tela-sub">Verifique os detalhes antes de finalizar.</p>
+        <p class="tela-titulo">Confirmação</p>
         <div class="confirm-hero">
-            <div class="confirm-op-row">
-                <div class="confirm-op-icon" id="confirmOpIcon"></div>
-                <div>
-                    <div class="confirm-op-name" id="confirmOpName"></div>
-                    <div class="confirm-op-sub"  id="confirmOpSub"></div>
-                </div>
-            </div>
-            <div class="confirm-row"><span class="confirm-label">Número</span><span class="confirm-value" id="confirmNum"></span></div>
-            <div class="confirm-row"><span class="confirm-label">Pacote</span><span class="confirm-value" id="confirmPlano"></span></div>
-            <div class="confirm-row"><span class="confirm-label">Validade</span><span class="confirm-value" id="confirmValidade"></span></div>
-            <div class="confirm-row"><span class="confirm-label">Total debitado</span><span class="confirm-value confirm-total" id="confirmTotal"></span></div>
+            <div class="confirm-row"><span>Número</span><b id="confirmNum"></b></div>
+            <div class="confirm-row"><span>Operadora</span><b id="confirmOp"></b></div>
+            <div class="confirm-row"><span>Plano</span><b id="confirmPlano"></b></div>
+            <div class="confirm-row confirm-total"><span>Total</span><b id="confirmTotal"></b></div>
         </div>
-        <div class="aviso-box">⚡ O crédito é aplicado em até 5 minutos. Certifique-se de que o número está correto.</div>
     </div>
 
-    <!-- ETAPA 4 -->
     <div class="tela" id="tela3">
         <div class="sucesso-wrap">
             <div class="sucesso-circle">✓</div>
-            <p class="sucesso-titulo">Recarga feita!</p>
-            <p class="sucesso-sub" id="sucessoSub"></p>
-            <div class="sucesso-comprovante">
-                <div class="comp-row"><span class="comp-label">Número</span><span class="comp-val" id="compNum"></span></div>
-                <div class="comp-row"><span class="comp-label">Operadora</span><span class="comp-val" id="compOp"></span></div>
-                <div class="comp-row"><span class="comp-label">Pacote</span><span class="comp-val" id="compPlano"></span></div>
-                <div class="comp-row"><span class="comp-label">Valor</span><span class="comp-val" id="compValor" style="color:var(--primary)"></span></div>
-                <div class="comp-row"><span class="comp-label">Data</span><span class="comp-val" id="compData"></span></div>
-            </div>
+            <p class="tela-titulo">Recarga Realizada!</p>
+            <p class="tela-sub">Seus créditos estarão disponíveis em instantes.</p>
+            <button class="btn-sec" onclick="window.location.href='home.html'">Voltar ao início</button>
         </div>
     </div>
-
 </div>
 
 <div class="footer-action">
-    <button class="btn-main" id="btnMain" onclick="avancarEtapa()">Continuar</button>
-    <button class="btn-sec"  id="btnSec"  onclick="window.location.href='home.html'" style="display:none;">Voltar ao início</button>
+    <button class="btn-main" id="btnMain">Continuar</button>
 </div>
-    <script type="module">
+
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, setDoc, updateDoc, getDocs, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // Mesma config que você já usa
     const firebaseConfig = {
         apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
         authDomain: "zentry-app-74275.firebaseapp.com",
@@ -208,105 +164,106 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- ESTADO ---
-    let userEmail = localStorage.getItem("usuarioEmail"); // Agora usamos o EMAIL como chave
-    let userDocId = ""; // Vamos descobrir o ID (ex: user_123) na busca
+    let userEmail = localStorage.getItem("usuarioEmail");
+    let userDocId = "";
     let saldoAtual = 0;
     let etapa = 0;
     let operadora = "";
     let planoSel = null;
 
-    const COR_OP = { Vivo:"#662d91", Tim:"#0038a8", Claro:"#ee1d23", Oi:"#f7941d" };
-
-    // ... (Mantenha seu objeto PLANOS aqui igual ao anterior) ...
-
-    async function init() {
-        if (!userEmail) {
-            window.location.href = "login.html";
-            return;
-        }
-
-        try {
-            // BUSCA O USUÁRIO PELO EMAIL
-            const q = query(collection(db, "usuarios"), where("email", "==", userEmail));
-            const querySnapshot = await getDocs(q);
-
-            if (!querySnapshot.empty) {
-                querySnapshot.forEach((docSnap) => {
-                    userDocId = docSnap.id; // Pegamos o ID real do documento
-                    const dados = docSnap.data();
-                    saldoAtual = Number(dados.saldo || 0);
-                    
-                    // Formata moeda (R$ 0,00)
-                    document.getElementById('displaySaldo').innerText = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(saldoAtual);
-                });
-            } else {
-                console.error("Usuário não encontrado no banco.");
-                window.location.href = "login.html";
-            }
-        } catch(e) {
-            console.error("Erro ao carregar dados:", e);
-        }
-    }
-
-    init();
-
-    // --- MÁSCARA E LÓGICA DE INTERFACE (Mantém as que te mandei antes) ---
-    // ... (Funções maskTel, maskCPF, escolherOp, renderPlanos, etc) ...
-
-    window.avancarEtapa = async function() {
-        const btn = document.getElementById('btnMain');
-
-        if (etapa === 0) {
-            // Validação de número e operadora...
-            irPara(1);
-        } else if (etapa === 1) {
-            if (planoSel.valor > saldoAtual) {
-                alert("Saldo insuficiente para esta recarga!");
-                return;
-            }
-            preencherConfirmacao();
-            irPara(2);
-            btn.textContent = "Confirmar e Pagar";
-        } else if (etapa === 2) {
-            btn.disabled = true;
-            btn.textContent = "Validando...";
-
-            try {
-                const txId = "REC" + Date.now();
-                
-                // 1. Grava a transação dentro da subcoleção do usuário achado
-                await setDoc(doc(db, "usuarios", userDocId, "transacoes", txId), {
-                    tipo: "saida",
-                    valor: planoSel.valor,
-                    descricao: `Recarga ${operadora} - ${document.getElementById('numTel').value}`,
-                    data: new Date().toISOString(),
-                    timestamp: serverTimestamp()
-                });
-
-                // 2. Atualiza o saldo no documento principal do usuário
-                await updateDoc(doc(db, "usuarios", userDocId), {
-                    saldo: saldoAtual - planoSel.valor
-                });
-
-                preencherSucesso();
-                irPara(3);
-                btn.disabled = false;
-                btn.textContent = "Compartilhar Comprovante";
-                document.getElementById('btnSec').style.display = "block";
-
-            } catch(e) {
-                console.error(e);
-                alert("Erro ao processar. Tente novamente.");
-                btn.disabled = false;
-            }
-        }
-        // ... Lógica de compartilhar
+    const PLANOS = {
+        Vivo: [{v:15, d:"2GB"}, {v:30, d:"5GB"}, {v:50, d:"15GB"}],
+        Tim: [{v:15, d:"3GB"}, {v:25, d:"6GB"}, {v:40, d:"12GB"}],
+        Claro: [{v:12, d:"2GB"}, {v:20, d:"5GB"}, {v:35, d:"10GB"}],
+        Oi: [{v:10, d:"1GB"}, {v:20, d:"4GB"}]
     };
 
-    // Mantenha as funções irPara(), voltarEtapa() etc.
-    </script>
-    
+    async function init() {
+        if (!userEmail) { window.location.href = "login.html"; return; }
+        const q = query(collection(db, "usuarios"), where("email", "==", userEmail));
+        const snap = await getDocs(q);
+        snap.forEach(d => {
+            userDocId = d.id;
+            saldoAtual = d.data().saldo || 0;
+            document.getElementById('displaySaldo').innerText = `R$ ${saldoAtual.toFixed(2)}`;
+        });
+    }
+    init();
+
+    // Máscara de Telefone
+    document.getElementById('numTel').oninput = (e) => {
+        let v = e.target.value.replace(/\D/g,'');
+        v = v.replace(/^(\d{2})(\d)/g,"($1) $2").replace(/(\d)(\d{4})$/,"$1-$2");
+        e.target.value = v;
+    };
+
+    // Escolha de Operadora
+    document.querySelectorAll('.op-card').forEach(card => {
+        card.onclick = () => {
+            document.querySelectorAll('.op-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            operadora = card.dataset.op;
+        };
+    });
+
+    function irPara(n) {
+        document.getElementById(`tela${etapa}`).classList.remove('ativa');
+        document.getElementById(`dot${etapa}`).classList.remove('active');
+        document.getElementById(`dot${etapa}`).classList.add('done');
+        etapa = n;
+        document.getElementById(`tela${etapa}`).classList.add('ativa');
+        document.getElementById(`dot${etapa}`).classList.add('active');
+    }
+
+    window.selecionarPlano = (i) => {
+        planoSel = PLANOS[operadora][i];
+        document.querySelectorAll('.plano-card').forEach(c => c.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+    };
+
+    document.getElementById('btnMain').onclick = async () => {
+        if (etapa === 0) {
+            if (!operadora || document.getElementById('numTel').value.length < 14) return alert("Preencha os dados!");
+            const lista = document.getElementById('listaPlanos');
+            lista.innerHTML = PLANOS[operadora].map((p, i) => `
+                <div class="plano-card" onclick="selecionarPlano(${i})">
+                    <div class="plano-valor">R$ ${p.v.toFixed(2)}</div>
+                    <div class="plano-tag">${p.d} de Internet</div>
+                </div>
+            `).join('');
+            irPara(1);
+        } else if (etapa === 1) {
+            if (!planoSel) return alert("Selecione um plano!");
+            if (planoSel.v > saldoAtual) return alert("Saldo insuficiente!");
+            document.getElementById('confirmNum').innerText = document.getElementById('numTel').value;
+            document.getElementById('confirmOp').innerText = operadora;
+            document.getElementById('confirmPlano').innerText = planoSel.d;
+            document.getElementById('confirmTotal').innerText = `R$ ${planoSel.v.toFixed(2)}`;
+            irPara(2);
+            document.getElementById('btnMain').innerText = "Confirmar Pagamento";
+        } else if (etapa === 2) {
+            const btn = document.getElementById('btnMain');
+            btn.disabled = true; btn.innerText = "Processando...";
+            const txId = "REC"+Date.now();
+            await setDoc(doc(db, "usuarios", userDocId, "transacoes", txId), {
+                tipo: "saida", valor: planoSel.v, descricao: `Recarga ${operadora}`, timestamp: serverTimestamp()
+            });
+            await updateDoc(doc(db, "usuarios", userDocId), { saldo: saldoAtual - planoSel.v });
+            irPara(3);
+            btn.style.display = 'none';
+        }
+    };
+
+    document.getElementById('btnVoltar').onclick = () => {
+        if (etapa === 0) window.location.href = 'home.html';
+        else {
+            document.getElementById(`tela${etapa}`).classList.remove('ativa');
+            etapa--;
+            document.getElementById(`tela${etapa}`).classList.add('ativa');
+            document.getElementById('btnMain').innerText = "Continuar";
+        }
+    };
+</script>
 </body>
-</html>
-        
+    </html>
+    
