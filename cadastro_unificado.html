@@ -196,7 +196,6 @@
         </button>
         <button id="finishBtn" class="finish-btn">CRIAR MINHA CONTA</button>
     </div>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -220,29 +219,51 @@
     const nextBtn = document.getElementById('nextBtn');
     const finishBtn = document.getElementById('finishBtn');
 
-    // MÁSCARAS PROFISSIONAIS
-    document.getElementById('cad_cpf').oninput = (e) => {
-        let v = e.target.value.replace(/\D/g, "");
-        v = v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-        e.target.value = v;
-        validarBotao();
+    // --- MÁSCARAS REFORÇADAS (O CORAÇÃO DO AJUSTE) ---
+    
+    // Função para CPF: 000.000.000-00
+    const maskCPF = (value) => {
+        return value
+            .replace(/\D/g, "")
+            .replace(/(\d{3})(\d)/, "$1.$2")
+            .replace(/(\d{3})(\d)/, "$1.$2")
+            .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
     };
 
-    document.getElementById('cad_tel').oninput = (e) => {
-        let v = e.target.value.replace(/\D/g, "");
-        v = v.replace(/^(\d{2})(\d)/g, "($1) $2").replace(/(\d)(\d{4})$/, "$1-$2");
-        e.target.value = v;
-        validarBotao();
+    // Função para Celular: (00) 00000-0000
+    const maskTel = (value) => {
+        return value
+            .replace(/\D/g, "")
+            .replace(/^(\d{2})(\d)/g, "($1) $2")
+            .replace(/(\d)(\d{4})$/, "$1-$2");
     };
+
+    document.getElementById('cad_cpf').addEventListener('input', (e) => {
+        e.target.value = maskCPF(e.target.value);
+        validarBotao();
+    });
+
+    document.getElementById('cad_tel').addEventListener('input', (e) => {
+        e.target.value = maskTel(e.target.value);
+        validarBotao();
+    });
+
+    // --- LÓGICA DE NAVEGAÇÃO ---
 
     function validarBotao() {
         const inputsAtuais = slider.children[currentStep].querySelectorAll('input');
         let pronto = true;
-        inputsAtuais.forEach(i => { if(i.type !== 'checkbox' && i.value.length < 3) pronto = false; });
+        inputsAtuais.forEach(i => { 
+            if(i.type !== 'checkbox' && i.value.length < 3) pronto = false; 
+            if(i.id === 'cad_cpf' && i.value.length < 14) pronto = false;
+            if(i.id === 'cad_tel' && i.value.length < 15) pronto = false;
+        });
         if(pronto) nextBtn.classList.add('active'); else nextBtn.classList.remove('active');
     }
 
     window.avancar = async function() {
+        if (!nextBtn.classList.contains('active')) return;
+
         if (currentStep === 3) {
             document.getElementById('token-msg').innerText = "Enviamos um código para " + document.getElementById('cad_email').value;
         }
@@ -272,7 +293,7 @@
             tel: document.getElementById('cad_tel').value,
             email: email,
             senha: document.getElementById('cad_senha').value,
-            status_verificacao: "pendente", // TRAVA DE SEGURANÇA
+            status_verificacao: "pendente",
             saldo: 0,
             data: new Date().toISOString()
         };
@@ -283,8 +304,14 @@
         } catch (e) { console.error(e); }
     };
 
-    document.querySelectorAll('.input-container input').forEach(i => i.oninput = validarBotao);
+    document.querySelectorAll('.input-container input').forEach(i => {
+        if(i.id !== 'cad_cpf' && i.id !== 'cad_tel') {
+            i.addEventListener('input', validarBotao);
+        }
+    });
+
     document.getElementById('zBtnClose').onclick = () => document.getElementById('zModalGlobal').style.display = 'none';
 </script>
+    
 </body>
 </html>
