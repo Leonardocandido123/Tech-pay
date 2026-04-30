@@ -5,88 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
     <title>ZENTRY - Recarga</title>
-    <style>
-        :root {
-            --primary: #22c55e; --primary-dark: #16a34a;
-            --primary-glow: rgba(34,197,94,0.2);
-            --bg: #060910; --card: #0f1623; --card2: #161f2e;
-            --border: rgba(255,255,255,0.07);
-            --text: #fff; --text-muted: #6b7a99;
-            --vivo: #662d91; --tim: #0038a8; --claro: #ee1d23; --oi: #f7941d;
-        }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; margin: 0; padding: 0; }
-        body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-        .app-bar { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-        .back-btn { width: 40px; height: 40px; background: var(--card2); border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 23px; }
-        .bar-title { font-size: 15px; font-weight: 700; }
-        .saldo-pill { background: var(--primary-glow); border: 1px solid rgba(34,197,94,0.3); color: var(--primary); font-weight: 700; font-size: 13px; padding: 6px 12px; border-radius: 20px; }
-        .steps { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 14px 20px; flex-shrink: 0; }
-        .step-dot { height: 4px; border-radius: 4px; background: var(--card2); transition: all 0.4s ease; flex: 1; max-width: 60px; }
-        .step-dot.active { background: var(--primary); }
-        .step-dot.done   { background: var(--primary-dark); }
-        .content { flex: 1; overflow-y: auto; padding: 0 20px 140px; -webkit-overflow-scrolling: touch; }
-        .tela { display: none; animation: fadeUp 0.35s ease; }
-        .tela.ativa { display: block; }
-        @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
-        .tela-titulo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 20px 0 6px; }
-        .tela-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5; }
-        .num-box { background: var(--card); border: 1.5px solid var(--border); border-radius: 18px; padding: 18px 20px; display: flex; align-items: center; gap: 12px; transition: border-color 0.2s; }
-        .num-box:focus-within { border-color: var(--primary); }
-        .num-box input { background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 700; font-family: 'Sora', sans-serif; width: 100%; letter-spacing: 1px; }
-        .num-box input::placeholder { color: var(--text-muted); font-weight: 400; }
-        .op-detectada { display: none; align-items: center; gap: 10px; margin-top: 14px; background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px; }
-        .op-detectada.visivel { display: flex; }
-        .op-badge { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; }
-        .op-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; margin-top: 16px; }
-        .op-card { background: var(--card); border: 2px solid var(--border); border-radius: 18px; padding: 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.25s; }
-        .op-card:active { transform: scale(0.97); }
-        .op-icon { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0; }
-        .op-card .op-name { font-size: 15px; font-weight: 700; }
-        .op-card .op-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-        .op-card.active { background: var(--card2); }
-        .op-card[data-op="Vivo"].active  { border-color: var(--vivo);  box-shadow: 0 0 20px rgba(102,45,145,0.25); }
-        .op-card[data-op="Tim"].active   { border-color: var(--tim);   box-shadow: 0 0 20px rgba(0,56,168,0.25); }
-        .op-card[data-op="Claro"].active { border-color: var(--claro); box-shadow: 0 0 20px rgba(238,29,35,0.25); }
-        .op-card[data-op="Oi"].active    { border-color: var(--oi);    box-shadow: 0 0 20px rgba(247,148,29,0.25); }
-        .plano-card { background: var(--card); border: 2px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 12px; cursor: pointer; transition: all 0.25s; position: relative; overflow: hidden; }
-        .plano-card:active { transform: scale(0.98); }
-        .plano-card.active { border-color: var(--primary); background: rgba(34,197,94,0.06); }
-        .plano-card.destaque::before { content: 'MAIS POPULAR'; position: absolute; top: 12px; right: 12px; background: var(--primary); color: #052e16; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 20px; }
-        .plano-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-        .plano-valor { font-size: 22px; font-weight: 800; }
-        .plano-val-label { font-size: 11px; color: var(--text-muted); }
-        .plano-radio { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
-        .plano-card.active .plano-radio { border-color: var(--primary); background: var(--primary); }
-        .plano-card.active .plano-radio::after { content: ''; width: 8px; height: 8px; background: #052e16; border-radius: 50%; }
-        .plano-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-        .plano-tag { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; font-size: 11px; color: var(--text-muted); }
-        .confirm-hero { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 24px; margin-bottom: 16px; }
-        .confirm-op-row { display: flex; align-items: center; gap: 14px; padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--border); }
-        .confirm-op-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #fff; }
-        .confirm-op-name { font-size: 16px; font-weight: 700; }
-        .confirm-op-sub  { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-        .confirm-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
-        .confirm-row + .confirm-row { border-top: 1px solid var(--border); }
-        .confirm-label { font-size: 13px; color: var(--text-muted); }
-        .confirm-value { font-size: 14px; font-weight: 700; }
-        .confirm-total { font-size: 18px; font-weight: 800; color: var(--primary); }
-        .aviso-box { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); border-radius: 14px; padding: 14px 16px; font-size: 12px; color: #fbbf24; line-height: 1.6; margin-bottom: 16px; }
-        .sucesso-wrap { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 30px 0; }
-        .sucesso-circle { width: 90px; height: 90px; border-radius: 50%; background: var(--primary-glow); border: 3px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 38px; margin-bottom: 24px; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1); }
-        @keyframes popIn { from { transform:scale(0); opacity:0; } to { transform:scale(1); opacity:1; } }
-        .sucesso-titulo { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
-        .sucesso-sub { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
-        .sucesso-comprovante { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; width: 100%; margin: 24px 0; }
-        .comp-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 13px; }
-        .comp-row + .comp-row { border-top: 1px solid var(--border); }
-        .comp-label { color: var(--text-muted); }
-        .comp-val   { font-weight: 700; }
-        .footer-action { position: fixed; bottom: 0; left: 0; right: 0; padding: 16px 20px 32px; background: linear-gradient(transparent, var(--bg) 35%); }
-        .btn-main { width: 100%; padding: 17px; border-radius: 18px; border: none; background: var(--primary); color: #052e16; font-weight: 800; font-size: 16px; font-family: 'Sora', sans-serif; box-shadow: 0 8px 30px var(--primary-glow); cursor: pointer; transition: all 0.2s; }
-        .btn-main:active   { transform: scale(0.98); }
-        .btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-sec { width: 100%; padding: 14px; border-radius: 18px; border: 1px solid var(--border); background: transparent; color: #fff; font-weight: 600; font-size: 15px; font-family: 'Sora', sans-serif; cursor: pointer; margin-top: 10px; }
-    </style>
+<style>
+    :root {
+        --accent: #22c55e; 
+        --bg-gradient: radial-gradient(circle at top, #0f172a, #000); /* PADRÃO ZENTRY */
+        --card: rgba(255, 255, 255, 0.03); 
+        --card-active: rgba(34, 197, 94, 0.1);
+        --border: rgba(255, 255, 255, 0.1);
+        --text: #fff; 
+        --text-muted: #9CA3AF;
+        --vivo: #662d91; --tim: #0038a8; --claro: #ee1d23; --oi: #f7941d;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; margin: 0; padding: 0; }
+    
+    body { 
+        font-family: 'Sora', sans-serif; 
+        background: var(--bg-gradient); 
+        background-attachment: fixed;
+        color: var(--text); 
+        height: 100vh; 
+        overflow: hidden; 
+        display: flex; 
+        flex-direction: column; 
+    }
+
+    .app-bar { padding: 20px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .back-btn { width: 44px; height: 44px; background: var(--card); border-radius: 14px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    
+    .saldo-pill { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: var(--accent); font-weight: 700; font-size: 13px; padding: 8px 14px; border-radius: 20px; }
+
+    .steps { display: flex; gap: 8px; padding: 10px 20px; flex-shrink: 0; }
+    .step-dot { height: 4px; border-radius: 4px; background: rgba(255,255,255,0.1); flex: 1; transition: 0.4s; }
+    .step-dot.active { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+    .step-dot.done { background: var(--accent); opacity: 0.5; }
+
+    .content { flex: 1; overflow-y: auto; padding: 0 20px 140px; }
+    .tela { display: none; animation: fadeUp 0.4s ease; }
+    .tela.ativa { display: block; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(15px); } to { opacity:1; transform:translateY(0); } }
+
+    .tela-titulo { font-size: 24px; font-weight: 800; margin: 25px 0 8px; letter-spacing: -0.5px; }
+    .tela-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 30px; }
+
+    /* Estilização dos Inputs igual ao Cadastro */
+    .num-box { 
+        background: var(--card); 
+        border: 1.5px solid var(--border); 
+        border-radius: 20px; 
+        padding: 20px; 
+        display: flex; 
+        align-items: center; 
+        gap: 15px; 
+        transition: 0.3s; 
+    }
+    .num-box:focus-within { border-color: var(--accent); background: rgba(255,255,255,0.05); }
+    .num-box input { background: transparent; border: none; color: #fff; font-size: 22px; font-weight: 700; width: 100%; }
+
+    /* Operadoras */
+    .op-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
+    .op-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 20px; padding: 15px; display: flex; align-items: center; gap: 12px; transition: 0.3s; }
+    .op-card.active { border-color: var(--accent); background: var(--card-active); }
+    
+    /* Planos */
+    .plano-card { 
+        background: var(--card); 
+        border: 1.5px solid var(--border); 
+        border-radius: 24px; 
+        padding: 20px; 
+        margin-bottom: 12px; 
+        transition: 0.3s; 
+    }
+    .plano-card.active { border-color: var(--accent); background: var(--card-active); }
+    .plano-valor { font-size: 24px; font-weight: 800; color: #fff; }
+    
+    /* Botões */
+    .footer-action { position: fixed; bottom: 0; left: 0; right: 0; padding: 20px 20px 40px; background: linear-gradient(transparent, #000 70%); }
+    .btn-main { 
+        width: 100%; padding: 20px; border-radius: 20px; border: none; 
+        background: var(--accent); color: #000; font-weight: 800; font-size: 16px; 
+        box-shadow: 0 10px 25px rgba(34, 197, 94, 0.2); transition: 0.3s;
+    }
+    .btn-main:active { transform: scale(0.96); }
+                 </style>
+    
 </head>
 <body>
 
@@ -191,257 +192,120 @@
     <button class="btn-sec"  id="btnSec"  onclick="window.location.href='home.html'" style="display:none;">Voltar ao início</button>
 </div>
     <script type="module">
-    import { db, ZentryUser, ZentryUI } from './zentry-core.js';
-    import { doc, setDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, updateDoc, getDocs, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // ── ESTADO ──
-    let userUid    = localStorage.getItem("idUsuarioLogado"); // Pega o ID direto sem pedir SMS
+    // Mesma config que você já usa
+    const firebaseConfig = {
+        apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
+        authDomain: "zentry-app-74275.firebaseapp.com",
+        projectId: "zentry-app-74275",
+        storageBucket: "zentry-app-74275.appspot.com",
+        messagingSenderId: "571422826071",
+        appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- ESTADO ---
+    let userEmail = localStorage.getItem("usuarioEmail"); // Agora usamos o EMAIL como chave
+    let userDocId = ""; // Vamos descobrir o ID (ex: user_123) na busca
     let saldoAtual = 0;
-    let etapa      = 0;
-    let operadora  = "";
-    let planoSel   = null;
+    let etapa = 0;
+    let operadora = "";
+    let planoSel = null;
 
     const COR_OP = { Vivo:"#662d91", Tim:"#0038a8", Claro:"#ee1d23", Oi:"#f7941d" };
 
-    const PLANOS = {
-        Vivo:  [
-            { valor:15, dados:"1.5GB", validade:"7 dias",  tags:["📱 1.5GB","📞 50 min","7 dias"] },
-            { valor:20, dados:"3GB",   validade:"15 dias", tags:["📱 3GB","📞 100 min","15 dias"], destaque:true },
-            { valor:35, dados:"6GB",   validade:"30 dias", tags:["📱 6GB","📞 Ilimitado","30 dias"] },
-            { valor:50, dados:"12GB",  validade:"30 dias", tags:["📱 12GB","📞 Ilimitado","30 dias","🎵 Spotify"] },
-        ],
-        Tim:   [
-            { valor:15, dados:"2GB",   validade:"7 dias",  tags:["📱 2GB","📞 60 min","7 dias"] },
-            { valor:25, dados:"4GB",   validade:"15 dias", tags:["📱 4GB","📞 Ilimitado","15 dias"], destaque:true },
-            { valor:40, dados:"8GB",   validade:"30 dias", tags:["📱 8GB","📞 Ilimitado","30 dias"] },
-            { valor:55, dados:"15GB",  validade:"30 dias", tags:["📱 15GB","📞 Ilimitado","30 dias","▶️ TIM Music"] },
-        ],
-        Claro: [
-            { valor:12, dados:"1GB",   validade:"7 dias",  tags:["📱 1GB","📞 30 min","7 dias"] },
-            { valor:20, dados:"2.5GB", validade:"15 dias", tags:["📱 2.5GB","📞 80 min","15 dias"] },
-            { valor:30, dados:"5GB",   validade:"30 dias", tags:["📱 5GB","📞 Ilimitado","30 dias"], destaque:true },
-            { valor:45, dados:"10GB",  validade:"30 dias", tags:["📱 10GB","📞 Ilimitado","30 dias","📺 Claro tv+"] },
-        ],
-        Oi:    [
-            { valor:10, dados:"1GB",   validade:"7 dias",  tags:["📱 1GB","📞 30 min","7 dias"] },
-            { valor:18, dados:"2GB",   validade:"15 dias", tags:["📱 2GB","📞 60 min","15 dias"], destaque:true },
-            { valor:28, dados:"4GB",   validade:"30 dias", tags:["📱 4GB","📞 Ilimitado","30 dias"] },
-            { valor:40, dados:"8GB",   validade:"30 dias", tags:["📱 8GB","📞 Ilimitado","30 dias"] },
-        ],
-    };
+    // ... (Mantenha seu objeto PLANOS aqui igual ao anterior) ...
 
     async function init() {
-        if (!userUid) {
+        if (!userEmail) {
             window.location.href = "login.html";
             return;
         }
 
         try {
-            // Busca saldo direto do Firestore usando o ID do localStorage
-            const docRef = doc(db, "usuarios", userUid);
-            const snap = await getDoc(docRef);
-            
-            if (snap.exists()) {
-                const dados = snap.data();
-                saldoAtual = Number(dados.saldo || 0);
-                document.getElementById('displaySaldo').innerText = ZentryUI.formatarMoeda(saldoAtual);
+            // BUSCA O USUÁRIO PELO EMAIL
+            const q = query(collection(db, "usuarios"), where("email", "==", userEmail));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                querySnapshot.forEach((docSnap) => {
+                    userDocId = docSnap.id; // Pegamos o ID real do documento
+                    const dados = docSnap.data();
+                    saldoAtual = Number(dados.saldo || 0);
+                    
+                    // Formata moeda (R$ 0,00)
+                    document.getElementById('displaySaldo').innerText = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(saldoAtual);
+                });
             } else {
-                document.getElementById('displaySaldo').innerText = "R$ 0,00";
+                console.error("Usuário não encontrado no banco.");
+                window.location.href = "login.html";
             }
-            document.getElementById('btnMain').disabled = false;
         } catch(e) {
-            console.error("Erro ao iniciar:", e);
-            document.getElementById('displaySaldo').innerText = "Erro";
+            console.error("Erro ao carregar dados:", e);
         }
     }
 
     init();
 
-    // ── MÁSCARA + DETECÇÃO OPERADORA ──
-    document.getElementById('numTel').addEventListener('input', function(e) {
-        let v = e.target.value.replace(/\D/g,'');
-        if (v.length > 11) v = v.slice(0,11);
-        v = v.replace(/^(\d{2})(\d)/,'($1) $2');
-        v = v.replace(/(\d)(\d{4})$/,'$1-$2');
-        e.target.value = v;
-
-        const digits = v.replace(/\D/g,'');
-        let op = null;
-        if (digits.length >= 5) {
-            const p = digits.substring(2,5);
-            if (p[0] === '9') {
-                const r = parseInt(p[1]);
-                if (r <= 3)      op = 'Vivo';
-                else if (r <= 5) op = 'Tim';
-                else if (r <= 7) op = 'Claro';
-                else             op = 'Oi';
-            }
-        }
-        const box = document.getElementById('opDetectada');
-        if (op) {
-            document.getElementById('opBadge').textContent = op.substring(0,2).toUpperCase();
-            document.getElementById('opBadge').style.background = COR_OP[op];
-            document.getElementById('opNomeDetectado').textContent = op;
-            box.classList.add('visivel');
-            document.querySelectorAll('.op-card').forEach(function(c) {
-                c.classList.toggle('active', c.dataset.op === op);
-            });
-            operadora = op;
-        } else {
-            box.classList.remove('visivel');
-        }
-    });
-
-    window.escolherOp = function(el) {
-        document.querySelectorAll('.op-card').forEach(function(c) { c.classList.remove('active'); });
-        el.classList.add('active');
-        operadora = el.dataset.op;
-        document.getElementById('opDetectada').classList.remove('visivel');
-    };
-
-    function renderPlanos() {
-        document.getElementById('tituloPlanos').textContent = 'Planos ' + operadora;
-        var lista = PLANOS[operadora] || [];
-        document.getElementById('listaPlanos').innerHTML = lista.map(function(p, i) {
-            return `<div class="plano-card ${p.destaque ? 'destaque' : ''}" id="plano${i}" onclick="selecionarPlano(${i})">
-                <div class="plano-top">
-                    <div>
-                        <div class="plano-valor">R$ ${p.valor}</div>
-                        <div class="plano-val-label">${p.dados} · ${p.validade}</div>
-                    </div>
-                    <div class="plano-radio"></div>
-                </div>
-                <div class="plano-tags">
-                    ${p.tags.map(t => `<span class="plano-tag">${t}</span>`).join('')}
-                </div>
-            </div>`;
-        }).join('');
-        var idx = lista.findIndex(p => p.destaque);
-        if (idx >= 0) selecionarPlano(idx);
-    }
-
-    window.selecionarPlano = function(i) {
-        document.querySelectorAll('.plano-card').forEach(c => c.classList.remove('active'));
-        document.getElementById('plano' + i).classList.add('active');
-        planoSel = Object.assign({ index: i }, PLANOS[operadora][i]);
-    };
-
-    function preencherConfirmacao() {
-        var cor = COR_OP[operadora];
-        document.getElementById('confirmOpIcon').style.background = cor;
-        document.getElementById('confirmOpIcon').textContent = operadora.substring(0,2).toUpperCase();
-        document.getElementById('confirmOpName').textContent = operadora;
-        document.getElementById('confirmOpSub').textContent  = planoSel.dados + ' por ' + planoSel.validade;
-        document.getElementById('confirmNum').textContent     = document.getElementById('numTel').value;
-        document.getElementById('confirmPlano').textContent   = planoSel.dados + ' · ' + planoSel.validade;
-        document.getElementById('confirmValidade').textContent= planoSel.validade;
-        document.getElementById('confirmTotal').textContent   = ZentryUI.formatarMoeda(planoSel.valor);
-    }
-
-    function preencherSucesso() {
-        var tel = document.getElementById('numTel').value;
-        document.getElementById('sucessoSub').textContent = planoSel.dados + ' enviado para ' + tel + '!';
-        document.getElementById('compNum').textContent    = tel;
-        document.getElementById('compOp').textContent     = operadora;
-        document.getElementById('compPlano').textContent  = planoSel.dados + ' · ' + planoSel.validade;
-        document.getElementById('compValor').textContent  = ZentryUI.formatarMoeda(planoSel.valor);
-        document.getElementById('compData').textContent   = new Date().toLocaleString('pt-BR');
-    }
-
-    function atualizarDots() {
-        for (var i = 0; i < 4; i++) {
-            var d = document.getElementById('dot' + i);
-            d.classList.remove('active','done');
-            if (i === etapa) d.classList.add('active');
-            else if (i < etapa) d.classList.add('done');
-        }
-    }
-
-    function irPara(n) {
-        document.getElementById('tela' + etapa).classList.remove('ativa');
-        etapa = n;
-        document.getElementById('tela' + etapa).classList.add('ativa');
-        atualizarDots();
-        document.querySelector('.content').scrollTop = 0;
-        var titles = ["Recarga","Escolha o plano","Confirmação","Concluído"];
-        document.getElementById('barTitle').textContent = titles[n];
-    }
+    // --- MÁSCARA E LÓGICA DE INTERFACE (Mantém as que te mandei antes) ---
+    // ... (Funções maskTel, maskCPF, escolherOp, renderPlanos, etc) ...
 
     window.avancarEtapa = async function() {
-        var btn = document.getElementById('btnMain');
+        const btn = document.getElementById('btnMain');
 
         if (etapa === 0) {
-            var tel = document.getElementById('numTel').value;
-            if (tel.length < 14) return ZentryUI.toast("Digite um número válido!", "aviso");
-            if (!operadora)      return ZentryUI.toast("Selecione a operadora!", "aviso");
-            renderPlanos();
+            // Validação de número e operadora...
             irPara(1);
-
         } else if (etapa === 1) {
-            if (!planoSel)                   return ZentryUI.toast("Escolha um plano!", "aviso");
-            if (planoSel.valor > saldoAtual) return ZentryUI.toast("Saldo insuficiente!", "erro");
+            if (planoSel.valor > saldoAtual) {
+                alert("Saldo insuficiente para esta recarga!");
+                return;
+            }
             preencherConfirmacao();
             irPara(2);
             btn.textContent = "Confirmar e Pagar";
-
         } else if (etapa === 2) {
             btn.disabled = true;
-            btn.textContent = "Processando...";
-            ZentryUI.loading(true);
+            btn.textContent = "Validando...";
+
             try {
-                var txId = "REC" + Date.now();
-                var tel2 = document.getElementById('numTel').value;
+                const txId = "REC" + Date.now();
                 
-                // Grava a transação de saída
-                await setDoc(doc(db, "usuarios", userUid, "transacoes", txId), {
-                    tipo:      "saida",
-                    valor:     planoSel.valor,
-                    descricao: "Recarga " + operadora + " " + planoSel.dados + " - " + tel2,
-                    data:      new Date().toISOString().split('T')[0],
-                    timestamp: new Date()
+                // 1. Grava a transação dentro da subcoleção do usuário achado
+                await setDoc(doc(db, "usuarios", userDocId, "transacoes", txId), {
+                    tipo: "saida",
+                    valor: planoSel.valor,
+                    descricao: `Recarga ${operadora} - ${document.getElementById('numTel').value}`,
+                    data: new Date().toISOString(),
+                    timestamp: serverTimestamp()
                 });
-                
-                // Atualiza o saldo do usuário
-                await updateDoc(doc(db, "usuarios", userUid), {
+
+                // 2. Atualiza o saldo no documento principal do usuário
+                await updateDoc(doc(db, "usuarios", userDocId), {
                     saldo: saldoAtual - planoSel.valor
                 });
 
-                ZentryUI.loading(false);
                 preencherSucesso();
                 irPara(3);
                 btn.disabled = false;
                 btn.textContent = "Compartilhar Comprovante";
                 document.getElementById('btnSec').style.display = "block";
+
             } catch(e) {
-                ZentryUI.loading(false);
-                ZentryUI.toast("Erro ao processar. Tente novamente.", "erro");
+                console.error(e);
+                alert("Erro ao processar. Tente novamente.");
                 btn.disabled = false;
-                btn.textContent = "Confirmar e Pagar";
-            }
-
-        } else if (etapa === 3) {
-            var tel3 = document.getElementById('numTel').value;
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Comprovante - Zentry',
-                    text: 'Recarga ' + operadora + ' de ' + ZentryUI.formatarMoeda(planoSel.valor) + ' para ' + tel3 + ' realizada! 🎉'
-                });
-            } else {
-                ZentryUI.toast("Compartilhamento não disponível.", "info");
             }
         }
+        // ... Lógica de compartilhar
     };
 
-    window.voltarEtapa = function() {
-        if (etapa === 0) {
-            window.location.href = "home.html";
-        } else {
-            irPara(etapa - 1);
-            document.getElementById('btnMain').textContent = "Continuar";
-            document.getElementById('btnSec').style.display = "none";
-        }
-    };
-                </script>
+    // Mantenha as funções irPara(), voltarEtapa() etc.
+    </script>
     
 </body>
 </html>
