@@ -394,27 +394,41 @@
   <button class="btn-main" id="btnMain" onclick="avancarEtapa()" disabled>Continuar</button>
   <button class="btn-sec"  id="btnSec"  onclick="irParaComprovante()" style="display:none;">Ver comprovante completo</button>
 </div>
-
-<script type="module">
-  import { auth, db, ZentryAuth, ZentryUser, ZentryUI } from './zentry-core.js';
-  import { doc, setDoc, updateDoc, collection, getDocs, increment }
+  <script type="module">
+  import { db, ZentryAuth, ZentryUser, ZentryUI } from './zentry-core.js';
+  import { doc, setDoc, updateDoc, collection, getDocs, getDoc, onSnapshot, increment }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  let userUid = "", saldoAtual = 0, etapa = 0;
+  let userDocId = "", saldoAtual = 0, etapa = 0;
   let destinoEncontrado = null;
   let dadosTransacao    = null;
   let buscaTimer        = null;
 
-  // ── INIT ──
+  // ── INIT CORRIGIDO ──
   async function init() {
-    const user = await ZentryAuth.exigirLogin();
-    userUid = user.uid;
-    ZentryUser.escutar(userUid, (d) => {
-      saldoAtual = Number(d.saldo || 0);
-      document.getElementById('displaySaldo').innerText = ZentryUI.formatarMoeda(saldoAtual);
-      document.getElementById('saldoDisp').innerText    = "Saldo disponível: " + ZentryUI.formatarMoeda(saldoAtual);
-      document.getElementById('btnMain').disabled = false;
+    // 1. Pegamos o ID que o sistema está usando (o do documento)
+    userDocId = localStorage.getItem("idUsuarioLogado");
+
+    if (!userDocId) {
+       // Fallback caso o localStorage suma
+       userDocId = await ZentryUser.obterIdPorEmail();
+    }
+
+    if (!userDocId) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    // 2. Escuta saldo em tempo real pelo ID do Documento
+    onSnapshot(doc(db, "usuarios", userDocId), (snap) => {
+      if (snap.exists()) {
+        saldoAtual = Number(snap.data().saldo || 0);
+        document.getElementById('displaySaldo').innerText = ZentryUI.formatarMoeda(saldoAtual);
+        document.getElementById('saldoDisp').innerText    = "Saldo disponível: " + ZentryUI.formatarMoeda(saldoAtual);
+        document.getElementById('btnMain').disabled = (etapa === 1 && parseFloat(document.getElementById('valorInput').value) <= 0);
+      }
     });
+
     document.getElementById('hiddenPin').addEventListener('input', onPin);
   }
   init();
@@ -422,32 +436,25 @@
   // ── DETECTAR TIPO DE CHAVE ──
   function detectarTipo(v) {
     const s = v.replace(/\D/g,'');
-    if (v.includes('@'))           return { tipo:'email',  label:'E-mail' };
+    if (v.includes('@')) return { tipo:'email', label:'E-mail' };
     if (s.length === 11 && s[2]==='9') return { tipo:'celular', label:'Celular' };
-    if (s.length === 11)           return { tipo:'cpf',    label:'CPF' };
-    if (s.length === 14)           return { tipo:'cnpj',   label:'CNPJ' };
+    if (s.length === 11) return { tipo:'cpf', label:'CPF' };
+    if (s.length === 14) return { tipo:'cnpj', label:'CNPJ' };
     if (v.length === 36 && v.includes('-')) return { tipo:'aleat', label:'Chave Aleatória' };
     return null;
   }
 
-  // ── MÁSCARA INTELIGENTE ──
+  // ── MÁSCARA ──
   function aplicarMascara(val) {
     let s = val.replace(/\D/g,'');
-    if (val.includes('@')) return val; // email: sem máscara
+    if (val.includes('@')) return val;
     if (s.length <= 11 && s[2]==='9') {
-      // Celular
       s = s.slice(0,11);
       return s.replace(/^(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3').replace(/-$/,'');
     }
     if (s.length <= 11) {
-      // CPF
       return s.replace(/^(\d{3})(\d{0,3})(\d{0,3})(\d{0,2})/, (_, a,b,c,d) =>
         a + (b?'.'+b:'') + (c?'.'+c:'') + (d?'-'+d:''));
-    }
-    if (s.length <= 14) {
-      // CNPJ
-      return s.replace(/^(\d{2})(\d{0,3})(\d{0,3})(\d{0,4})(\d{0,2})/, (_,a,b,c,d,e) =>
-        a+(b?'.'+b:'')+(c?'.'+c:'')+(d?'/'+d:'')+(e?'-'+e:''));
     }
     return val;
   }
@@ -455,13 +462,9 @@
   // ── INPUT DA CHAVE ──
   document.getElementById('chaveInput').addEventListener('input', function(e) {
     const raw = e.target.value;
-
-    // Aplica máscara só se não for email nem chave aleatória
     if (!raw.includes('@') && raw.length < 37) {
       const mascarado = aplicarMascara(raw);
-      if (mascarado !== raw) {
-        e.target.value = mascarado;
-      }
+      if (mascarado !== raw) e.target.value = mascarado;
     }
 
     const tipo = detectarTipo(e.target.value);
@@ -472,24 +475,19 @@
       document.getElementById('tipoDetectado').classList.remove('visivel');
     }
 
-    // Limpa estado anterior
     document.getElementById('destinoCard').classList.remove('visivel');
     document.getElementById('destinoExterno').classList.remove('visivel');
-    document.getElementById('buscandoEl').classList.remove('visivel');
-    destinoEncontrado = null;
     document.getElementById('btnMain').disabled = true;
 
-    // Debounce de 800ms para buscar
     clearTimeout(buscaTimer);
     const chave = e.target.value.trim();
     if (chave.length >= 5) {
+      document.getElementById('buscandoEl').classList.add('visivel');
       buscaTimer = setTimeout(() => buscarDestinatario(chave), 800);
     }
   });
 
-    // ── BUSCA CORRIGIDA — sem query composta ──
   async function buscarDestinatario(chave) {
-    document.getElementById('buscandoEl').classList.add('visivel');
     try {
       const snap = await getDocs(collection(db, "usuarios"));
       let encontrado = null;
@@ -497,18 +495,13 @@
       const chaveDigits = chave.replace(/\D/g,'');
 
       snap.forEach(d => {
-        if (d.id === userUid) return; // pula o próprio usuário
+        if (d.id === userDocId) return; 
         const data = d.data();
-
         const match =
-          (data.chavepix   && String(data.chavepix).toLowerCase() === chaveLower) ||
-          (data.email      && data.email.toLowerCase()            === chaveLower) ||
-          (data.cpf        && data.cpf.replace(/\D/g,'')          === chaveDigits && chaveDigits.length === 11) ||
-          (data.celular    && data.celular.replace(/\D/g,'')      === chaveDigits && chaveDigits.length === 11) ||
-          (data.telefone   && data.telefone.replace(/\D/g,'')     === chaveDigits) ||
-          (data.chaves_pix && Array.isArray(data.chaves_pix) &&
-            data.chaves_pix.some(c => String(c.valor).toLowerCase() === chaveLower ||
-              c.valor.replace(/\D/g,'') === chaveDigits));
+          (data.chavepix && String(data.chavepix).toLowerCase() === chaveLower) ||
+          (data.email && data.email.toLowerCase() === chaveLower) ||
+          (data.cpf && data.cpf.replace(/\D/g,'') === chaveDigits && chaveDigits.length === 11) ||
+          (data.celular && data.celular.replace(/\D/g,'') === chaveDigits);
 
         if (match) encontrado = { uid: d.id, ...data };
       });
@@ -516,28 +509,18 @@
       document.getElementById('buscandoEl').classList.remove('visivel');
 
       if (encontrado) {
-        destinoEncontrado = {
-          uid:   encontrado.uid,
-          nome:  encontrado.nome || "Usuário Zentry",
-          banco: "Zentry Bank"
-        };
-        const iniciais = destinoEncontrado.nome.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+        destinoEncontrado = { uid: encontrado.uid, nome: encontrado.nome || "Usuário Zentry", banco: "Zentry Bank" };
+        const iniciais = (destinoEncontrado.nome || "?").split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
         document.getElementById('destAvatar').textContent = iniciais;
-        document.getElementById('destNome').textContent   = destinoEncontrado.nome;
-        document.getElementById('destBanco').textContent  = "Zentry Bank";
+        document.getElementById('destNome').textContent = destinoEncontrado.nome;
         document.getElementById('destinoCard').classList.add('visivel');
-        document.getElementById('destinoExterno').classList.remove('visivel');
       } else {
-        // Pix externo
         destinoEncontrado = { uid:'externo', nome: chave, banco:'Banco Externo' };
-        document.getElementById('destinoCard').classList.remove('visivel');
         document.getElementById('destinoExterno').classList.add('visivel');
       }
       document.getElementById('btnMain').disabled = false;
-
     } catch(e) {
       document.getElementById('buscandoEl').classList.remove('visivel');
-      ZentryUI.toast("Erro ao buscar: " + e.message, "erro");
     }
   }
 
@@ -548,12 +531,10 @@
     e.target.value = v;
     const num = parseFloat(v.replace(',','.')) || 0;
     const disp = document.getElementById('saldoDisp');
-    disp.textContent = "Saldo disponível: " + ZentryUI.formatarMoeda(saldoAtual);
     disp.className = 'saldo-disp' + (num > saldoAtual ? ' insuf' : '');
-    document.getElementById('btnMain').disabled = num <= 0;
+    document.getElementById('btnMain').disabled = num <= 0 || num > saldoAtual;
   });
 
-  // ── PIN ──
   function onPin() {
     const pin = document.getElementById('hiddenPin');
     if (pin.value.length > 4) pin.value = pin.value.slice(0,4);
@@ -563,168 +544,111 @@
     document.getElementById('btnMain').disabled = pin.value.length < 4;
   }
 
-  // ── DOTS ──
-  function atualizarDots() {
-    for (let i=0; i<4; i++) {
-      const d = document.getElementById(`dot${i}`);
-      d.classList.remove('active','done');
-      if (i === etapa) d.classList.add('active');
-      else if (i < etapa) d.classList.add('done');
-    }
-  }
-
   function irPara(n) {
     document.getElementById(`tela${etapa}`).classList.remove('ativa');
     etapa = n;
     document.getElementById(`tela${etapa}`).classList.add('ativa');
     atualizarDots();
-    document.querySelector('.content').scrollTop = 0;
     const titles = ["Transferir Pix","Valor","Confirmação","Concluído"];
     document.getElementById('barTitle').textContent = titles[n];
   }
 
-  // ── AVANÇAR ──
+  function atualizarDots() {
+    for (let i=0; i<4; i++) {
+      const d = document.getElementById(`dot${i}`);
+      d.className = 'step-dot' + (i === etapa ? ' active' : (i < etapa ? ' done' : ''));
+    }
+  }
+
   window.avancarEtapa = async function() {
     const btn = document.getElementById('btnMain');
 
     if (etapa === 0) {
-      if (!destinoEncontrado) return ZentryUI.toast("Digite e aguarde a busca da chave", "aviso");
       irPara(1);
-      document.getElementById('btnMain').disabled = true;
-
+      btn.disabled = true;
     } else if (etapa === 1) {
-      const v = parseFloat((document.getElementById('valorInput').value||'0').replace(',','.')) || 0;
-      if (v <= 0)         return ZentryUI.toast("Digite um valor válido", "aviso");
-      if (v > saldoAtual) return ZentryUI.toast("Saldo insuficiente!", "erro");
-
+      const v = parseFloat(document.getElementById('valorInput').value.replace(',','.')) || 0;
       const chave = document.getElementById('chaveInput').value;
       const desc  = document.getElementById('descInput').value || "—";
-      const iniciais = destinoEncontrado.nome.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
-
-      document.getElementById('confirmAvatar').textContent = iniciais;
-      document.getElementById('confirmNome').textContent   = destinoEncontrado.nome;
-      document.getElementById('confirmBanco').textContent  = destinoEncontrado.banco;
-      document.getElementById('confirmChave').textContent  = chave;
-      document.getElementById('confirmDesc').textContent   = desc;
-      document.getElementById('confirmData').textContent   = new Date().toLocaleDateString('pt-BR');
-      document.getElementById('confirmValor').textContent  = ZentryUI.formatarMoeda(v);
+      
+      document.getElementById('confirmAvatar').textContent = document.getElementById('destAvatar').textContent;
+      document.getElementById('confirmNome').textContent = destinoEncontrado.nome;
+      document.getElementById('confirmBanco').textContent = destinoEncontrado.banco;
+      document.getElementById('confirmChave').textContent = chave;
+      document.getElementById('confirmDesc').textContent = desc;
+      document.getElementById('confirmData').textContent = new Date().toLocaleDateString('pt-BR');
+      document.getElementById('confirmValor').textContent = ZentryUI.formatarMoeda(v);
 
       dadosTransacao = { valor: v, destino: destinoEncontrado, chave, desc };
       irPara(2);
       btn.textContent = "Confirmar Pix";
-      btn.disabled    = true;
-      setTimeout(() => document.getElementById('hiddenPin').focus(), 300);
-
+      btn.disabled = true;
     } else if (etapa === 2) {
-      // Valida PIN
-      const pin      = document.getElementById('hiddenPin').value;
-      const userData = await ZentryUser.buscar(userUid);
+      const pin = document.getElementById('hiddenPin').value;
+      const userSnap = await getDoc(doc(db, "usuarios", userDocId));
+      const userData = userSnap.data();
+
       if (pin !== String(userData?.senha || '')) {
-        for (let i=1;i<=4;i++) document.getElementById(`p${i}`).className='pin-dot err';
-        setTimeout(() => {
-          document.getElementById('hiddenPin').value = '';
-          for (let i=1;i<=4;i++) document.getElementById(`p${i}`).className='pin-dot';
-          btn.disabled = true;
-        }, 800);
-        return ZentryUI.toast("Senha incorreta!", "erro");
+        ZentryUI.toast("Senha incorreta!", "erro");
+        document.getElementById('hiddenPin').value = "";
+        onPin();
+        return;
       }
 
-      btn.disabled    = true;
-      btn.textContent = "Enviando...";
       ZentryUI.loading(true);
-
       try {
         const { valor, destino, chave, desc } = dadosTransacao;
         const txId = "PIX" + Date.now();
         const agora = new Date();
 
-        // Grava saída para quem envia
-        await setDoc(doc(db, "usuarios", userUid, "transacoes", txId), {
-          tipo: "saida", valor,
-          descricao:    "Pix - " + destino.nome,
-          nomeDestino:  destino.nome,
-          uidDestino:   destino.uid,
-          bancoDestino: destino.banco,
-          chavePix:     chave,
-          descricaoUsuario: desc,
-          data:      agora.toISOString().split('T')[0],
-          timestamp: agora, id: txId
+        // 1. Debita e registra saída
+        await updateDoc(doc(db, "usuarios", userDocId), { saldo: increment(-valor) });
+        await setDoc(doc(db, "usuarios", userDocId, "transacoes", txId), {
+          tipo: "saida", valor, descricao: "Pix enviado - " + destino.nome,
+          nomeDestino: destino.nome, chavePix: chave, timestamp: agora, id: txId
         });
 
-        // Debita saldo de quem envia
-        await updateDoc(doc(db, "usuarios", userUid), { saldo: increment(-valor) });
-
-        // Se for interno, credita e grava entrada
+        // 2. Se interno, credita e registra entrada
         if (destino.uid !== 'externo') {
-          const txIdR = txId + "R";
-          await setDoc(doc(db, "usuarios", destino.uid, "transacoes", txIdR), {
-            tipo: "entrada", valor,
-            descricao:     "Pix Recebido",
-            nomeRemetente: userData?.nome || "Usuário Zentry",
-            uidRemetente:  userUid,
-            chavePix:      chave,
-            data:      agora.toISOString().split('T')[0],
-            timestamp: agora, id: txIdR
-          });
           await updateDoc(doc(db, "usuarios", destino.uid), { saldo: increment(valor) });
+          await setDoc(doc(db, "usuarios", destino.uid, "transacoes", txId + "R"), {
+            tipo: "entrada", valor, descricao: "Pix recebido",
+            nomeRemetente: userData.nome, timestamp: agora, id: txId + "R"
+          });
         }
 
-        // Salva para comprovante
-        localStorage.setItem("comprovante_final", JSON.stringify({
-          tipo: "saida", valor,
-          descricao:    "Pix - " + destino.nome,
-          nomeDestino:  destino.nome,
-          bancoDestino: destino.banco,
-          chavePix:     chave,
-          data:         agora.toLocaleString('pt-BR'), id: txId
-        }));
-
-        ZentryUI.loading(false);
-
-        // Preenche tela sucesso
-        document.getElementById('sucessoSub').textContent = ZentryUI.formatarMoeda(valor) + " enviado para " + destino.nome;
-        document.getElementById('compNome').textContent   = destino.nome;
-        document.getElementById('compChave').textContent  = chave;
-        document.getElementById('compValor').textContent  = ZentryUI.formatarMoeda(valor);
-        document.getElementById('compData').textContent   = agora.toLocaleString('pt-BR');
+        // Preenche sucesso
+        document.getElementById('sucessoSub').textContent = ZentryUI.formatarMoeda(valor) + " enviado.";
+        document.getElementById('compNome').textContent = destino.nome;
+        document.getElementById('compChave').textContent = chave;
+        document.getElementById('compValor').textContent = ZentryUI.formatarMoeda(valor);
+        document.getElementById('compData').textContent = agora.toLocaleString('pt-BR');
 
         irPara(3);
-        btn.textContent = "Compartilhar";
-        btn.disabled    = false;
+        btn.textContent = "Voltar ao Início";
         document.getElementById('btnSec').style.display = "block";
-
       } catch(e) {
+        ZentryUI.toast("Erro ao processar.", "erro");
+      } finally {
         ZentryUI.loading(false);
-        ZentryUI.toast("Erro ao enviar: " + e.message, "erro");
-        btn.disabled    = false;
-        btn.textContent = "Confirmar Pix";
       }
-
-    } else if (etapa === 3) {
-      if (navigator.share) {
-        navigator.share({
-          title: 'Comprovante Zentry',
-          text: `Pix de ${ZentryUI.formatarMoeda(dadosTransacao.valor)} enviado para ${dadosTransacao.destino.nome} ✓`
-        });
-      } else {
-        ZentryUI.toast("Comprovante copiado!", "sucesso");
-      }
+    } else {
+      window.location.href = "home.html";
     }
   };
 
-  // ── VOLTAR ──
   window.voltarEtapa = function() {
-    if (etapa === 0) { window.location.href = "pix.html"; return; }
-    if (etapa === 3) { window.location.href = "home.html"; return; }
-    irPara(etapa - 1);
-    document.getElementById('btnMain').textContent = "Continuar";
-    document.getElementById('btnMain').disabled    = etapa === 0;
-    document.getElementById('btnSec').style.display = "none";
-    document.getElementById('hiddenPin').value = '';
-    for(let i=1;i<=4;i++) document.getElementById(`p${i}`).className='pin-dot';
+    if (etapa === 0) window.location.href = "pix.html";
+    else if (etapa === 3) window.location.href = "home.html";
+    else irPara(etapa - 1);
   };
 
-  window.irParaComprovante = () => window.location.href = "comprovante.html";
-</script>
+  window.irParaComprovante = () => {
+    // Passa o ID da última transação para a tela de comprovante
+    const txId = "PIX" + (Date.now()-1000); // Aproximação ou salvar em variável global
+    window.location.href = `comprovante.html?id=${txId}`;
+  };
+  </script>
+  
 </body>
 </html>
