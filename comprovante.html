@@ -27,7 +27,6 @@
     min-height: 100vh;
   }
 
-  /* CARD ESTILO COMPROVANTE BANCÁRIO */
   .card-export {
     width: 100%; 
     max-width: 400px; 
@@ -38,7 +37,6 @@
     border: 1px solid var(--border);
   }
 
-  /* CABEÇALHO DINÂMICO */
   .top-info { 
     padding: 32px 24px; 
     text-align: center; 
@@ -57,7 +55,6 @@
 
   .data-hora { font-size: 13px; color: var(--muted); }
 
-  /* CORPO DO COMPROVANTE */
   .section { padding: 20px 24px; border-bottom: 1px solid #f1f5f9; }
   .section:last-child { border-bottom: none; }
   
@@ -74,7 +71,6 @@
     color: var(--muted);
   }
 
-  /* BOTÕES DE AÇÃO */
   .actions { width: 100%; max-width: 400px; margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
   .btn { 
     width: 100%; 
@@ -90,6 +86,7 @@
   .btn-share { background: var(--primary); color: #052e16; box-shadow: 0 4px 15px rgba(34,197,94,0.2); }
   .btn-back { background: #fff; color: var(--text); border: 1px solid var(--border); }
   .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
   .footer-auth { padding: 16px; text-align: center; background: #fafafa; border-top: 1px dashed var(--border); }
   .auth-text { font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -98,41 +95,33 @@
 <body>
 
 <div id="cardComprovante" class="card-export">
-    <div style="padding:50px; text-align:center; color:var(--muted)">Buscando transação...</div>
+    <div style="padding:50px; text-align:center; color:#64748b">Buscando transação...</div>
 </div>
 
 <div class="actions">
-  <button class="btn btn-share" onclick="compartilhar()">📤 Compartilhar Comprovante</button>
+  <button class="btn btn-share" id="btnCompartilhar" onclick="compartilhar()">📤 Compartilhar Comprovante</button>
   <button class="btn btn-back" onclick="window.history.back()">Voltar</button>
-</div> 
-  <script type="module">
+</div>
+
+<script type="module">
 import { db, ZentryUI, ZentryUser } from "./zentry-core.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 async function renderizar() {
     const container = document.getElementById('cardComprovante');
-  const params = new URLSearchParams(window.location.search);
-const txId = params.get("id");
-if (!txId) {
-    container.innerHTML = "<div style='padding:40px; text-align:center; color:red'>URL sem ?id= — verifique o link</div>";
-    return;
-}
     
     try {
         const params = new URLSearchParams(window.location.search);
         const txId = params.get("id");
 
         if (!txId) {
-            container.innerHTML = "<div style='padding:40px; text-align:center;'>ID da transação não encontrado.</div>";
+            container.innerHTML = "<div style='padding:40px; text-align:center; color:red'>URL sem ?id= — verifique o link</div>";
             return;
         }
 
-        // --- LÓGICA DE RECUPERAÇÃO DE USUÁRIO ---
         let userDocId = localStorage.getItem("idUsuarioLogado");
 
-        // Se não tiver o ID, tenta buscar pelo e-mail salvo
         if (!userDocId) {
-            console.log("ID não no local, tentando via e-mail...");
             userDocId = await ZentryUser.obterIdPorEmail();
         }
 
@@ -141,7 +130,6 @@ if (!txId) {
             return;
         }
 
-        // Busca a transação
         const docRef = doc(db, "usuarios", userDocId, "transacoes", txId);
         const snap = await getDoc(docRef);
         
@@ -155,10 +143,7 @@ if (!txId) {
         }
 
         const d = snap.data();
-        // Verifica se é saída (tudo que não for entrada)
         const isSaida = d.tipo !== 'entrada';
-
-        // Formata a data com segurança
         const dataTxt = d.timestamp ? ZentryUI.formatarData(d.timestamp) : "Data pendente";
 
         container.innerHTML = `
@@ -182,18 +167,72 @@ if (!txId) {
                 <div class="auth-text">Autenticação: ${txId.substring(0,12).toUpperCase()}</div>
             </div>
         `;
-} catch (e) {
-    container.innerHTML = `
-        <div style='padding:40px; text-align:center;'>
-            <p style="font-weight:bold; color:red">Erro:</p>
-            <p style="font-size:12px; word-break:break-all; margin-top:10px">${e.message}</p>
-            <p style="font-size:10px; color:gray; margin-top:10px">${e.stack || ''}</p>
-        </div>`;
+
+    } catch (e) {
+        container.innerHTML = `
+            <div style='padding:40px; text-align:center;'>
+                <p style="font-weight:bold; color:red">Erro:</p>
+                <p style="font-size:12px; word-break:break-all; margin-top:10px">${e.message}</p>
+            </div>`;
+    }
+}
+
+// ✅ FUNÇÃO DE COMPARTILHAR — abre galeria de apps do Android
+window.compartilhar = async function() {
+    const btn = document.getElementById('btnCompartilhar');
+    const card = document.getElementById('cardComprovante');
+
+    btn.disabled = true;
+    btn.innerText = '⏳ Gerando imagem...';
+
+    try {
+        // Gera imagem do comprovante com html2canvas
+        const canvas = await html2canvas(card, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff'
+        });
+
+        // Converte para blob
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], 'comprovante-zentry.png', { type: 'image/png' });
+
+            // Tenta usar Web Share API (abre galeria de apps no Android)
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: 'Comprovante Zentry',
+                    text: 'Segue o comprovante da transação.',
+                    files: [file]
+                });
+            } else if (navigator.share) {
+                // Fallback: compartilha só o texto se não suportar arquivo
+                await navigator.share({
+                    title: 'Comprovante Zentry',
+                    text: 'Comprovante de transação Zentry Bank.'
+                });
+            } else {
+                // Fallback final: baixa a imagem
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'comprovante-zentry.png';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            btn.disabled = false;
+            btn.innerText = '📤 Compartilhar Comprovante';
+        }, 'image/png');
+
+    } catch (e) {
+        console.error('Erro ao compartilhar:', e);
+        btn.disabled = false;
+        btn.innerText = '📤 Compartilhar Comprovante';
     }
 }
 
 renderizar();
-  </script>
-  
+</script>
+
 </body>
 </html>
