@@ -2,321 +2,251 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<title>Zentap - Maquininha</title>
+
+<title>Zentap Pro</title>
+
 <style>
-  :root {
-    --primary: #22c55e; --primary-glow: rgba(34,197,94,0.25);
-    --primary-dim: rgba(34,197,94,0.1);
-    --bg: #060910; --card: #0f1623; --card2: #161f2e;
-    --border: rgba(255,255,255,0.07); --muted: #6b7a99;
-    --red: #ef4444; --yellow: #fbbf24;
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-  html, body { height: 100%; background: var(--bg); color: #fff; font-family: 'Sora', sans-serif; overflow: hidden; }
-  body { display: flex; flex-direction: column; }
+:root{
+--primary:#22c55e;
+--bg:#060910;
+--card:#0f1623;
+--muted:#6b7a99;
+}
 
-  /* ── TOAST CUSTOMIZADO (SUBSTITUI ALERTA ANDROID) ── */
-  .z-toast {
-    position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%);
-    background: #161f2e; border: 1px solid var(--primary); color: #fff;
-    padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600;
-    z-index: 10000; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    animation: slideUp 0.3s ease;
-  }
-  @keyframes slideUp { from { bottom: 0; opacity: 0; } to { bottom: 50px; opacity: 1; } }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:#fff;font-family:'Sora',sans-serif;}
 
-  /* ── TELAS ── */
-  .screen { position: absolute; inset: 0; display: none; flex-direction: column; padding: 24px; animation: fadeUp 0.3s ease; background: var(--bg); overflow-y: auto; }
-  .screen.ativa { display: flex; }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.screen{display:none;flex-direction:column;padding:20px;height:100vh;}
+.screen.ativa{display:flex;animation:fade .3s;}
 
-  /* HEADER, DISPLAYS E TECLADO MANTIDOS IGUAIS AO SEU ORIGINAL */
-  .pdv-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-shrink: 0; }
-  .pdv-logo { display: flex; align-items: center; gap: 8px; }
-  .pdv-logo-icon { width: 34px; height: 34px; border-radius: 10px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #052e16; }
-  .pdv-logo-txt { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
-  .pdv-logo-txt span { color: var(--primary); }
-  .pdv-badge { background: var(--primary-dim); border: 1px solid rgba(34,197,94,0.3); color: var(--primary); font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
-  .valor-display { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
-  .valor-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; }
-  .valor-num { font-size: 56px; font-weight: 800; letter-spacing: -3px; color: #1a2030; transition: color 0.3s; }
-  .valor-num.ativo { color: #fff; }
-  .keypad { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; flex-shrink: 0; }
-  .key { height: 62px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; cursor: pointer; transition: all 0.15s; user-select: none; }
-  .key:active { background: var(--card2); transform: scale(0.95); }
-  .key-del { font-size: 18px; color: var(--muted); }
-  .btn-continuar { width: 100%; padding: 18px; border-radius: 20px; border: none; background: #1a2030; color: #3a4560; font-weight: 800; font-size: 16px; cursor: not-allowed; transition: all 0.3s; flex-shrink: 0; }
-  .btn-continuar.ativo { background: var(--primary); color: #052e16; box-shadow: 0 8px 30px var(--primary-glow); cursor: pointer; }
-  .sec-titulo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
-  .sec-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
-  .valor-topo { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .valor-topo-num { font-size: 20px; font-weight: 800; color: var(--primary); }
-  .metodos-list { display: flex; flex-direction: column; gap: 12px; flex: 1; }
-  .metodo-card { background: var(--card); border: 2px solid var(--border); border-radius: 20px; padding: 18px 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; }
-  .metodo-icon { width: 50px; height: 50px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-  .metodo-icon.pix { background: var(--primary-dim); }
-  .parcelas-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-  .parcela-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 16px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-  .parcela-card.destaque { border-color: var(--primary); background: var(--primary-dim); }
-  .qr-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-  
-  /* BOX DO QR CODE MODIFICADA PARA RECEBER O CANVAS */
-  .qr-box {
-    background: #fff; border-radius: 24px; padding: 15px;
-    box-shadow: 0 0 0 8px var(--primary-dim), 0 20px 60px rgba(0,0,0,0.5);
-    display: flex; align-items: center; justify-content: center;
-  }
-  
-  .timer-bar { width: 100%; height: 3px; background: var(--border); border-radius: 3px; overflow: hidden; }
-  .timer-fill { height: 100%; background: var(--primary); width: 100%; transition: width 1s linear; }
-  .nfc-circle { width: 160px; height: 160px; border-radius: 50%; border: 3px solid var(--primary); background: var(--primary-dim); display: flex; align-items: center; justify-content: center; font-size: 64px; animation: nfcPulse 1.8s infinite; cursor: pointer; }
-  @keyframes nfcPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
-  .proc-spinner { width: 64px; height: 64px; border-radius: 50%; border: 4px solid var(--border); border-top-color: var(--primary); animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .btn-sec { width: 100%; padding: 14px; border-radius: 18px; border: 1px solid var(--border); background: transparent; color: #fff; font-weight: 600; margin-top: 10px; }
+@keyframes fade{from{opacity:0;transform:translateY(10px)}}
+
+.valor{font-size:48px;text-align:center;margin:40px 0;}
+
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.key{
+background:var(--card);
+padding:20px;
+border-radius:15px;
+text-align:center;
+font-size:20px;
+}
+.key:active{transform:scale(.9)}
+
+.btn{
+margin-top:20px;
+padding:16px;
+border:none;
+border-radius:20px;
+background:linear-gradient(135deg,#22c55e,#4ade80);
+font-weight:700;
+}
+
+.metodo{
+background:var(--card);
+padding:16px;
+border-radius:15px;
+margin:10px 0;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.metodo img{width:30px;}
+
+.btn-sec{
+margin-top:10px;
+padding:14px;
+background:var(--primary);
+border:none;
+border-radius:15px;
+color:#052e16;
+font-weight:700;
+}
+
+.qr{
+background:#fff;
+padding:10px;
+border-radius:20px;
+margin:30px auto;
+}
+
+.proc{
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+height:100%;
+}
+
+.spinner{
+width:60px;
+height:60px;
+border:4px solid #222;
+border-top:4px solid var(--primary);
+border-radius:50%;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.ok{
+font-size:60px;
+margin-bottom:10px;
+}
 </style>
 </head>
+
 <body>
 
-<div id="tela-valor" class="screen ativa">
-  <div class="pdv-header">
-    <div class="pdv-logo"><div class="pdv-logo-icon">Z</div><span class="pdv-logo-txt">ZEN<span>TAP</span></span></div>
-    <div class="pdv-badge">⚡ Online</div>
-  </div>
-  <div class="valor-display">
-    <span class="valor-label">Valor a cobrar</span>
-    <div class="valor-num" id="valorDisplay">R$ 0,00</div>
-  </div>
-  <div class="keypad">
-    <div class="key" onclick="digitarNum('1')">1</div><div class="key" onclick="digitarNum('2')">2</div><div class="key" onclick="digitarNum('3')">3</div>
-    <div class="key" onclick="digitarNum('4')">4</div><div class="key" onclick="digitarNum('5')">5</div><div class="key" onclick="digitarNum('6')">6</div>
-    <div class="key" onclick="digitarNum('7')">7</div><div class="key" onclick="digitarNum('8')">8</div><div class="key" onclick="digitarNum('9')">9</div>
-    <div class="key" onclick="digitarNum('00')">00</div><div class="key" onclick="digitarNum('0')">0</div><div class="key key-del" onclick="apagarNum()">⌫</div>
-  </div>
-  <button class="btn-continuar" id="btnContinuar" onclick="irParaMetodo()">Continuar</button>
+<!-- TELA VALOR -->
+<div id="tela1" class="screen ativa">
+<div class="valor" id="valor">R$ 0,00</div>
+
+<div class="keypad">
+<div class="key" onclick="dig(1)">1</div>
+<div class="key" onclick="dig(2)">2</div>
+<div class="key" onclick="dig(3)">3</div>
+<div class="key" onclick="dig(4)">4</div>
+<div class="key" onclick="dig(5)">5</div>
+<div class="key" onclick="dig(6)">6</div>
+<div class="key" onclick="dig(7)">7</div>
+<div class="key" onclick="dig(8)">8</div>
+<div class="key" onclick="dig(9)">9</div>
+<div class="key" onclick="dig('00')">00</div>
+<div class="key" onclick="dig(0)">0</div>
+<div class="key" onclick="del()">⌫</div>
 </div>
 
-<div id="tela-metodo" class="screen">
-  <div class="sec-titulo">Forma de pagamento</div>
-  <div class="sec-sub">Escolha como o cliente vai pagar.</div>
-  <div class="valor-topo"><span class="valor-topo-label">Total a cobrar</span><span class="valor-topo-num" id="valorTopoMetodo">R$ 0,00</span></div>
-  <div class="metodos-list">
-    <div class="metodo-card pix" onclick="irParaPix()"><div class="metodo-icon pix">⚡</div><div><div class="metodo-nome">Pix</div><div class="metodo-desc">QR Code dinâmico com logo</div></div></div>
-    <div class="metodo-card debito" onclick="irParaNFC('Débito')"><div class="metodo-icon" style="background:rgba(59,130,246,0.1)">💳</div><div><div class="metodo-nome">Débito</div><div class="metodo-desc">Tap to Pay • Aproxime</div></div></div>
-    <div class="metodo-card credito" onclick="irParaParcelas()"><div class="metodo-icon" style="background:rgba(168,85,247,0.1)">💜</div><div><div class="metodo-nome">Crédito</div><div class="metodo-desc">À vista ou até 12x</div></div></div>
-  </div>
-  <button class="btn-sec" onclick="irPara('tela-valor')">← Voltar</button>
+<button class="btn" onclick="ir(2)">Continuar</button>
 </div>
 
-<div id="tela-pix" class="screen">
-  <div class="sec-titulo">Pix QR Code</div>
-  <div class="sec-sub">Mostre o QR Code para o cliente escanear.</div>
-  <div class="valor-topo"><span class="valor-topo-label">Total</span><span class="valor-topo-num" id="valorTopoPix">R$ 0,00</span></div>
-  <div class="qr-wrap">
-    <div class="qr-box" id="qrBoxContainer" onclick="simularPagamento('Pix')"></div>
-    <div>
-      <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
-      <p style="margin-top:8px; text-align:center; font-size:13px; color:var(--muted)">Expira em <span id="timerTxt" style="color:var(--yellow); font-weight:700">5:00</span></p>
-    </div>
-    <div class="qr-pix-key" onclick="copiarChave()">
-      <span style="font-size:20px;">📋</span>
-      <div class="key-txt"><b>Chave Pix</b>suporte@zentry.com.br</div>
-      <span style="font-size:12px; color:var(--primary); font-weight:700;">Copiar</span>
-    </div>
-  </div>
-  <button class="btn-sec" onclick="irPara('tela-metodo')">← Voltar</button>
+<!-- MÉTODOS -->
+<div id="tela2" class="screen">
+<h2>Forma de pagamento</h2>
+
+<div class="metodo" onclick="pix()">
+<img src="https://i.imgur.com/8QfQ9Qp.png">
+Pix
 </div>
 
-<div id="tela-parcelas" class="screen">
-  <div class="sec-titulo">Parcelamento</div>
-  <div class="sec-sub">Escolha em quantas vezes.</div>
-  <div class="valor-topo"><span class="valor-topo-label">Total</span><span class="valor-topo-num" id="valorTopoParcelas">R$ 0,00</span></div>
-  <div class="parcelas-scroll" id="listaParcelas"></div>
-  <button class="btn-sec" onclick="irPara('tela-metodo')">← Voltar</button>
+<div class="metodo" onclick="nfc('Débito')">
+<img src="https://i.imgur.com/1Q9Z1Zm.png">
+Débito
 </div>
 
-<div id="tela-nfc" class="screen">
-  <div class="sec-titulo" id="nfcTitulo">Débito</div>
-  <div class="nfc-wrap">
-    <div class="nfc-circle" onclick="simularPagamento(metodoAtual)">📲</div>
-    <div class="nfc-valor" id="nfcValor">R$ 0,00</div>
-    <div class="nfc-titulo">Aproxime o cartão</div>
-    <div style="font-size:13px; color:var(--muted); text-align:center">Compatível com NFC e Apple Pay</div>
-  </div>
-  <button class="btn-sec" onclick="irPara('tela-metodo')">← Cancelar</button>
+<div class="metodo" onclick="nfc('Crédito')">
+<img src="https://i.imgur.com/1Q9Z1Zm.png">
+Crédito
 </div>
 
-<div id="tela-proc" class="screen">
-  <div class="proc-wrap"><div class="proc-spinner"></div><div style="font-size:18px; font-weight:700">Processando pagamento</div><div style="font-size:13px; color:var(--muted)">Aguarde a confirmação...</div></div>
+<button class="btn-sec" onclick="ir(1)">Voltar</button>
 </div>
 
-<script type="module">
-  import { db } from './zentry-core.js'; 
-  import { doc, setDoc, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<!-- PIX -->
+<div id="tela3" class="screen">
+<h2>Pix</h2>
 
-  let valorRaw = "";
-  let userUid = "";
-  let userData = null;
-  window.metodoAtual = "";
-  let timerInterval = null;
-  let timerSecs = 300;
+<div id="qrcode" class="qr"></div>
 
-  async function init() {
-    const docID = localStorage.getItem("idUsuarioLogado");
-    if (!docID) { window.location.href = "login.html"; return; }
-    userUid = docID;
-    try {
-      const userSnap = await getDoc(doc(db, "usuarios", userUid));
-      if (userSnap.exists()) { userData = userSnap.data(); }
-    } catch (e) { console.error(e); }
-  }
-  init();
+<button class="btn-sec" onclick="ir(2)">Voltar</button>
+</div>
 
-  // FUNÇÃO TOAST (MODAL APP)
-  window.showToast = function(msg) {
-    const t = document.createElement('div');
-    t.className = 'z-toast';
-    t.innerHTML = `✅ ${msg}`;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 2500);
-  };
+<!-- NFC -->
+<div id="tela4" class="screen">
+<h2 id="tipo"></h2>
 
-  window.digitarNum = function(n) {
-    if (valorRaw.length >= 9) return;
-    valorRaw += n;
-    atualizarDisplay();
-  };
+<div style="font-size:80px;text-align:center;margin:50px 0;">📲</div>
 
-  window.apagarNum = function() {
-    valorRaw = valorRaw.slice(0,-1);
-    atualizarDisplay();
-  };
+<button class="btn" onclick="pagar()">Simular pagamento</button>
+<button class="btn-sec" onclick="ir(2)">Voltar</button>
+</div>
 
-  function atualizarDisplay() {
-    const v = valorRaw.padStart(3,'0');
-    const num = (parseInt(v)/100).toFixed(2);
-    const fmt = "R$ " + num.replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
-    const el = document.getElementById('valorDisplay');
-    el.textContent = fmt;
-    document.getElementById('btnContinuar').classList.toggle('ativo', parseInt(valorRaw) > 0);
-  }
+<!-- PROCESSANDO -->
+<div id="tela5" class="screen">
+<div class="proc">
+<div class="spinner"></div>
+<p>Processando...</p>
+</div>
+</div>
 
-  function valorFmt() {
-    const v = valorRaw.padStart(3,'0');
-    return "R$ " + (parseInt(v)/100).toFixed(2).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".");
-  }
+<!-- APROVADO -->
+<div id="tela6" class="screen">
+<div class="proc">
+<div class="ok">✔</div>
+<p>Pagamento aprovado</p>
+</div>
+</div>
 
-  window.irPara = function(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('ativa'));
-    document.getElementById(id).classList.add('ativa');
-  };
+<audio id="som" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3"></audio>
 
-  window.irParaMetodo = function() {
-    if (!parseInt(valorRaw)) return;
-    document.getElementById('valorTopoMetodo').textContent = valorFmt();
-    irPara('tela-metodo');
-  };
+<script>
 
-  // ── GERAÇÃO DO QR CODE COM LOGO ZT ──
-  window.irParaPix = function() {
-    document.getElementById('valorTopoPix').textContent = valorFmt();
-    const pixData = "ZentryPay|" + valorFmt() + "|" + Date.now();
-    
-    const qrContainer = document.getElementById('qrBoxContainer');
-    qrContainer.innerHTML = '<canvas id="qrCanvas" style="display:block; border-radius:12px;"></canvas>';
-    
-    const tempDiv = document.createElement('div');
-    new QRCode(tempDiv, {
-        text: pixData,
-        width: 280,
-        height: 280,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-    });
+let valor="";
 
-    const checkImg = setInterval(() => {
-        const qrImg = tempDiv.querySelector('img');
-        if (qrImg && qrImg.src) {
-            clearInterval(checkImg);
-            const canvas = document.getElementById('qrCanvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 280; canvas.height = 280;
-            ctx.drawImage(qrImg, 0, 0);
+function vibrar(x=50){
+if(navigator.vibrate) navigator.vibrate(x);
+}
 
-            const center = 140;
-            ctx.fillStyle = "#ffffff";
-            ctx.beginPath(); ctx.arc(center, center, 40, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = "#22c55e";
-            ctx.beginPath(); ctx.arc(center, center, 32, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = "#052e16";
-            ctx.font = "800 24px Sora"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            ctx.fillText("ZT", center, center);
+function dig(n){
+vibrar(30);
+valor+=n;
+atualiza();
+}
 
-            iniciarTimer();
-            irPara('tela-pix');
-        }
-    }, 100);
-  };
+function del(){
+valor=valor.slice(0,-1);
+atualiza();
+}
 
-  window.copiarChave = async function() {
-    try {
-      await navigator.clipboard.writeText("suporte@zentry.com.br");
-      window.showToast("Chave Pix copiada!");
-    } catch(e) { }
-  };
+function atualiza(){
+let v=valor.padStart(3,'0');
+let num=(parseInt(v)/100).toFixed(2);
+document.getElementById("valor").innerText="R$ "+num.replace('.',',');
+}
 
-  // Parcelas e Pagamento mantidos com sua lógica Firestore
-  window.irParaParcelas = function() {
-    document.getElementById('valorTopoParcelas').textContent = valorFmt();
-    const lista = document.getElementById('listaParcelas');
-    lista.innerHTML = "";
-    for (let i=1; i<=12; i++) {
-        const card = document.createElement('div');
-        card.className = 'parcela-card' + (i===1 ? ' destaque' : '');
-        card.onclick = () => irParaNFC(`Crédito ${i}x`);
-        card.innerHTML = `<div><div class="parcela-num">${i}x de R$ ${(parseInt(valorRaw)/100/i).toFixed(2).replace('.',',')}</div></div><span>›</span>`;
-        lista.appendChild(card);
-    }
-    irPara('tela-parcelas');
-  };
+function ir(n){
+document.querySelectorAll(".screen").forEach(e=>e.classList.remove("ativa"));
+document.getElementById("tela"+n).classList.add("ativa");
+}
 
-  window.irParaNFC = function(metodo) {
-    window.metodoAtual = metodo;
-    document.getElementById('nfcTitulo').textContent = metodo;
-    document.getElementById('nfcValor').textContent = valorFmt();
-    irPara('tela-nfc');
-  };
+function pix(){
+ir(3);
+document.getElementById("qrcode").innerHTML="";
+new QRCode(document.getElementById("qrcode"),{
+text:"pagamento"+Date.now(),
+width:200,
+height:200
+});
+}
 
-  window.simularPagamento = async function(metodo) {
-    clearInterval(timerInterval);
-    irPara('tela-proc');
-    await new Promise(r => setTimeout(r, 2000));
-    try {
-      const txId = "PDV" + Date.now();
-      const v = parseInt(valorRaw)/100;
-      await setDoc(doc(db, "usuarios", userUid, "transacoes", txId), {
-        tipo: "entrada", valor: v, descricao: "Venda Zentap - " + metodo, 
-        metodo, data: new Date().toISOString().split('T')[0], timestamp: new Date(), id: txId
-      });
-      await updateDoc(doc(db, "usuarios", userUid), { saldo: increment(v) });
-      window.location.href = "comprovante_pdv.html?id=" + txId;
-    } catch(e) { alert("Erro"); irPara('tela-metodo'); }
-  };
+function nfc(t){
+document.getElementById("tipo").innerText=t;
+ir(4);
+}
 
-  function iniciarTimer() {
-    clearInterval(timerInterval); timerSecs = 300;
-    timerInterval = setInterval(() => {
-      timerSecs--;
-      const m = Math.floor(timerSecs/60); const s = timerSecs % 60;
-      document.getElementById('timerTxt').textContent = `${m}:${s.toString().padStart(2,'0')}`;
-      document.getElementById('timerFill').style.width = (timerSecs/300*100) + '%';
-      if (timerSecs <= 0) { clearInterval(timerInterval); irPara('tela-metodo'); }
-    }, 1000);
-  }
+async function pagar(){
+vibrar(100);
+ir(5);
+
+await new Promise(r=>setTimeout(r,2000));
+
+document.getElementById("som").play();
+vibrar([100,50,100]);
+
+ir(6);
+
+await new Promise(r=>setTimeout(r,2000));
+
+ir(1);
+valor="";
+atualiza();
+}
+
 </script>
+
 </body>
 </html>
