@@ -145,28 +145,21 @@ async function renderizar() {
         const d = snap.data();
         const isSaida = d.tipo !== 'entrada';
         const dataTxt = d.timestamp ? ZentryUI.formatarData(d.timestamp) : "Data pendente";
+// ... dentro do renderizar() do comprovante
+container.innerHTML = `
+    <div class="top-info ${isSaida ? 'saida' : 'entrada'}">
+        <div class="status-label ${isSaida ? 'saida' : 'entrada'}">${d.descricao || 'Transação'}</div>
+        <div class="valor-principal ${isSaida ? 'saida' : 'entrada'}">${ZentryUI.formatarMoeda(d.valor)}</div>
+        <div class="data-hora">${dataTxt}</div>
+    </div>
 
-        container.innerHTML = `
-            <div class="top-info ${isSaida ? 'saida' : 'entrada'}">
-                <div class="status-label ${isSaida ? 'saida' : 'entrada'}">${d.descricao || 'Transação'}</div>
-                <div class="valor-principal ${isSaida ? 'saida' : 'entrada'}">${ZentryUI.formatarMoeda(d.valor)}</div>
-                <div class="data-hora">${dataTxt}</div>
-            </div>
-
-            <div class="section">
-                <div class="row"><span class="label">ID Transação</span><span class="value"><span class="tx-id">${txId}</span></span></div>
-                <div class="row"><span class="label">Status</span><span class="value" style="color:var(--primary)">✓ Concluída</span></div>
-            </div>
-
-            <div class="section">
-                <div class="row"><span class="label">Tipo</span><span class="value">${d.tipo === 'recarga' ? 'Recarga de Telemóvel' : 'Pagamento'}</span></div>
-                <div class="row"><span class="label">Instituição</span><span class="value">ZENTRY BANK</span></div>
-            </div>
-
-            <div class="footer-auth">
-                <div class="auth-text">Autenticação: ${txId.substring(0,12).toUpperCase()}</div>
-            </div>
-        `;
+    <div class="section">
+        <div class="row"><span class="label">Método de Captura</span><span class="value" style="color:var(--primary); font-weight:800;">ZENTAP NFC</span></div>
+        <div class="row"><span class="label">ID Transação</span><span class="value"><span class="tx-id">${txId}</span></span></div>
+        <div class="row"><span class="label">Status</span><span class="value" style="color:var(--primary)">✓ Concluída</span></div>
+    </div>
+    `;
+      
 
     } catch (e) {
         container.innerHTML = `
