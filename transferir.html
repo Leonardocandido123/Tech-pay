@@ -96,10 +96,12 @@
 
   .aviso-box { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); border-radius: 14px; padding: 14px 16px; font-size: 12px; color: #fbbf24; line-height: 1.6; margin-bottom: 20px; }
 
+  /* ✅ PIN com 6 dots */
   .pin-section { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 28px 24px; text-align: center; cursor: pointer; }
-  .pin-titulo { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
-  .pin-dots { display: flex; justify-content: center; gap: 16px; }
-  .pin-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); transition: all 0.2s; }
+  .pin-titulo { font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+  .pin-subtitulo { font-size: 11px; color: var(--muted); opacity: 0.6; margin-bottom: 20px; }
+  .pin-dots { display: flex; justify-content: center; gap: 14px; }
+  .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); transition: all 0.2s; }
   .pin-dot.ok  { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
   .pin-dot.err { background: var(--red); border-color: var(--red); animation: shake 0.4s ease; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
@@ -201,7 +203,7 @@
     </div>
   </div>
 
-  <!-- ETAPA 3 -->
+  <!-- ETAPA 3 — CONFIRMAÇÃO + SENHA -->
   <div class="tela" id="tela2">
     <p class="tela-titulo">Confirme o Pix</p>
     <p class="tela-sub">Verifique e autorize com sua senha.</p>
@@ -218,23 +220,29 @@
       <div class="confirm-row"><span class="confirm-label">Data</span><span class="confirm-val" id="confirmData"></span></div>
       <div class="confirm-row"><span class="confirm-label">Valor</span><span class="confirm-val confirm-total" id="confirmValor"></span></div>
     </div>
+
     <div class="aviso-box">⚡ Pix é instantâneo e irreversível. Confira os dados antes de confirmar.</div>
+
+    <!-- ✅ 6 dots — mesma senha do login -->
     <div class="pin-section" onclick="document.getElementById('hiddenPin').focus()">
-      <p class="pin-titulo">Digite sua senha de 4 dígitos</p>
+      <p class="pin-titulo">Digite sua senha de acesso</p>
+      <p class="pin-subtitulo">A mesma senha que você usa para entrar no app</p>
       <div class="pin-dots">
         <div class="pin-dot" id="p1"></div>
         <div class="pin-dot" id="p2"></div>
         <div class="pin-dot" id="p3"></div>
         <div class="pin-dot" id="p4"></div>
+        <div class="pin-dot" id="p5"></div>
+        <div class="pin-dot" id="p6"></div>
       </div>
     </div>
   </div>
 
-  <!-- ETAPA 4 -->
+  <!-- ETAPA 4 — SUCESSO -->
   <div class="tela" id="tela3">
     <div class="sucesso-wrap">
       <div class="sucesso-circle"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
-      <p class="sucesso-titulo">Pix enviado!</p>
+      <p class="sucesso-titulo">Pix enviado! 🎉</p>
       <p class="sucesso-sub" id="sucessoSub"></p>
       <div class="sucesso-comp">
         <div class="comp-row"><span class="comp-label">Para</span><span class="comp-val" id="compNome"></span></div>
@@ -257,13 +265,14 @@
   import { doc, setDoc, updateDoc, collection, getDocs, getDoc, onSnapshot, increment }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+  const SENHA_DIGITS = 6; // ✅ mesma quantidade da senha do login
+
   let userDocId = "", saldoAtual = 0, etapa = 0;
   let destinoEncontrado = null;
   let dadosTransacao    = null;
   let buscaTimer        = null;
   let ultimoTxId        = null;
 
-  // ✅ Toast e loading locais — sem depender do zentry-core
   function toast(msg, tipo = 'erro') {
     const el = document.createElement('div');
     el.className = `toast ${tipo}`;
@@ -317,7 +326,7 @@
   });
 
   async function buscarDestinatario(chave) {
-try {
+    try {
       const snap = await getDocs(collection(db, "usuarios"));
       let achou = null;
       const digits = chave.replace(/\D/g,'');
@@ -364,12 +373,13 @@ try {
 
   function onPin() {
     const pin = document.getElementById('hiddenPin');
-    if (pin.value.length > 4) pin.value = pin.value.slice(0,4);
-    for (let i=1; i<=4; i++) {
+    // ✅ Limita a SENHA_DIGITS dígitos
+    if (pin.value.length > SENHA_DIGITS) pin.value = pin.value.slice(0, SENHA_DIGITS);
+    for (let i = 1; i <= SENHA_DIGITS; i++) {
       document.getElementById(`p${i}`).className = 'pin-dot' + (i <= pin.value.length ? ' ok' : '');
     }
-    // ✅ Habilita botão com 4 dígitos
-    document.getElementById('btnMain').disabled = pin.value.length < 4;
+    // ✅ Habilita botão ao completar todos os dígitos
+    document.getElementById('btnMain').disabled = pin.value.length < SENHA_DIGITS;
   }
 
   function irPara(n) {
@@ -395,7 +405,6 @@ try {
       const chave = document.getElementById('chaveInput').value;
       const desc  = document.getElementById('descInput').value || "—";
 
-      // ✅ Preenche confirmação
       const ini = destinoEncontrado.nome.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
       document.getElementById('confirmAvatar').textContent = ini;
       document.getElementById('confirmNome').textContent   = destinoEncontrado.nome;
@@ -412,26 +421,31 @@ try {
       setTimeout(() => document.getElementById('hiddenPin').focus(), 400);
 
     } else if (etapa === 2) {
-      const pinDigitado = document.getElementById('hiddenPin').value;
+      const senhaDigitada = document.getElementById('hiddenPin').value;
       btn.disabled = true;
       btn.textContent = "Validando...";
 
       try {
         const userSnap = await getDoc(doc(db, "usuarios", userDocId));
         const userData = userSnap.data();
-        // ✅ Suporta campo 'senha' ou 'pin'
-        const senhaCorreta = String(userData?.senha || userData?.pin || '');
 
-        if (pinDigitado !== senhaCorreta) {
-          for (let i=1; i<=4; i++) document.getElementById(`p${i}`).className = 'pin-dot err';
-          setTimeout(() => { document.getElementById('hiddenPin').value = ''; onPin(); }, 600);
+        // ✅ Compara com campo 'senha' do Firestore (mesmo do login)
+        const senhaCorreta = String(userData?.senha || '');
+
+        console.log("Digitado:", senhaDigitada, "| Firestore:", senhaCorreta); // debug
+
+        if (senhaDigitada !== senhaCorreta) {
+          for (let i=1; i<=SENHA_DIGITS; i++) document.getElementById(`p${i}`).className = 'pin-dot err';
+          setTimeout(() => {
+            document.getElementById('hiddenPin').value = '';
+            onPin();
+          }, 600);
           toast("Senha incorreta!", "erro");
           btn.disabled = false;
           btn.textContent = "Confirmar Pix";
           return;
         }
 
-        // ✅ Processa
         loading(true);
         btn.textContent = "Processando...";
 
