@@ -1,15 +1,41 @@
 const bcrypt = require("bcryptjs");
+const { db } = require("./firebase"); // ajusta o caminho
 
 exports.handler = async (event) => {
-  const { email, senha } = JSON.parse(event.body);
+  try {
+    const { email, senha } = JSON.parse(event.body);
 
-  const senhaHash = await bcrypt.hash(senha, 10);
+    if (!email || !senha) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Dados incompletos" })
+      };
+    }
 
-  // salva no banco (Firestore ou outro)
-  // 👉 IMPORTANTE: salvar senhaHash, NÃO senha pura
+    // 🔐 gera hash
+    const senhaHash = await bcrypt.hash(senha, 10);
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ ok: true })
-  };
+    // 💾 salva no Firestore
+    const docRef = await db.collection("usuarios").add({
+      email: email,
+      senha: senhaHash,
+      criadoEm: new Date()
+    });
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        ok: true,
+        id: docRef.id
+      })
+    };
+
+  } catch (err) {
+    console.error("Erro ao registrar:", err);
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "erro-interno" })
+    };
+  }
 };
