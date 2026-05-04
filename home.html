@@ -188,14 +188,19 @@ body {
 
   <div class="balance-circle" onclick="location.href='extrato.html'">
     <div class="circle">
-        <span id="saldo-home">R$ 0,00</span>
+        <span id="saldo-home">Carregando...</span>
         <small>Saldo disponível</small>
     </div>
   </div>
 
   
   <div class="pix-card">
-    <div class="pix-info"><b>Pix rápido ⚡</b><br><span style="font-size: 11px; opacity: 0.8;">Receba e envia dinheiro 24h</span></div>
+    <div class="pix-info"><b style="display:flex;align-items:center;gap:6px;">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+    <path d="M12 2L4 10l8 8 8-8-8-8z" stroke="white" stroke-width="2"/>
+  </svg>
+  Pix rápido
+    </b><br><span style="font-size: 11px; opacity: 0.8;">Receba e envia dinheiro 24h</span></div>
     <a href="pix.html" class="pix-btn">Usar Pix</a>
   </div>
 
@@ -253,6 +258,7 @@ body {
         try {
             // 1. Pegamos o ID REAL que o novo login salvou (ex: user_882544)
             const docID = localStorage.getItem("idUsuarioLogado");
+          // 🔒 VALIDA SE AUTH EXISTE
             const dadosLocal = localStorage.getItem("dadosUsuario");
             
             // Se não tiver o ID ou os dados, expulsa pro login
@@ -263,7 +269,7 @@ body {
             }
 
             // 2. Escuta os dados do banco usando o ID exato do Firestore
-            onSnapshot(doc(db, "usuarios", docID), (docSnap) => {
+            const unsub = onSnapshot(doc(db, "usuarios", docID), (docSnap) => {
                 if (docSnap.exists()) {
                     const d = docSnap.data();
                     
@@ -273,7 +279,11 @@ body {
                     
                     // Atualiza o Saldo (convertendo centavos se necessário)
                     // Se no seu banco estiver 10000 para representar R$ 100,00, divida por 100
-                    window.currentSaldo = parseFloat(d.saldo || 0);
+                    // 🔒 PROTEÇÃO: garante número válido
+const saldoSeguro = Number(d.saldo);
+
+window.currentSaldo = isNaN(saldoSeguro) ? 0 : saldoSeguro;
+                
 
                     // Aplica Preferências
                     if (d.preferencias && d.preferencias.modoDiscreto === true) {
@@ -301,16 +311,29 @@ body {
             window.location.href = "login.html";
         }
     }
-
     window.renderSaldo = () => {
-        const elSaldo = document.getElementById("saldo-home");
-        if (elSaldo) {
-            elSaldo.innerText = saldoOculto 
-                ? "••••••••" 
-                : window.currentSaldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-    };
+  const elSaldo = document.getElementById("saldo-home");
 
+  if (!elSaldo) return;
+
+  if (saldoOculto) {
+    elSaldo.style.opacity = 0;
+
+setTimeout(() => {
+  elSaldo.innerText = window.currentSaldo.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
+  elSaldo.style.opacity = 1;
+}, 150);
+    return;
+  }
+
+  elSaldo.innerText = window.currentSaldo.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
+};
     window.toggleSaldoHome = () => { 
         saldoOculto = !saldoOculto; 
         window.renderSaldo(); 
@@ -327,6 +350,9 @@ body {
     }
 
     initHome();
+    window.addEventListener("beforeunload", () => {
+  if (unsub) unsub();
+});
   </script>
   
   
