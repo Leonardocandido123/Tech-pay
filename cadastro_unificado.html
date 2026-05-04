@@ -31,7 +31,7 @@
         /* Barra de Progresso Sutil */
         .top-nav { position: fixed; top: 0; width: 100%; padding: 25px; z-index: 100; }
         .progress-container { width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 10px; }
-        .progress-bar { width: 16.66%; height: 100%; background: var(--accent); border-radius: 10px; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 15px var(--accent); }
+        .progress-bar { width: 14.28%; height: 100%; background: var(--accent); border-radius: 10px; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 15px var(--accent); }
 
         #main-slider {
             display: flex;
@@ -41,7 +41,7 @@
         }
 
         .step-page {
-            width: 14.28%;
+            width: 16.66%;
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -187,7 +187,7 @@
     <script type="module">
 
 let currentStep = 0;
-const totalSteps = 6;
+const totalSteps = 5;
 const slider = document.getElementById('main-slider');
 const pBar = document.getElementById('p-bar');
 const nextBtn = document.getElementById('nextBtn');
