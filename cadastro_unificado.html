@@ -183,143 +183,137 @@
         </button>
         <button id="finishBtn" class="finish-btn">CRIAR MINHA CONTA</button>
     </div> 
-    
     <script type="module">
+    // --- ESTADO ---
+    let currentStep = 0;
+    const totalSteps = 6; // São 6 telas no total
+    const slider = document.getElementById('main-slider');
+    const pBar = document.getElementById('p-bar');
+    const nextBtn = document.getElementById('nextBtn');
+    const finishBtn = document.getElementById('finishBtn');
 
-let currentStep = 0;
-const totalSteps = 5;
-const slider = document.getElementById('main-slider');
-const pBar = document.getElementById('p-bar');
-const nextBtn = document.getElementById('nextBtn');
-const finishBtn = document.getElementById('finishBtn');
+    // --- MÁSCARAS ---
+    const maskCPF = (value) => {
+        return value.replace(/\D/g, "").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    };
 
-// --- MÁSCARAS ---
+    const maskTel = (value) => {
+        return value.replace(/\D/g, "").replace(/^(\d{2})(\d)/g, "($1) $2").replace(/(\d)(\d{4})$/, "$1-$2");
+    };
 
-const maskCPF = (value) => {
-    return value
-        .replace(/\D/g, "")
-        .replace(/(\d{3})(\d)/, "$1.$2")
-        .replace(/(\d{3})(\d)/, "$1.$2")
-        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-};
-
-const maskTel = (value) => {
-    return value
-        .replace(/\D/g, "")
-        .replace(/^(\d{2})(\d)/g, "($1) $2")
-        .replace(/(\d)(\d{4})$/, "$1-$2");
-};
-
-document.getElementById('cad_cpf').addEventListener('input', (e) => {
-    e.target.value = maskCPF(e.target.value);
-    validarBotao();
-});
-
-document.getElementById('cad_tel').addEventListener('input', (e) => {
-    e.target.value = maskTel(e.target.value);
-    validarBotao();
-});
-
-// --- VALIDAÇÃO BOTÃO ---
-
-function validarBotao() {
-    const inputsAtuais = slider.children[currentStep].querySelectorAll('input');
-    let pronto = true;
-
-    inputsAtuais.forEach(i => { 
-        if(i.type !== 'checkbox' && i.value.length < 3) pronto = false; 
-        if(i.id === 'cad_cpf' && i.value.length < 14) pronto = false;
-        if(i.id === 'cad_tel' && i.value.length < 15) pronto = false;
+    document.getElementById('cad_cpf').addEventListener('input', (e) => {
+        e.target.value = maskCPF(e.target.value);
+        validarBotao();
     });
 
-    if(pronto) nextBtn.classList.add('active');
-    else nextBtn.classList.remove('active');
-}
-
-// --- NAVEGAÇÃO ---
-
-window.avancar = function() {
-    if (!nextBtn.classList.contains('active')) return;
-
-    if (currentStep < totalSteps - 1) {
-        currentStep++;
-        slider.style.transform = `translateX(-${currentStep * (100 / totalSteps)}%)`;
-        pBar.style.width = `${((currentStep + 1) / totalSteps) * 100}%`;
-
-        if (currentStep === 6) {
-            nextBtn.style.display = 'none';
-            finishBtn.style.display = 'block';
-        }
-
-        nextBtn.classList.remove('active');
+    document.getElementById('cad_tel').addEventListener('input', (e) => {
+        e.target.value = maskTel(e.target.value);
         validarBotao();
-    }
-};
+    });
 
-nextBtn.onclick = window.avancar;
+    // --- VALIDAÇÃO BOTÃO ---
+    function validarBotao() {
+        const inputsAtuais = slider.children[currentStep].querySelectorAll('input');
+        let pronto = true;
 
-// --- TOKEN INPUT ---
-
-
-// --- CADASTRO BACKEND (CORRIGIDO) ---
-
-document.getElementById('finishBtn').onclick = async () => {
-    if(!document.getElementById('checkTermo').checked) return;
-
-    const nome = document.getElementById('cad_nome').value.trim();
-    const cpf = document.getElementById('cad_cpf').value.trim();
-    const tel = document.getElementById('cad_tel').value.trim();
-    const email = document.getElementById('cad_email').value.trim();
-    const senha = document.getElementById('cad_senha').value.trim();
-
-    try {
-        const res = await fetch("/.netlify/functions/registrar", {
-            method: "POST",
-            body: JSON.stringify({
-                nome,
-                cpf,
-                tel,
-                email,
-                senha
-            })
+        inputsAtuais.forEach(i => { 
+            if(i.type === 'checkbox') {
+                if(!i.checked) pronto = false;
+            } else {
+                if(i.value.length < 3) pronto = false; 
+                if(i.id === 'cad_cpf' && i.value.length < 14) pronto = false;
+                if(i.id === 'cad_tel' && i.value.length < 15) pronto = false;
+                if(i.id === 'cad_senha' && i.value.length < 6) pronto = false;
+            }
         });
 
-        const data = await res.json();
+        if(pronto) nextBtn.classList.add('active');
+        else nextBtn.classList.remove('active');
+    }
 
-        if (!res.ok) {
-            throw new Error(data.error);
+    // --- NAVEGAÇÃO ---
+    window.avancar = function() {
+        if (!nextBtn.classList.contains('active')) return;
+
+        // Se estiver na penúltima tela (Senha), ao avançar mostra o botão Finalizar
+        if (currentStep < totalSteps - 1) {
+            currentStep++;
+            
+            // Move o slider baseado em 100% / total de páginas
+            const deslocamento = currentStep * (100 / totalSteps);
+            slider.style.transform = `translateX(-${deslocamento}%)`;
+            
+            // Atualiza barra de progresso
+            pBar.style.width = `${((currentStep + 1) / totalSteps) * 100}%`;
+
+            // Lógica de troca de botão no último passo (Termos)
+            if (currentStep === totalSteps - 1) {
+                nextBtn.style.display = 'none';
+                finishBtn.style.display = 'block';
+            }
+
+            nextBtn.classList.remove('active');
+            validarBotao();
         }
+    };
 
-        // salva email pro login
-        localStorage.setItem("usuarioEmail", email);
+    nextBtn.onclick = window.avancar;
 
-        // redireciona
-        window.location.href = "login.html";
-
-    } catch (e) {
-        console.error("Erro cadastro:", e);
-
-        let msg = "Erro ao criar conta.";
-        if(e.message === "usuario-ja-existe") msg = "Este e-mail já está cadastrado.";
-        if(e.message === "senha-invalida") msg = "Senha deve ter 6 dígitos.";
-        if(e.message === "dados-incompletos") msg = "Preencha todos os campos.";
-
-        showZModal("Erro no Cadastro", msg, "⚠️");
-    }
-};
-
-// --- INPUTS PADRÃO ---
-
-document.querySelectorAll('.input-container input').forEach(i => {
-    if(i.id !== 'cad_cpf' && i.id !== 'cad_tel') {
+    // --- ESCUTADORES DE INPUT ---
+    document.querySelectorAll('input').forEach(i => {
         i.addEventListener('input', validarBotao);
+        if(i.type === 'checkbox') i.addEventListener('change', validarBotao);
+    });
+
+    // --- MODAL ---
+    function showZModal(title, text, icon) {
+        document.getElementById('zTitle').innerText = title;
+        document.getElementById('zText').innerText = text;
+        document.getElementById('zIcon').innerText = icon;
+        document.getElementById('zModalGlobal').style.display = 'flex';
     }
-});
 
-// modal
-document.getElementById('zBtnClose').onclick = () =>
-    document.getElementById('zModalGlobal').style.display = 'none';
+    document.getElementById('zBtnClose').onclick = () =>
+        document.getElementById('zModalGlobal').style.display = 'none';
 
-    </script>
+    // --- CADASTRO FINAL ---
+    finishBtn.onclick = async () => {
+        if(!document.getElementById('checkTermo').checked) return;
+
+        const payload = {
+            nome: document.getElementById('cad_nome').value,
+            cpf: document.getElementById('cad_cpf').value,
+            tel: document.getElementById('cad_tel').value,
+            email: document.getElementById('cad_email').value,
+            senha: document.getElementById('cad_senha').value
+        };
+
+        finishBtn.disabled = true;
+        finishBtn.innerText = "CARREGANDO...";
+
+        try {
+            const res = await fetch("/.netlify/functions/registrar", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "erro-desconhecido");
+
+            localStorage.setItem("usuarioEmail", payload.email);
+            window.location.href = "login.html";
+
+        } catch (e) {
+            console.error(e);
+            let msg = "Tente novamente mais tarde.";
+            if(e.message.includes("existe")) msg = "E-mail ou CPF já cadastrado.";
+            showZModal("Erro", msg, "⚠️");
+            finishBtn.disabled = false;
+            finishBtn.innerText = "CRIAR MINHA CONTA";
+        }
+    };
+            </script>
+    
+    
 </body>
 </html>
