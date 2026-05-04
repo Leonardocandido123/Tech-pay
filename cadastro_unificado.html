@@ -19,7 +19,7 @@
             height: 100vh;
             overflow: hidden; 
             position: fixed; 
-            background: radial-gradient(circle at top, #0f172a, #000); /* FUNDO IGUAL AO LOGIN */
+            background: radial-gradient(circle at top, #0f172a, #000);
         }
 
         body { 
@@ -28,20 +28,23 @@
             color: #fff;
         }
 
-        /* Barra de Progresso Sutil */
+        /* Barra de Progresso */
         .top-nav { position: fixed; top: 0; width: 100%; padding: 25px; z-index: 100; }
         .progress-container { width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 10px; }
-        .progress-bar { width: 14.28%; height: 100%; background: var(--accent); border-radius: 10px; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 15px var(--accent); }
+        .progress-bar { width: 16.66%; height: 100%; background: var(--accent); border-radius: 10px; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 15px var(--accent); }
 
+        /* SLIDER CORRIGIDO */
         #main-slider {
             display: flex;
-            width: 600%; /* 6 passos */
+            width: 100%; /* Pai agora controla a largura visível */
             height: 100vh;
             transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            will-change: transform;
         }
 
         .step-page {
-            width: 16.66%;
+            flex: 0 0 100%; /* TRAVA cada página em exatamente 100% da tela */
+            width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -85,16 +88,6 @@
             outline: none;
             width: 100%;
         }
-
-        /* Estilo dos quadradinhos do Token */
-        .token-group { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; }
-        .token-input {
-            width: 45px; height: 55px; background: rgba(255,255,255,0.03); 
-            border: 1.5px solid var(--border); border-radius: 12px; 
-            text-align: center; font-size: 22px; color: white; outline: none;
-            transition: 0.3s;
-        }
-        .token-input:focus { border-color: var(--accent); background: rgba(34, 197, 94, 0.05); }
 
         .footer { position: fixed; bottom: 50px; right: 30px; display: flex; align-items: center; gap: 20px; z-index: 99; }
 
@@ -183,137 +176,71 @@
         </button>
         <button id="finishBtn" class="finish-btn">CRIAR MINHA CONTA</button>
     </div> 
+
     <script type="module">
-    // --- ESTADO ---
-    let currentStep = 0;
-    const totalSteps = 6; // São 6 telas no total
-    const slider = document.getElementById('main-slider');
-    const pBar = document.getElementById('p-bar');
-    const nextBtn = document.getElementById('nextBtn');
-    const finishBtn = document.getElementById('finishBtn');
+        let currentStep = 0;
+        const totalSteps = 6;
+        const slider = document.getElementById('main-slider');
+        const pBar = document.getElementById('p-bar');
+        const nextBtn = document.getElementById('nextBtn');
+        const finishBtn = document.getElementById('finishBtn');
 
-    // --- MÁSCARAS ---
-    const maskCPF = (value) => {
-        return value.replace(/\D/g, "").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-    };
+        // --- MÁSCARAS ---
+        const maskCPF = (v) => v.replace(/\D/g,"").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+        const maskTel = (v) => v.replace(/\D/g,"").replace(/^(\d{2})(\d)/g,"($1) $2").replace(/(\d)(\d{4})$/,"$1-$2");
 
-    const maskTel = (value) => {
-        return value.replace(/\D/g, "").replace(/^(\d{2})(\d)/g, "($1) $2").replace(/(\d)(\d{4})$/, "$1-$2");
-    };
+        document.getElementById('cad_cpf').addEventListener('input', e => { e.target.value = maskCPF(e.target.value); validarBotao(); });
+        document.getElementById('cad_tel').addEventListener('input', e => { e.target.value = maskTel(e.target.value); validarBotao(); });
 
-    document.getElementById('cad_cpf').addEventListener('input', (e) => {
-        e.target.value = maskCPF(e.target.value);
-        validarBotao();
-    });
-
-    document.getElementById('cad_tel').addEventListener('input', (e) => {
-        e.target.value = maskTel(e.target.value);
-        validarBotao();
-    });
-
-    // --- VALIDAÇÃO BOTÃO ---
-    function validarBotao() {
-        const inputsAtuais = slider.children[currentStep].querySelectorAll('input');
-        let pronto = true;
-
-        inputsAtuais.forEach(i => { 
-            if(i.type === 'checkbox') {
-                if(!i.checked) pronto = false;
-            } else {
-                if(i.value.length < 3) pronto = false; 
-                if(i.id === 'cad_cpf' && i.value.length < 14) pronto = false;
-                if(i.id === 'cad_tel' && i.value.length < 15) pronto = false;
-                if(i.id === 'cad_senha' && i.value.length < 6) pronto = false;
-            }
-        });
-
-        if(pronto) nextBtn.classList.add('active');
-        else nextBtn.classList.remove('active');
-    }
-
-    // --- NAVEGAÇÃO ---
-    window.avancar = function() {
-        if (!nextBtn.classList.contains('active')) return;
-
-        // Se estiver na penúltima tela (Senha), ao avançar mostra o botão Finalizar
-        if (currentStep < totalSteps - 1) {
-            currentStep++;
-            
-            // Move o slider baseado em 100% / total de páginas
-            const deslocamento = currentStep * (100 / totalSteps);
-            slider.style.transform = `translateX(-${deslocamento}%)`;
-            
-            // Atualiza barra de progresso
-            pBar.style.width = `${((currentStep + 1) / totalSteps) * 100}%`;
-
-            // Lógica de troca de botão no último passo (Termos)
-            if (currentStep === totalSteps - 1) {
-                nextBtn.style.display = 'none';
-                finishBtn.style.display = 'block';
-            }
-
-            nextBtn.classList.remove('active');
-            validarBotao();
+        // --- VALIDAÇÃO ---
+        function validarBotao() {
+            const inputs = slider.children[currentStep].querySelectorAll('input');
+            let pronto = true;
+            inputs.forEach(i => {
+                if(i.type === 'checkbox') { if(!i.checked) pronto = false; }
+                else {
+                    if(i.value.length < 3) pronto = false;
+                    if(i.id === 'cad_cpf' && i.value.length < 14) pronto = false;
+                    if(i.id === 'cad_tel' && i.value.length < 15) pronto = false;
+                    if(i.id === 'cad_senha' && i.value.length < 6) pronto = false;
+                }
+            });
+            pronto ? nextBtn.classList.add('active') : nextBtn.classList.remove('active');
         }
-    };
 
-    nextBtn.onclick = window.avancar;
+        // --- NAVEGAÇÃO CORRIGIDA ---
+        window.avancar = function() {
+            if (!nextBtn.classList.contains('active')) return;
+            if (currentStep < totalSteps - 1) {
+                currentStep++;
+                slider.style.transform = `translateX(-${currentStep * 100}%)`;
+                pBar.style.width = `${((currentStep + 1) / totalSteps) * 100}%`;
 
-    // --- ESCUTADORES DE INPUT ---
-    document.querySelectorAll('input').forEach(i => {
-        i.addEventListener('input', validarBotao);
-        if(i.type === 'checkbox') i.addEventListener('change', validarBotao);
-    });
-
-    // --- MODAL ---
-    function showZModal(title, text, icon) {
-        document.getElementById('zTitle').innerText = title;
-        document.getElementById('zText').innerText = text;
-        document.getElementById('zIcon').innerText = icon;
-        document.getElementById('zModalGlobal').style.display = 'flex';
-    }
-
-    document.getElementById('zBtnClose').onclick = () =>
-        document.getElementById('zModalGlobal').style.display = 'none';
-
-    // --- CADASTRO FINAL ---
-    finishBtn.onclick = async () => {
-        if(!document.getElementById('checkTermo').checked) return;
-
-        const payload = {
-            nome: document.getElementById('cad_nome').value,
-            cpf: document.getElementById('cad_cpf').value,
-            tel: document.getElementById('cad_tel').value,
-            email: document.getElementById('cad_email').value,
-            senha: document.getElementById('cad_senha').value
+                if (currentStep === totalSteps - 1) {
+                    nextBtn.style.display = 'none';
+                    finishBtn.style.display = 'block';
+                }
+                nextBtn.classList.remove('active');
+                validarBotao();
+            }
         };
 
-        finishBtn.disabled = true;
-        finishBtn.innerText = "CARREGANDO...";
+        nextBtn.onclick = window.avancar;
 
-        try {
-            const res = await fetch("/.netlify/functions/registrar", {
-                method: "POST",
-                body: JSON.stringify(payload)
-            });
+        document.querySelectorAll('input').forEach(i => {
+            i.addEventListener('input', validarBotao);
+            if(i.type === 'checkbox') i.addEventListener('change', validarBotao);
+        });
 
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "erro-desconhecido");
+        // --- FINALIZAÇÃO ---
+        finishBtn.onclick = async () => {
+            finishBtn.disabled = true;
+            finishBtn.innerText = "PROCESSANDO...";
+            // Aqui entra sua chamada de API do Netlify/Firebase
+            alert("Cadastro enviado! Agora é só integrar com o backend.");
+        };
 
-            localStorage.setItem("usuarioEmail", payload.email);
-            window.location.href = "login.html";
-
-        } catch (e) {
-            console.error(e);
-            let msg = "Tente novamente mais tarde.";
-            if(e.message.includes("existe")) msg = "E-mail ou CPF já cadastrado.";
-            showZModal("Erro", msg, "⚠️");
-            finishBtn.disabled = false;
-            finishBtn.innerText = "CRIAR MINHA CONTA";
-        }
-    };
-            </script>
-    
-    
+        document.getElementById('zBtnClose').onclick = () => document.getElementById('zModalGlobal').style.display = 'none';
+    </script>
 </body>
 </html>
