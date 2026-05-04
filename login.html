@@ -169,11 +169,7 @@
       <a href="cadastro_unificado.html" class="create-acc">Criar conta</a>
     </div>
   </div>
-
-<script type="module">
-// ✅ Integrado com o seu core
-import { db, ZentryUI } from './zentry-core.js';
-import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  <script type="module">
 
 function showZModal(titulo, texto, icon) {
   document.getElementById('zModalGlobal').style.display = 'flex';
@@ -190,9 +186,8 @@ window.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("senha");
   const btn = document.getElementById("btnEntrar");
 
-  // ✅ CORREÇÃO: Seta só fica verde com EXATAMENTE 6 dígitos
+  // botão só ativa com 6 dígitos
   input.addEventListener("input", () => {
-    // Impede digitar mais de 6
     if (input.value.length > 6) input.value = input.value.slice(0, 6);
 
     if(input.value.length === 6) {
@@ -214,81 +209,63 @@ window.addEventListener("DOMContentLoaded", () => {
   };
 
   window.entrar = async function(){
-    const senhaDigitada = input.value;
-    const emailSalvo = localStorage.getItem("usuarioEmail"); // Certifique-se que o cadastro salva isso
-    
+    const senhaDigitada = input.value.trim();
+    const emailSalvo = localStorage.getItem("usuarioEmail");
+
     if(!emailSalvo){
-      showZModal("E-mail ausente", "Não encontramos seu e-mail pré-registrado. Faça o cadastro primeiro.", "👤");
+      showZModal("E-mail ausente", "Não encontramos seu e-mail. Faça o cadastro primeiro.", "👤");
       return;
     }
 
-    // Feedback visual de carregamento
+    // loading
     btn.innerHTML = `<div class="spinner"></div>`;
     btn.style.pointerEvents = "none";
-    
+
     try {
       const res = await fetch("/.netlify/functions/login", {
-  method: "POST",
-  body: JSON.stringify({
-    email: emailSalvo,
-    senha: senhaDigitada
-  })
-});
-
-if (!res.ok) {
-  throw new Error("senha-incorreta");
-}
-
-const data = await res.json();
-
-localStorage.setItem("idUsuarioLogado", data.id);
-window.location.href = "home.html";
-      if (querySnapshot.empty) {
-        throw new Error("usuario-nao-encontrado");
-      }
-
-      let dadosUsuario = null;
-      let idDocumento = "";
-
-      querySnapshot.forEach((doc) => {
-        dadosUsuario = doc.data();
-        idDocumento = doc.id; 
+        method: "POST",
+        body: JSON.stringify({
+          email: emailSalvo,
+          senha: senhaDigitada
+        })
       });
 
-      // ✅ Validação de senha integrada
-      if (String(dadosUsuario.senha) === String(senhaDigitada)) {
-        
-        // Salva os dados essenciais para as outras telas (Home, Pix, Maquininha)
-        localStorage.setItem("idUsuarioLogado", idDocumento);
-        localStorage.setItem("dadosUsuario", JSON.stringify(dadosUsuario));
+      const data = await res.json();
 
-        document.body.style.opacity = "0";
-        document.body.style.transition = "0.4s";
-        setTimeout(() => { window.location.href = "home.html"; }, 400);
-      } else {
-        throw new Error("senha-incorreta");
+      if (!res.ok) {
+        throw new Error(data.error);
       }
 
+      // ✅ login OK
+      localStorage.setItem("idUsuarioLogado", data.id);
+      window.location.href = "home.html";
+
     } catch (error) {
-      console.error(error);
-      // Volta o ícone da seta se der erro
+      console.error("Erro login:", error);
+
+      // reset botão
       btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
       btn.style.pointerEvents = "all";
-      
+
       let msg = "Erro na conexão.";
-      if(error.message === 'senha-incorreta') msg = "Senha de 6 dígitos inválida.";
+      if(error.message === 'senha-incorreta') msg = "Senha inválida.";
       if(error.message === 'usuario-nao-encontrado') msg = "Cadastro não localizado.";
-      
+
       showZModal("Acesso Negado", msg, "🔒");
-      input.value = ""; 
+
+      input.value = "";
       btn.classList.remove("active");
     }
   };
 
+  // enter do teclado
   input.addEventListener("keypress", (e) => {
-    if (e.key === "Enter" && input.value.length === 6) window.entrar();
+    if (e.key === "Enter" && input.value.length === 6) {
+      window.entrar();
+    }
   });
 });
-</script>
+
+  </script>
 </body>
 </html>
