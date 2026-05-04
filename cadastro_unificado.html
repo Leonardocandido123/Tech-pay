@@ -22,28 +22,22 @@
             background: radial-gradient(circle at top, #0f172a, #000);
         }
 
-        body { 
-            display: flex; 
-            flex-direction: column; 
-            color: #fff;
-        }
+        body { display: flex; flex-direction: column; color: #fff; }
 
-        /* Barra de Progresso */
         .top-nav { position: fixed; top: 0; width: 100%; padding: 25px; z-index: 100; }
         .progress-container { width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 10px; }
         .progress-bar { width: 16.66%; height: 100%; background: var(--accent); border-radius: 10px; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 15px var(--accent); }
 
-        /* SLIDER CORRIGIDO */
         #main-slider {
             display: flex;
-            width: 100%; /* Pai agora controla a largura visível */
+            width: 100%;
             height: 100vh;
             transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
             will-change: transform;
         }
 
         .step-page {
-            flex: 0 0 100%; /* TRAVA cada página em exatamente 100% da tela */
+            flex: 0 0 100%;
             width: 100%;
             height: 100%;
             display: flex;
@@ -61,12 +55,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .subtitle {
-            font-size: 15px;
-            color: #9CA3AF;
-            margin-bottom: 30px;
-            line-height: 1.4;
-        }
+        .subtitle { font-size: 15px; color: #9CA3AF; margin-bottom: 30px; line-height: 1.4; }
 
         .input-container {
             position: relative;
@@ -109,9 +98,17 @@
             box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
         }
 
-        /* MODAL */
-        #zModalGlobal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(6px); }
-        .modal-content { background:#121826; border:1px solid #2A3441; border-radius:28px; width:100%; max-width:340px; padding:30px; text-align:center; }
+        /* MODAL PREMIUM CORRIGIDO */
+        #zModalGlobal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(8px); }
+        .modal-content { background:#121826; border:1px solid #2A3441; border-radius:28px; width:100%; max-width:340px; padding:30px; text-align:center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        
+        .z-btn-premium {
+            width:100%; padding:16px; border-radius:14px; 
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border:none; color:#000; font-weight:700; font-size:15px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .z-btn-premium:active { transform: scale(0.96); }
     </style>
 </head>
 <body>
@@ -119,9 +116,9 @@
     <div id="zModalGlobal">
         <div class="modal-content">
             <div id="zIcon" style="font-size:45px; margin-bottom:15px;">🛡️</div>
-            <h3 id="zTitle" style="margin-bottom:10px; font-size:18px;">Aviso</h3>
+            <h3 id="zTitle" style="margin-bottom:10px; font-size:18px; font-weight: 700;">Aviso</h3>
             <p id="zText" style="color:#9CA3AF; font-size:14px; margin-bottom:25px; line-height:1.5;"></p>
-            <button id="zBtnClose" style="width:100%; padding:16px; border-radius:14px; background:var(--accent); border:none; color:#000; font-weight:700;">Entendido</button>
+            <button id="zBtnClose" class="z-btn-premium">CONTINUAR</button>
         </div>
     </div>
 
@@ -185,14 +182,21 @@
         const nextBtn = document.getElementById('nextBtn');
         const finishBtn = document.getElementById('finishBtn');
 
-        // --- MÁSCARAS ---
+        // FUNÇÃO SHOW MODAL PROFISSIONAL
+        function showZModal(title, text, icon = "🛡️") {
+            document.getElementById('zTitle').innerText = title;
+            document.getElementById('zText').innerText = text;
+            document.getElementById('zIcon').innerText = icon;
+            document.getElementById('zModalGlobal').style.display = 'flex';
+        }
+
+        // MÁSCARAS
         const maskCPF = (v) => v.replace(/\D/g,"").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2");
         const maskTel = (v) => v.replace(/\D/g,"").replace(/^(\d{2})(\d)/g,"($1) $2").replace(/(\d)(\d{4})$/,"$1-$2");
 
         document.getElementById('cad_cpf').addEventListener('input', e => { e.target.value = maskCPF(e.target.value); validarBotao(); });
         document.getElementById('cad_tel').addEventListener('input', e => { e.target.value = maskTel(e.target.value); validarBotao(); });
 
-        // --- VALIDAÇÃO ---
         function validarBotao() {
             const inputs = slider.children[currentStep].querySelectorAll('input');
             let pronto = true;
@@ -208,14 +212,12 @@
             pronto ? nextBtn.classList.add('active') : nextBtn.classList.remove('active');
         }
 
-        // --- NAVEGAÇÃO CORRIGIDA ---
         window.avancar = function() {
             if (!nextBtn.classList.contains('active')) return;
             if (currentStep < totalSteps - 1) {
                 currentStep++;
                 slider.style.transform = `translateX(-${currentStep * 100}%)`;
                 pBar.style.width = `${((currentStep + 1) / totalSteps) * 100}%`;
-
                 if (currentStep === totalSteps - 1) {
                     nextBtn.style.display = 'none';
                     finishBtn.style.display = 'block';
@@ -232,12 +234,24 @@
             if(i.type === 'checkbox') i.addEventListener('change', validarBotao);
         });
 
-        // --- FINALIZAÇÃO ---
+        // FINALIZAÇÃO COM MODAL PROFISSIONAL
         finishBtn.onclick = async () => {
             finishBtn.disabled = true;
             finishBtn.innerText = "PROCESSANDO...";
-            // Aqui entra sua chamada de API do Netlify/Firebase
-            alert("Cadastro enviado! Agora é só integrar com o backend.");
+            
+            // Simulação de Sucesso (Aqui você ligará com seu backend depois)
+            setTimeout(() => {
+                showZModal(
+                    "Conta criada com sucesso",
+                    "Sua conta ZENTRY foi configurada. Prepare-se para uma nova experiência financeira.",
+                    "✅"
+                );
+
+                // Redireciona após 2.5 segundos
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 2500);
+            }, 1500);
         };
 
         document.getElementById('zBtnClose').onclick = () => document.getElementById('zModalGlobal').style.display = 'none';
