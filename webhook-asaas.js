@@ -1,10 +1,18 @@
 // netlify/functions/webhook-asaas.js
-// Recebe notificações do Asaas quando pagamento é confirmado
-// Configure no painel Asaas: https://warm-tapioca-c1b6a9.netlify.app/.netlify/functions/webhook-asaas
+
+const admin = require("firebase-admin");
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
+  });
+}
+
+const db = admin.firestore();
 
 exports.handler = async (event) => {
   const headers = {
-    'Access-Control-Allow-Origin':  '*',
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json'
   };
@@ -17,61 +25,96 @@ exports.handler = async (event) => {
     const payload = JSON.parse(event.body || '{}');
     const { event: tipo, payment } = payload;
 
-    console.log('Webhook Asaas recebido:', tipo, payment?.id);
+    console.log("📩 Webhook recebido:", tipo, payment?.id);
 
-    // ── TIPOS DE EVENTO ──
+    if (!payment || !payment.id) {
+      throw new Error("Pagamento inválido");
+    }
+
+    // 🔒 EVITA DUPLICIDADE
+    const logRef = db.collection("logs_pagamentos").doc(payment.id);
+    const logSnap = await logRef.get();
+
+    if (logSnap.exists) {
+      console.log("⚠️ Pagamento já processado:", payment.id);
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ duplicado: true })
+      };
+    }
+
+    // 🔎 BUSCAR USUÁRIO PELO METADATA (ESSENCIAL)
+    const userId = payment.externalReference; // você deve enviar isso ao criar cobrança
+
+    if (!userId) {
+      throw new Error("Usuário não identificado no pagamento");
+    }
+
+    const userRef = db.collection("usuarios").doc(userId);
+
     switch (tipo) {
 
       case 'PAYMENT_RECEIVED':
       case 'PAYMENT_CONFIRMED':
-        // Pagamento confirmado — atualizar Firestore
-        console.log('Pagamento confirmado:', payment.id, 'Valor:', payment.value);
-        // TODO: atualizar saldo no Firestore via Admin SDK
-        break;
 
-      case 'TRANSFER_CREATED':
-        console.log('Transferência criada:', payment.id);
+        const valor = Number(payment.value);
+
+        console.log("💰 Pagamento confirmado:", valor);
+
+        // 🔥 ATUALIZA SALDO
+        await userRef.update({
+          saldo: admin.firestore.FieldValue.increment(valor)
+        });
+
+        // 🧾 LOG DA TRANSAÇÃO
+        await db.collection("usuarios")
+          .doc(userId)
+          .collection("transacoes")
+          .add({
+            tipo: "entrada",
+            valor,
+            descricao: "Recebimento via Pix",
+            status: "confirmado",
+            txid: payment.id,
+            criadoEm: admin.firestore.FieldValue.serverTimestamp()
+          });
+
+        // 🧠 LOG GLOBAL (antifraude)
+        await logRef.set({
+          userId,
+          valor,
+          tipo,
+          criadoEm: admin.firestore.FieldValue.serverTimestamp()
+        });
+
         break;
 
       case 'TRANSFER_DONE':
-        console.log('Transferência concluída:', payment.id);
+        console.log("💸 Transferência concluída");
         break;
 
       case 'TRANSFER_FAILED':
-        console.log('Transferência falhou:', payment.id);
-        // TODO: estornar saldo no Firestore
-        break;
-
-      case 'PAYMENT_OVERDUE':
-        console.log('Pagamento vencido:', payment.id);
+        console.log("❌ Transferência falhou");
         break;
 
       default:
-        console.log('Evento não tratado:', tipo);
+        console.log("Evento ignorado:", tipo);
     }
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ recebido: true })
+      body: JSON.stringify({ ok: true })
     };
 
   } catch (err) {
-    console.error('Erro no webhook:', err);
+    console.error("❌ Erro webhook:", err);
+
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ erro: err.message })
-      case 'PAYMENT_RECEIVED':
-case 'PAYMENT_CONFIRMED':
-
-  // 🔥 AQUI É O SEGREDO DO NÍVEL BANCO
-  // você atualiza o Firebase SEM depender do app
-
-  // exemplo:
-  // await admin.firestore().collection(...)
-
-  break;
     };
   }
 };
