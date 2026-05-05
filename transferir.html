@@ -261,6 +261,16 @@
 </div>
 
 <script type="module">
+  async function hashSenha(pin) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(pin);
+
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+
+  return Array.from(new Uint8Array(hashBuffer))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+  }
   import { db, ZentryUser, ZentryUI } from './zentry-core.js';
   import { doc, setDoc, updateDoc, collection, getDocs, getDoc, onSnapshot, increment }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -430,11 +440,9 @@
         const userData = userSnap.data();
 
         // ✅ Compara com campo 'senha' do Firestore (mesmo do login)
-        const senhaCorreta = String(userData?.senha || '');
+const hashDigitado = await hashSenha(senhaDigitada);
 
-        console.log("Digitado:", senhaDigitada, "| Firestore:", senhaCorreta); // debug
-
-        if (senhaDigitada !== senhaCorreta) {
+        if (hashDigitado !== senhaCorreta){
           for (let i=1; i<=SENHA_DIGITS; i++) document.getElementById(`p${i}`).className = 'pin-dot err';
           setTimeout(() => {
             document.getElementById('hiddenPin').value = '';
