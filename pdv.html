@@ -1,300 +1,172 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zentap Pro PDV</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zentap Pro - PDV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #22c55e;
+            --bg: #F6F7F9; /* Cinza claro estilo Stone */
+            --card: #FFFFFF;
+            --text-main: #1A1D23;
+            --text-sec: #717680;
+            --border: #E5E7EB;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
-<style>
-:root{
---primary:#22c55e;
---bg:#F6F7F9;
---card:#fff;
---text:#1A1D23;
---sec:#717680;
---border:#E5E7EB;
-}
+        body { background-color: var(--bg); color: var(--text-main); }
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:Inter;}
-body{background:var(--bg);overflow:hidden;height:100vh;}
+        /* HEADER */
+        .header {
+            padding: 25px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-.screen{display:none;position:absolute;width:100%;height:100%;flex-direction:column;background:var(--bg);}
-.screen.active{display:flex;}
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .avatar { 
+            width: 45px; height: 45px; 
+            background: var(--primary); 
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: #000;
+        }
+        .user-name { font-size: 16px; font-weight: 600; }
 
-.sub-header{
-height:55px;
-background:#fff;
-display:grid;
-grid-template-columns:50px 1fr 50px;
-align-items:center;
-border-bottom:1px solid var(--border);
-padding:0 10px;
-}
+        /* DASHBOARD (INFORMATIVO) */
+        .dashboard-card {
+            background: var(--card);
+            margin: 0 20px 25px;
+            padding: 20px;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+        }
+        .dash-label { color: var(--text-sec); font-size: 13px; font-weight: 500; margin-bottom: 5px; }
+        .dash-value { font-size: 28px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; }
+        .dash-link { color: var(--primary); font-size: 12px; font-weight: 700; text-decoration: none; }
 
-.back-btn{background:none;border:none;font-size:18px;color:var(--primary)}
+        /* MENU GRADE (STONE STYLE) */
+        .grid-menu {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 0 20px;
+            margin-bottom: 30px;
+        }
 
-.title{text-align:center;font-weight:700}
+        .grid-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            height: 120px;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .grid-btn:active { transform: scale(0.95); background: #fafafa; }
+        .grid-btn .icon { font-size: 24px; }
+        .grid-btn span { font-weight: 700; font-size: 14px; }
 
-.display{
-flex:1;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:48px;
-font-weight:800;
-}
+        /* ATALHOS RÁPIDOS */
+        .quick-actions {
+            padding: 0 20px;
+        }
+        .quick-title { font-size: 14px; font-weight: 600; color: var(--text-sec); margin-bottom: 15px; }
+        .actions-row { display: flex; justify-content: space-between; gap: 10px; }
+        
+        .action-item { 
+            display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1;
+            cursor: pointer;
+        }
+        .action-circle {
+            width: 55px; height: 55px; background: var(--card); border: 1px solid var(--border);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;
+        }
+        .action-item span { font-size: 11px; font-weight: 600; text-align: center; color: var(--text-main); }
 
-.bottom{
-position:fixed;
-bottom:0;
-width:100%;
-background:#fff;
-padding:10px;
-border-top:1px solid var(--border);
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:5px;
-margin-bottom:10px;
-}
-
-.key{
-height:50px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:20px;
-font-weight:600;
-}
-
-.btn{
-width:100%;
-height:55px;
-background:var(--primary);
-border:none;
-border-radius:12px;
-font-weight:700;
-opacity:.3;
-}
-
-.btn.active{opacity:1;}
-
-.item{
-background:#fff;
-padding:15px;
-margin:10px;
-border-radius:12px;
-border:1px solid var(--border);
-font-weight:600;
-}
-
-.success{
-text-align:center;
-padding:40px;
-}
-
-.qr{
-width:150px;
-height:150px;
-background:#ddd;
-margin:20px auto;
-display:flex;
-align-items:center;
-justify-content:center;
-}
-</style>
+        /* BOTÃO FLUTUANTE DE AJUDA */
+        .help-fab {
+            position: fixed; bottom: 30px; right: 20px;
+            width: 50px; height: 50px; background: #fff; border: 1px solid var(--border);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
-
 <body>
 
-<!-- DASH -->
-<div id="dash" class="screen active">
-<div class="sub-header">
-<div></div>
-<div class="title">Dashboard</div>
-<div></div>
-</div>
+    <header class="header">
+        <div class="user-info">
+            <div class="avatar" id="userInitial">L</div>
+            <div class="user-name">Olá, <span id="userName">Leonardo</span></div>
+        </div>
+        <div class="notif">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        </div>
+    </header>
 
-<div class="item" onclick="nav('valor')">💰 Receber Pagamento</div>
-</div>
+    <div class="dashboard-card">
+        <div class="dash-label">Vendas de hoje</div>
+        <div class="dash-value">
+            R$ 1.250,00
+            <a href="#" class="dash-link">VER MAIS</a>
+        </div>
+    </div>
 
-<!-- VALOR -->
-<div id="valor" class="screen">
-<div class="sub-header">
-<button class="back-btn" onclick="nav('dash')">←</button>
-<div class="title">Valor</div>
-<div></div>
-</div>
+    <div class="grid-menu">
+        <div class="grid-btn" onclick="location.href='extrato.html'">
+            <div class="icon">📊</div>
+            <span>Extrato</span>
+        </div>
+        <div class="grid-btn" onclick="abrirPagamento()" style="border-color: var(--primary);">
+            <div class="icon">💸</div>
+            <span>Venda Rápida</span>
+        </div>
+    </div>
 
-<div class="display" id="display">R$ 0,00</div>
+    <div class="quick-actions">
+        <div class="quick-title">Serviços</div>
+        <div class="actions-row">
+            <div class="action-item">
+                <div class="action-circle">🔗</div>
+                <span>Link de<br>Pagamento</span>
+            </div>
+            <div class="action-item">
+                <div class="action-circle">📄</div>
+                <span>Gerar<br>Boleto</span>
+            </div>
+            <div class="action-item">
+                <div class="action-circle">👤</div>
+                <span>Novo<br>Cliente</span>
+            </div>
+            <div class="action-item">
+                <div class="action-circle">⚙️</div>
+                <span>Ajustes</span>
+            </div>
+        </div>
+    </div>
 
-<div class="bottom">
-<div class="grid">
-<div class="key" onclick="add(1)">1</div>
-<div class="key" onclick="add(2)">2</div>
-<div class="key" onclick="add(3)">3</div>
-<div class="key" onclick="add(4)">4</div>
-<div class="key" onclick="add(5)">5</div>
-<div class="key" onclick="add(6)">6</div>
-<div class="key" onclick="add(7)">7</div>
-<div class="key" onclick="add(8)">8</div>
-<div class="key" onclick="add(9)">9</div>
-</div>
+    <div class="help-fab">💬</div>
 
-<button class="btn" id="btn" onclick="irMetodo()">PRÓXIMO</button>
-</div>
-</div>
+    <script>
+        // Lógica simples para pegar o nome salvo no login
+        const savedName = localStorage.getItem("usuarioNome") || "Usuário";
+        document.getElementById('userName').innerText = savedName;
+        document.getElementById('userInitial').innerText = savedName.charAt(0).toUpperCase();
 
-<!-- METODO -->
-<div id="metodo" class="screen">
-<div class="sub-header">
-<button class="back-btn" onclick="nav('valor')">←</button>
-<div class="title">Pagamento</div>
-<div></div>
-</div>
-
-<div class="item" onclick="pix()">PIX</div>
-<div class="item" onclick="debito()">DÉBITO</div>
-<div class="item" onclick="credito()">CRÉDITO</div>
-</div>
-
-<!-- PIX -->
-<div id="pix" class="screen">
-<div class="sub-header">
-<button class="back-btn" onclick="nav('metodo')">←</button>
-<div class="title">PIX</div>
-<div></div>
-</div>
-
-<div class="display" id="pixVal"></div>
-
-<div class="qr">QR CODE</div>
-
-<div class="item" onclick="processar()">Confirmar pagamento</div>
-</div>
-
-<!-- CREDITO -->
-<div id="credito" class="screen">
-<div class="sub-header">
-<button class="back-btn" onclick="nav('metodo')">←</button>
-<div class="title">Crédito</div>
-<div></div>
-</div>
-
-<div class="display" id="credVal"></div>
-
-<div id="parcelas"></div>
-</div>
-
-<!-- DEBITO -->
-<div id="debito" class="screen">
-<div class="sub-header">
-<button class="back-btn" onclick="nav('metodo')">←</button>
-<div class="title">Débito</div>
-<div></div>
-</div>
-
-<div class="display" id="debVal"></div>
-
-<div class="item" onclick="processar()">Aproximar cartão</div>
-</div>
-
-<!-- PROCESSANDO -->
-<div id="process" class="screen">
-<div class="success">
-<h2>Processando pagamento...</h2>
-</div>
-</div>
-
-<!-- SUCESSO -->
-<div id="ok" class="screen">
-<div class="success">
-<h2>APROVADO ✔</h2>
-<div id="res"></div>
-
-<div class="item" onclick="nav('dash')">Nova venda</div>
-<div class="item" onclick="alert('Compartilhar comprovante')">Compartilhar</div>
-<div class="item" onclick="nav('recibo')">Ver comprovante</div>
-</div>
-</div>
-
-<!-- RECIBO -->
-<div id="recibo" class="screen">
-<div class="sub-header">
-<button class="back-btn" onclick="nav('ok')">←</button>
-<div class="title">Comprovante</div>
-<div></div>
-</div>
-
-<div class="item" id="comp"></div>
-</div>
-
-<script>
-let valor="";
-
-function nav(id){
-document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-}
-
-function add(n){
-valor+=n;
-update();
-}
-
-function update(){
-let v=parseFloat(valor||0)/100;
-document.getElementById('display').innerText=v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-document.getElementById('btn').classList.toggle('active',v>0);
-}
-
-function irMetodo(){
-nav('metodo');
-}
-
-function setVals(){
-let v=parseFloat(valor||0)/100;
-pixVal.innerText=credVal.innerText=debVal.innerText=v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-}
-
-function pix(){setVals();nav('pix');}
-function debito(){setVals();nav('debito');processar();}
-function credito(){
-setVals();
-nav('credito');
-
-let v=parseFloat(valor||0)/100;
-let html="";
-for(let i=1;i<=12;i++){
-html+=`<div class="item" onclick="parcelar(${i})">${i}x de ${(v/i).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</div>`;
-}
-parcelas.innerHTML=html;
-}
-
-function parcelar(i){
-processar();
-}
-
-function processar(){
-nav('process');
-
-setTimeout(()=>{
-nav('ok');
-let v=parseFloat(valor||0)/100;
-res.innerText=v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-comp.innerHTML=`
-Valor: ${v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}<br>
-Método: pagamento<br>
-ID: ZT${Math.floor(Math.random()*999999)}<br>
-Status: aprovado
-`;
-},2000);
-}
-</script>
-
+        function abrirPagamento() {
+            // Aqui chamaria a sua função de abrir a tela de valor (t1)
+            alert("Iniciando nova venda...");
+        }
+    </script>
 </body>
 </html>
