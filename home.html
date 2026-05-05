@@ -249,39 +249,34 @@ body {
 </div>
 <script type="module">
 
-import { auth, db } from './zentry-core.js';
+import { auth, db, ZentryAuth } from './zentry-core.js';
 import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let saldoOculto = false;
 let unsub = null;
+let currentUid = null;
 
 window.currentSaldo = 0;
 
-// 🚀 INICIALIZA HOME
+// 🚀 INICIALIZA HOME (SEGURO)
 async function initHome() {
-    try {
-        const uid = localStorage.getItem("uid");
 
-        // 🔒 proteção básica
-        if (!uid) {
-            console.log("Usuário não logado");
-            window.location.href = "login.html";
-            return;
-        }
+    // 🔐 PROTEÇÃO REAL (Firebase)
+    ZentryAuth.exigirLogin().then((user) => {
 
-        // 🔥 escuta tempo real do Firestore
-        unsub = onSnapshot(doc(db, "usuarios", uid), (docSnap) => {
+        currentUid = user.uid;
+
+        // 🔥 ESCUTA DADOS EM TEMPO REAL
+        unsub = onSnapshot(doc(db, "usuarios", currentUid), (docSnap) => {
 
             if (docSnap.exists()) {
                 const d = docSnap.data();
 
                 // 👤 Nome
-                const elNome = document.getElementById("nome-usuario");
-                if (elNome) {
-                    elNome.innerText = (d.nome || "Usuário") + "!";
-                }
+                document.getElementById("nome-usuario").innerText =
+                    (d.nome || "Usuário") + "!";
 
-                // 💰 Saldo seguro
+                // 💰 Saldo
                 const saldoSeguro = Number(d.saldo);
                 window.currentSaldo = isNaN(saldoSeguro) ? 0 : saldoSeguro;
 
@@ -289,33 +284,22 @@ async function initHome() {
                 atualizarSaudacao();
 
             } else {
-                console.log("Usuário não encontrado no banco");
-                window.location.href = "login.html";
+                console.log("Usuário não encontrado");
             }
 
         }, (error) => {
-            console.error("Erro no Firestore:", error);
+            console.error("Erro Firestore:", error);
         });
 
-    } catch (error) {
-        console.error("Erro geral:", error);
-        window.location.href = "login.html";
-    }
+    });
 }
 
 // 💰 RENDER SALDO
 window.renderSaldo = () => {
     const elSaldo = document.getElementById("saldo-home");
-    if (!elSaldo) return;
 
     if (saldoOculto) {
-        elSaldo.style.opacity = 0;
-
-        setTimeout(() => {
-            elSaldo.innerText = "••••••";
-            elSaldo.style.opacity = 1;
-        }, 150);
-
+        elSaldo.innerText = "••••••";
         return;
     }
 
@@ -336,28 +320,26 @@ function atualizarSaudacao() {
     const hora = new Date().getHours();
     const el = document.getElementById("greeting");
 
-    if (!el) return;
-
     if (hora >= 5 && hora < 12) el.innerText = "Bom dia,";
     else if (hora >= 12 && hora < 18) el.innerText = "Boa tarde,";
     else el.innerText = "Boa noite,";
 }
 
-// 🚪 LOGOUT
-window.logout = () => {
-    localStorage.removeItem("uid");
-    window.location.href = "login.html";
+// 🚪 LOGOUT REAL
+window.logout = async () => {
+    if (unsub) unsub();
+
+    await ZentryAuth.logout(); // já limpa sessão e redireciona
 };
 
-// 🔁 INICIA
+// 🔁 START
 initHome();
 
-// 🔄 limpa listener ao sair
+// 🔄 LIMPA LISTENER
 window.addEventListener("beforeunload", () => {
     if (unsub) unsub();
 });
 
-  </script>
-  
+                  </script>
 </body>
 </html>
