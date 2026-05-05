@@ -182,42 +182,148 @@ body {
     <div class="exp-linha"><span class="exp-label">Instituição</span><span class="exp-val">ZENTRY</span></div>
     <div class="exp-linha"><span class="exp-label">CNPJ</span><span class="exp-val">98.768.908/0001-01</span></div>
   </div>
+  <div style="padding:20px; font-size:14px; color:#000;" id="blocoRecebe"></div>
+<div style="padding:20px; font-size:14px; color:#000;" id="blocoPagador"></div>
+
+<div style="padding:20px; text-align:center; font-size:12px; color:#555;">
+  Dúvidas? suporte@zentry.com.br <br>
+  SAC: 0800-000-000
+</div>
 
   <div class="exp-footer">
     <p>Dúvidas? <b>suporte@zentry.com.br</b><br>ou pelo chat no app Zentry</p>
   </div>
+  
 </div>
-<script>
-async function compartilhar() {
+<script type="module">
+import { db, ZentryUI } from './zentry-core.js';
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// 🔥 PEGAR ID DA URL
+const params = new URLSearchParams(window.location.search);
+const txId = params.get("id");
+
+let uid = localStorage.getItem("idUsuarioLogado");
+
+async function carregarComprovante() {
+
+    if (!txId || !uid) {
+        alert("Comprovante inválido");
+        return;
+    }
+
+    try {
+        const ref = doc(db, "usuarios", uid, "transacoes", txId);
+        const snap = await getDoc(ref);
+
+        if (!snap.exists()) {
+            alert("Transação não encontrada");
+            return;
+        }
+
+        const t = snap.data();
+
+        const valor = ZentryUI.formatarMoeda(t.valor || 0);
+        const nomeDestino = t.nomeDestino || "Destinatário";
+        const nomeOrigem = t.nomeRemetente || "Você";
+
+        let dataHora = "—";
+        if (t.timestamp && t.timestamp.toDate) {
+            const d = t.timestamp.toDate();
+            dataHora = d.toLocaleString('pt-BR');
+        }
+
+        const txid = t.id || txId;
+
+        // 🔥 PREENCHER UI
+        document.getElementById("uiValor").innerText = valor;
+        document.getElementById("uiData").innerText = dataHora;
+
+        document.getElementById("uiMetodo").innerText = "PIX";
+        document.getElementById("uiDataLinha").innerText = dataHora;
+        document.getElementById("uiTxId").innerText = txid;
+
+        document.getElementById("uiVendedor").innerText = nomeDestino;
+
+        // 🔥 EXPORT (BRANCO)
+        document.getElementById("expValor").innerText = valor;
+        document.getElementById("expData").innerText = dataHora;
+
+        document.getElementById("expMetodo").innerText = "PIX";
+        document.getElementById("expDataLinha").innerText = dataHora;
+        document.getElementById("expTxId").innerText = txid;
+
+        document.getElementById("expVendedor").innerText = nomeDestino;
+
+        // 🔥 NOVO BLOCO ESTILO BANCO
+        document.getElementById("blocoRecebe").innerHTML = `
+            <div><b>Quem recebeu</b></div>
+            Nome: ${nomeDestino}<br>
+            Valor: ${valor}<br>
+            Banco: Zentry<br>
+            Data/hora: ${dataHora}<br>
+            ID transação: ${txid}
+        `;
+
+        document.getElementById("blocoPagador").innerHTML = `
+            <div style="margin-top:20px;"><b>Quem pagou</b></div>
+            Nome: ${nomeOrigem}<br>
+            Valor: ${valor}<br>
+            Banco: Zentry<br>
+            Data/hora: ${dataHora}<br>
+            ID transação: ${txid}
+        `;
+
+    } catch (e) {
+        console.error(e);
+        alert("Erro ao carregar comprovante");
+    }
+}
+
+carregarComprovante();
+
+// 🔄 NOVA VENDA
+window.novaVenda = () => {
+    window.location.href = "pdv.html";
+};
+
+// 📤 COMPARTILHAR (mantido)
+window.compartilhar = async function () {
+
   const btn = document.querySelector('.btn-primary');
-  btn.textContent = "Gerando imagem...";
+  btn.textContent = "Gerando...";
   btn.disabled = true;
 
   try {
     await document.fonts.ready;
+
     const canvas = await html2canvas(document.getElementById('cardExport'), {
-      scale: 3, backgroundColor: "#ffffff", useCORS: true, width: 420
+      scale: 3,
+      backgroundColor: "#ffffff",
+      useCORS: true,
+      width: 420
     });
 
     const blob = await new Promise(r => canvas.toBlob(r, 'image/png', 1.0));
-    const file = new File([blob], "comprovante_zentap.png", { type:"image/png" });
+    const file = new File([blob], "comprovante.png", { type:"image/png" });
 
     if (navigator.canShare && navigator.canShare({ files:[file] })) {
-      await navigator.share({ files:[file], title:'Comprovante Zentap' });
+      await navigator.share({ files:[file], title:'Comprovante Zentry' });
     } else {
       const link = document.createElement("a");
-      link.download = "comprovante_zentap.png";
-      link.href = canvas.toDataURL('image/png', 1.0);
+      link.download = "comprovante.png";
+      link.href = canvas.toDataURL();
       link.click();
-      alert("Comprovante salvo na galeria!");
     }
+
   } catch(err) {
-    alert("Erro ao compartilhar. A imagem foi copiada!");
+    alert("Erro ao gerar comprovante");
   }
+
   btn.textContent = "📤 Compartilhar Comprovante";
   btn.disabled = false;
-}
-  </script>
+};
+</script>
   
 </body>
     </html>
