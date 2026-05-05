@@ -24,56 +24,99 @@
         .screen.active { display: flex; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        /* HEADER CENTRALIZADO PADRÃO BANCO */
+        /* HEADER */
         .sub-header { 
-            padding: 15px 20px; 
+            padding: 10px 20px; 
             display: grid; 
             grid-template-columns: 44px 1fr 44px; 
             align-items: center; 
             background: #fff; 
             border-bottom: 1px solid var(--border); 
+            height: 55px;
         }
         .back-btn { color: var(--primary); cursor: pointer; border: none; background: none; display: flex; justify-content: flex-start; align-items: center; }
         .sub-title { font-size: 16px; font-weight: 700; text-align: center; color: var(--text-main); }
 
-        /* TELA 1: DASHBOARD */
+        /* DASHBOARD */
         .header-main { padding: 25px 20px; display: flex; align-items: center; justify-content: space-between; }
         .avatar { width: 45px; height: 45px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #000; }
-        .dashboard-card { background: var(--card); margin: 0 20px 20px; padding: 20px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .dashboard-card { background: var(--card); margin: 0 20px 20px; padding: 20px; border-radius: 24px; border: 1px solid var(--border); }
         .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; }
-        .grid-btn { background: var(--card); border: 1px solid var(--border); height: 110px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: 0.2s; }
-        .grid-btn:active { background: #f9f9f9; transform: scale(0.97); }
+        .grid-btn { background: var(--card); border: 1px solid var(--border); height: 100px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
 
-        /* TELA 2: TECLADO (AJUSTADO PARA NÃO CORTAR) */
-        .display-valor { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 50px; font-weight: 800; color: var(--text-main); letter-spacing: -1px; }
-        .teclado-container { background: #fff; padding: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; border-top: 1px solid var(--border); padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
-        .key { height: 55px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600; cursor: pointer; border-radius: 12px; }
+        /* TECLADO - ESTRATÉGIA FIXA PARA O BOTÃO NÃO SUMIR */
+        .display-valor { 
+            height: calc(100vh - 430px); /* Ocupa o que sobra */
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 48px; 
+            font-weight: 800; 
+            color: var(--text-main); 
+        }
+
+        .bottom-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+            border-top: 1px solid var(--border);
+            z-index: 20;
+        }
+
+        .teclado-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 4px; 
+            margin-bottom: 8px;
+        }
+
+        .key { 
+            height: 52px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 22px; 
+            font-weight: 600; 
+            border-radius: 12px; 
+        }
         .key:active { background: #f0f0f0; }
+
         .btn-confirm { 
-            grid-column: span 3; height: 50px; background: var(--primary); color: #000; 
-            border-radius: 18px; display: flex; align-items: center; justify-content: center; 
-            margin-top: 8px; opacity: 0.15; pointer-events: none; transition: 0.3s;
+            width: 100%;
+            height: 58px; 
+            background: var(--primary); 
+            color: #000; 
+            border-radius: 16px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            opacity: 0.15; 
+            pointer-events: none; 
+            transition: 0.3s;
+            border: none;
         }
         .btn-confirm.active { opacity: 1; pointer-events: all; }
 
-        /* TELA 3: MODALIDADES */
-        .valor-resumo { padding: 25px 20px; text-align: center; font-size: 38px; font-weight: 800; letter-spacing: -1px; }
+        /* MODALIDADES */
+        .valor-resumo { padding: 25px 20px; text-align: center; font-size: 38px; font-weight: 800; }
         .list-modalidades { padding: 0 20px; }
         .item-modalidade { 
             background: #fff; padding: 18px; border-radius: 20px; margin-bottom: 12px; 
             border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;
-            font-weight: 700; cursor: pointer;
+            font-weight: 700;
         }
         .arrow-bank { width: 10px; height: 10px; border-top: 2.5px solid var(--primary); border-right: 2.5px solid var(--primary); transform: rotate(45deg); }
-        .pix-logo { width: 20px; height: 20px; fill: #32BCAD; }
 
-        /* TELA 4: DÉBITO / PAGAMENTO */
+        /* DÉBITO / PAGAMENTO */
         .modalidade-tag { background: var(--primary); color: #000; font-size: 10px; font-weight: 800; padding: 4px 14px; border-radius: 20px; margin-bottom: 8px; display: inline-block; }
         .pagamento-placeholder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        .maquininha-icon { width: 160px; margin-bottom: 20px; }
+        .maquininha-icon { width: 140px; margin-bottom: 15px; }
         .instrucao-texto { font-size: 15px; color: var(--text-sec); line-height: 1.4; max-width: 260px; font-weight: 500; }
 
-        /* TELA 5: SUCESSO */
+        /* SUCESSO */
         .success-icon { width: 70px; height: 70px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: #000; font-size: 35px; }
     </style>
 </head>
@@ -81,11 +124,11 @@
 
     <div id="screen-dash" class="screen active">
         <header class="header-main">
-            <div class="user-info" style="display: flex; align-items: center; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
                 <div class="avatar" id="userInitial">L</div>
-                <div class="user-name" style="font-weight: 600;">Olá, <span id="userName">Leonardo</span></div>
+                <div style="font-weight: 600;">Olá, <span id="userName">Leonardo</span></div>
             </div>
-            <div class="notif">🔔</div>
+            <div>🔔</div>
         </header>
         <div class="dashboard-card">
             <div style="color: var(--text-sec); font-size: 13px; margin-bottom: 4px;">Vendas de hoje</div>
@@ -95,7 +138,7 @@
             </div>
         </div>
         <div class="grid-menu">
-            <div class="grid-btn" onclick="alert('Abrindo Extrato...')"><span>📊 Extrato</span></div>
+            <div class="grid-btn"><span>📊 Extrato</span></div>
             <div class="grid-btn" onclick="nav('screen-teclado')" style="border-color: var(--primary);"><span>💸 Venda Rápida</span></div>
         </div>
     </div>
@@ -103,48 +146,49 @@
     <div id="screen-teclado" class="screen">
         <div class="sub-header">
             <button class="back-btn" onclick="nav('screen-dash')">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
             <span class="sub-title">Valor</span>
             <div></div>
         </div>
+        
         <div class="display-valor" id="display">R$ 0,00</div>
-        <div class="teclado-container">
-            <div class="key" onclick="press(1)">1</div><div class="key" onclick="press(2)">2</div><div class="key" onclick="press(3)">3</div>
-            <div class="key" onclick="press(4)">4</div><div class="key" onclick="press(5)">5</div><div class="key" onclick="press(6)">6</div>
-            <div class="key" onclick="press(7)">7</div><div class="key" onclick="press(8)">8</div><div class="key" onclick="press(9)">9</div>
-            <div class="key" onclick="press('00')">00</div><div class="key" onclick="press(0)">0</div><div class="key" onclick="limpar()">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM18 9l-6 6M12 9l6 6"/></svg>
+        
+        <div class="bottom-container">
+            <div class="teclado-grid">
+                <div class="key" onclick="press(1)">1</div><div class="key" onclick="press(2)">2</div><div class="key" onclick="press(3)">3</div>
+                <div class="key" onclick="press(4)">4</div><div class="key" onclick="press(5)">5</div><div class="key" onclick="press(6)">6</div>
+                <div class="key" onclick="press(7)">7</div><div class="key" onclick="press(8)">8</div><div class="key" onclick="press(9)">9</div>
+                <div class="key" onclick="press('00')">00</div><div class="key" onclick="press(0)">0</div><div class="key" onclick="limpar()">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM18 9l-6 6M12 9l6 6"/></svg>
+                </div>
             </div>
-            <div class="btn-confirm" id="btnProximo" onclick="confirmarValor()">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </div>
+            <button class="btn-confirm" id="btnProximo" onclick="confirmarValor()">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
         </div>
     </div>
 
     <div id="screen-modal" class="screen">
         <div class="sub-header">
             <button class="back-btn" onclick="nav('screen-teclado')">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
             <span class="sub-title">Modalidade</span>
             <div></div>
         </div>
         <div class="valor-resumo" id="valorFinal">R$ 0,00</div>
         <div class="list-modalidades">
-            <div class="item-modalidade" onclick="alert('Gerando Pix...')">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <svg class="pix-logo" viewBox="0 0 512 512"><path d="M344.4 256L256 344.4l-88.4-88.4L256 167.6 344.4 256zm27.4-115.8l-88.4-88.4c-15.1-15.1-39.7-15.1-54.8 0l-88.4 88.4c-15.1 15.1-15.1 39.7 0 54.8l88.4 88.4 88.4-88.4c15.1-15.1 15.1-39.7 0-54.8zm-115.8 243.6l-88.4 88.4c-15.1 15.1-39.7 15.1-54.8 0l-88.4-88.4c-15.1-15.1-15.1-39.7 0-54.8l88.4-88.4 88.4 88.4c15.1 15.1 15.1 39.7 0 54.8z"/></svg>
-                    <span>Pix Zentry</span>
-                </div>
-                <div class="arrow-bank"></div>
-            </div>
-            <div class="item-modalidade" onclick="alert('Crédito selecionado')">
-                <div style="display:flex; align-items:center; gap:12px;">💳 <span>Crédito</span></div>
+            <div class="item-modalidade">
+                <div style="display:flex; align-items:center; gap:12px;">⚡ <span>Pix Zentry</span></div>
                 <div class="arrow-bank"></div>
             </div>
             <div class="item-modalidade" onclick="nav('screen-debito')">
                 <div style="display:flex; align-items:center; gap:12px;">💳 <span>Débito</span></div>
+                <div class="arrow-bank"></div>
+            </div>
+            <div class="item-modalidade">
+                <div style="display:flex; align-items:center; gap:12px;">💳 <span>Crédito</span></div>
                 <div class="arrow-bank"></div>
             </div>
         </div>
@@ -153,15 +197,15 @@
     <div id="screen-debito" class="screen">
         <div class="sub-header">
             <button class="back-btn" onclick="nav('screen-modal')">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
             <span class="sub-title">Pagamento</span>
             <div></div>
         </div>
-        <div style="text-align: center; padding-top: 35px;">
+        <div style="text-align: center; padding-top: 30px;">
             <div class="modalidade-tag">DÉBITO</div>
-            <div style="color: var(--text-sec); font-size: 13px; font-weight: 600;">Valor</div>
-            <div class="valor-resumo" id="valorDebito" style="padding: 10px 0;">R$ 0,00</div>
+            <div style="color: var(--text-sec); font-size: 13px;">Valor</div>
+            <div class="valor-resumo" id="valorDebito" style="padding: 5px 0;">R$ 0,00</div>
         </div>
         <div class="pagamento-placeholder">
             <svg class="maquininha-icon" viewBox="0 0 200 200" fill="none">
@@ -173,7 +217,7 @@
             <p class="instrucao-texto">Aproxime, passe ou insira o cartão na parte superior da maquininha</p>
         </div>
         <div style="padding: 20px;">
-            <button class="grid-btn" style="width: 100%; height: 55px; border-style: dashed; font-size: 13px;" onclick="nav('screen-sucesso')">SIMULAR APROVAÇÃO</button>
+            <button class="btn-confirm active" style="opacity:1; pointer-events:all; background: #eee;" onclick="nav('screen-sucesso')">SIMULAR SUCESSO</button>
         </div>
     </div>
 
@@ -181,13 +225,11 @@
         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px;">
             <div class="success-icon">✓</div>
             <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 8px;">Venda Concluída!</h2>
-            <p style="color: var(--text-sec); margin-bottom: 25px; font-weight: 500;">O pagamento foi processado.</p>
-            <div class="dashboard-card" style="width: 100%; text-align: center; margin: 0 0 35px 0; padding: 25px;">
+            <div class="dashboard-card" style="width: 100%; text-align: center; margin: 20px 0; padding: 25px;">
                 <div style="font-size: 32px; font-weight: 800;" id="valorSucesso">R$ 0,00</div>
-                <div style="font-size: 11px; color: var(--text-sec); margin-top: 6px; font-weight: 600;">ID: 9823749823</div>
             </div>
-            <button class="btn-confirm active" style="width: 100%; margin: 0;" onclick="zerarEVoldar()">Nova Venda</button>
-            <button class="grid-btn" style="width: 100%; height: 58px; margin-top: 15px; border-radius: 18px; font-weight: 700;">📄 Ver Comprovante</button>
+            <button class="btn-confirm active" style="opacity: 1; pointer-events: all; margin:0;" onclick="zerarEVoldar()">Nova Venda</button>
+            <button class="grid-btn" style="width: 100%; height: 58px; margin-top: 15px; border-radius: 16px; font-weight: 700;">📄 Ver Comprovante</button>
         </div>
     </div>
 
