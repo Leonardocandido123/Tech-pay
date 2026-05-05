@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZENTRY - PDV Premium</title>
+    <title>ZENTRY - PDV All-in-One</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #22c55e; 
+            --primary: #22c55e;
             --bg-dark: #000;
             --bg-card: #111827;
             --border: rgba(255, 255, 255, 0.1);
+            --text-main: #fff;
             --text-secondary: #9CA3AF;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background: radial-gradient(circle at 20% 0%, #0f172a, #000 60%);
-            color: #fff;
+            color: var(--text-main);
             margin: 0;
             display: flex;
             justify-content: center;
@@ -33,38 +34,54 @@
             position: relative;
         }
 
+        /* Status Bar */
         .status-bar {
             padding: 12px 20px;
             display: flex;
-            justify-content: flex-end;
-            font-size: 12px;
+            justify-content: space-between;
+            font-size: 11px;
             color: var(--text-secondary);
         }
 
-        /* 1. FOCO NO NOME (ESTILO BANCO) */
-        .header {
+        /* Top Bar de Navegação (Só aparece no fluxo de pagamento) */
+        #top-navigation {
+            display: none; /* Escondido na Home do PDV */
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-icon { font-size: 24px; cursor: pointer; color: var(--primary); margin-right: 15px; }
+        .top-title { font-size: 14px; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; }
+
+        /* ========================================= */
+        /* SEÇÃO 1: HOME DO PDV                      */
+        /* ========================================= */
+        #view-pdv-home {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .header-owner {
             text-align: center;
-            padding: 40px 20px 10px;
+            padding: 50px 20px 20px;
         }
 
         .owner-name {
-            font-size: 26px; /* Tamanho de destaque */
-            color: #fff;
+            font-size: 28px;
             font-weight: 700;
             letter-spacing: -0.5px;
-            line-height: 1.2;
         }
 
-        /* 2. CENTRALIZAÇÃO DO CONTEÚDO */
         .main-content {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Joga tudo pro meio */
-            padding-bottom: 60px; /* Ajuste para não colar no fundo */
+            justify-content: center;
+            padding-bottom: 40px;
         }
 
-        /* 3. BOTÕES PRINCIPAIS MAIORES */
         .main-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -72,119 +89,163 @@
             padding: 20px;
         }
 
-        .btn-large {
+        .btn-huge {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 35px 20px; /* Aumentado o padding vertical */
-            display: flex;
-            flex-direction: column; /* Ícone em cima do texto */
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            font-size: 16px; /* Texto maior */
-            font-weight: 600;
-            color: #fff;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .btn-large:active { transform: scale(0.95); background: #1f2937; }
-        .btn-large span { font-size: 28px; } /* Ícone maior */
-
-        /* 4. DESTAQUES MENORES */
-        .highlights-section {
-            padding: 0 20px;
-        }
-
-        .highlights-title {
-            color: var(--primary);
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-
-        .highlights-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .highlight-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px 5px; /* Menor que os principais */
+            padding: 40px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
-            text-align: center;
-            color: var(--text-secondary);
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
             cursor: pointer;
         }
+        .btn-huge span { font-size: 32px; }
+        .btn-huge:active { background: #1f2937; transform: scale(0.95); }
 
-        .icon-small {
-            font-size: 18px;
-            margin-bottom: 5px;
-            color: #fff;
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 0 20px;
         }
 
-        .nav-bar {
-            height: 60px;
+        .mini-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 15px;
             display: flex;
-            justify-content: space-around;
+            flex-direction: column;
             align-items: center;
-            padding-bottom: 10px;
+            font-size: 10px;
+            color: var(--text-secondary);
         }
 
-        .nav-back { width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-right: 12px solid #555; }
-        .nav-circle { width: 16px; height: 16px; border: 2px solid #555; border-radius: 50%; }
-        .nav-square { width: 14px; height: 14px; border: 2px solid #555; border-radius: 2px; }
+        /* ========================================= */
+        /* SEÇÃO 2: FLUXO DE PAGAMENTO               */
+        /* ========================================= */
+        #view-payment-flow {
+            display: none; /* Escondido inicialmente */
+            flex-direction: column;
+            flex-grow: 1;
+            padding: 20px;
+        }
 
+        .value-display { padding: 10px 0 30px 0; }
+        .value-raw { font-size: 48px; font-weight: 700; display: flex; align-items: baseline; }
+        .currency { font-size: 24px; margin-right: 8px; opacity: 0.6; }
+
+        /* Teclado */
+        #sub-view-keyboard { display: flex; flex-direction: column; flex-grow: 1; }
+        .keyboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: auto;
+            margin-bottom: 20px;
+        }
+        .key {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .key:active { background: #1f2937; }
+        .key-confirm { background: var(--primary); color: #000; border: none; }
+
+        /* Modalidades */
+        #sub-view-methods { display: none; flex-direction: column; gap: 12px; }
+        .method-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .method-item span { color: var(--primary); }
+
+        /* Nav Bar Android */
+        .nav-bar { height: 60px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); }
+        .nav-shape-back { width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-right: 12px solid #555; }
+        .nav-shape-circle { width: 16px; height: 16px; border: 2px solid #555; border-radius: 50%; }
+        .nav-shape-square { width: 14px; height: 14px; border: 2px solid #555; border-radius: 2px; }
     </style>
 </head>
 <body>
 
-        <div class="header">
-            <div class="owner-name" id="display-dono">CARREGANDO...</div>
+    <div class="screen">
+        <div class="status-bar">
+            <span id="pdm-ver">7.9.8 PDM</span>
+            <span>4G 📶 🔋 10:38</span>
         </div>
 
-        <div class="main-content">
-            <div class="main-actions">
-                <button class="btn-large" onclick="location.href='home.html'">
-                    <span>🏠</span> Início
-                </button>
-                <button class="btn-large" onclick="processarCobranca()" style="border-color: var(--primary);">
-                    <span>💳</span> Pagamento
-                </button>
-            </div>
+        <div id="top-navigation">
+            <div class="back-icon" onclick="backAction()">&larr;</div>
+            <div class="top-title" id="top-title-text">Valor</div>
+        </div>
 
-            <div class="highlights-section">
-                <div class="highlights-title">Outras opções</div>
+        <div id="view-pdv-home">
+            <div class="header-owner">
+                <div class="owner-name" id="display-dono">CARREGANDO...</div>
+            </div>
+            <div class="main-content">
+                <div class="main-actions">
+                    <button class="btn-huge" onclick="location.href='home.html'"><span>🏠</span> Início</button>
+                    <button class="btn-huge" style="border-color: var(--primary);" onclick="startPayment()"><span>💳</span> Pagamento</button>
+                </div>
                 <div class="highlights-grid">
-                    <div class="highlight-card" onclick="alert('Relatórios em breve')">
-                        <span class="icon-small">📋</span>
-                        Relatórios
-                    </div>
-                    <div class="highlight-card" onclick="processarCobranca()">
-                        <span class="icon-small">💳</span>
-                        Pagamento
-                    </div>
-                    <div class="highlight-card">
-                        <span class="icon-small">⚙️</span>
-                        Ajustes
-                    </div>
+                    <div class="mini-card"><span>📋</span> Relatórios</div>
+                    <div class="mini-card" onclick="startPayment()"><span>💳</span> Cobrar</div>
+                    <div class="mini-card"><span>⚙️</span> Ajustes</div>
                 </div>
             </div>
         </div>
 
+        <div id="view-payment-flow">
+            <div class="value-display">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Valor</div>
+                <div class="value-raw">
+                    <span class="currency">R$</span>
+                    <span id="display-amount">0,00</span>
+                </div>
+            </div>
+
+            <div id="sub-view-keyboard">
+                <div class="keyboard-grid">
+                    <div class="key" onclick="press(1)">1</div><div class="key" onclick="press(2)">2</div><div class="key" onclick="press(3)">3</div>
+                    <div class="key" onclick="press(4)">4</div><div class="key" onclick="press(5)">5</div><div class="key" onclick="press(6)">6</div>
+                    <div class="key" onclick="press(7)">7</div><div class="key" onclick="press(8)">8</div><div class="key" onclick="press(9)">9</div>
+                    <div class="key" style="font-size:16px; color:var(--text-secondary)" onclick="press('00')">00</div>
+                    <div class="key" onclick="press(0)">0</div>
+                    <div class="key key-confirm" onclick="goToMethods()">&rarr;</div>
+                </div>
+            </div>
+
+            <div id="sub-view-methods">
+                <div class="method-item" onclick="finish('Débito')">Débito <span>&rarr;</span></div>
+                <div class="method-item" onclick="finish('Crédito')">Crédito <span>&rarr;</span></div>
+                <div class="method-item" onclick="finish('PIX')">PIX <span>&rarr;</span></div>
+            </div>
+        </div>
+
         <div class="nav-bar" onclick="location.href='home.html'">
-            <div class="nav-back"></div>
-            <div class="nav-circle"></div>
-            <div class="nav-square"></div>
+            <div class="nav-shape-back"></div>
+            <div class="nav-shape-circle"></div>
+            <div class="nav-shape-square"></div>
         </div>
     </div>
 
@@ -192,36 +253,65 @@
         import { db } from './zentry-core.js';
         import { doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+        let valorCentavos = 0;
+        let flowStep = 'home'; // home, valor, modalidade
         const uid = localStorage.getItem("uid");
 
-        async function carregarDadosPDV() {
+        // Carregar nome do dono
+        (async () => {
             if (!uid) return;
-            const docRef = doc(db, "usuarios", uid);
-            const docSnap = await getDoc(docRef);
+            const docSnap = await getDoc(doc(db, "usuarios", uid));
+            if (docSnap.exists()) document.getElementById('display-dono').innerText = docSnap.data().nome.toUpperCase();
+        })();
 
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                // Mostra apenas o nome com destaque
-                document.getElementById('display-dono').innerText = data.nome || "USUÁRIO";
-            }
-        }
+        // Troca de Telas
+        window.startPayment = () => {
+            document.getElementById('view-pdv-home').style.display = 'none';
+            document.getElementById('view-payment-flow').style.display = 'flex';
+            document.getElementById('top-navigation').style.display = 'flex';
+            flowStep = 'valor';
+        };
 
-        window.processarCobranca = async () => {
-            const valor = prompt("Digite o valor da venda:", "0.00");
-            if (valor && !isNaN(valor)) {
-                const valorNumerico = parseFloat(valor);
-                try {
-                    const userRef = doc(db, "usuarios", uid);
-                    await updateDoc(userRef, { saldo: increment(valorNumerico) });
-                    alert(`Venda de R$ ${valorNumerico.toFixed(2)} aprovada!`);
-                    window.location.href = 'home.html';
-                } catch (e) {
-                    alert("Erro ao processar.");
-                }
+        window.backAction = () => {
+            if (flowStep === 'modalidade') {
+                document.getElementById('sub-view-methods').style.display = 'none';
+                document.getElementById('sub-view-keyboard').style.display = 'flex';
+                document.getElementById('top-title-text').innerText = "Valor";
+                flowStep = 'valor';
+            } else {
+                document.getElementById('view-pdv-home').style.display = 'flex';
+                document.getElementById('view-payment-flow').style.display = 'none';
+                document.getElementById('top-navigation').style.display = 'none';
+                valorCentavos = 0;
+                document.getElementById('display-amount').innerText = "0,00";
+                flowStep = 'home';
             }
         };
 
-        carregarDadosPDV();
+        // Lógica teclado
+        window.press = (n) => {
+            if (n === '00') valorCentavos *= 100;
+            else valorCentavos = (valorCentavos * 10) + n;
+            if (valorCentavos > 99999999) valorCentavos = 99999999;
+            document.getElementById('display-amount').innerText = (valorCentavos / 100).toLocaleString('pt-BR', {minimumFractionDigits:2});
+        };
+
+        window.goToMethods = () => {
+            if (valorCentavos === 0) return;
+            document.getElementById('sub-view-keyboard').style.display = 'none';
+            document.getElementById('sub-view-methods').style.display = 'flex';
+            document.getElementById('top-title-text').innerText = "Modalidade";
+            flowStep = 'modalidade';
+        };
+
+        window.finish = async (metodo) => {
+            const final = valorCentavos / 100;
+            try {
+                await updateDoc(doc(db, "usuarios", uid), { saldo: increment(final) });
+                alert(`Pago R$ ${final.toFixed(2)} via ${metodo}`);
+                window.location.href = 'home.html';
+            } catch (e) { alert("Erro ao processar."); }
+        };
     </script>
 </body>
 </html>
