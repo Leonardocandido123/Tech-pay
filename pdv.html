@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #22c55e; /* Verde Zentry */
+            --primary: #22c55e; 
             --bg-dark: #000;
             --bg-card: #111827;
             --border: rgba(255, 255, 255, 0.1);
@@ -25,55 +25,46 @@
             overflow: hidden;
         }
 
-        /* Simulação da tela da maquininha dentro do navegador */
         .screen {
             width: 100%;
             max-width: 400px;
-            background-color: transparent;
             display: flex;
             flex-direction: column;
             position: relative;
         }
 
-        /* Status Bar */
         .status-bar {
             padding: 12px 20px;
             display: flex;
             justify-content: flex-end;
             font-size: 12px;
             color: var(--text-secondary);
-            letter-spacing: 1px;
         }
 
-        /* Cabeçalho igual à foto */
+        /* 1. FOCO NO NOME (ESTILO BANCO) */
         .header {
             text-align: center;
-            padding: 30px 20px;
-        }
-
-        .brand-name {
-            color: var(--primary);
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .cnpj-info {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
+            padding: 40px 20px 10px;
         }
 
         .owner-name {
-            font-size: 13px;
+            font-size: 26px; /* Tamanho de destaque */
             color: #fff;
-            opacity: 0.9;
-            font-weight: 500;
-            padding: 0 40px;
-            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
         }
 
-        /* Grid de Botões Principais */
+        /* 2. CENTRALIZAÇÃO DO CONTEÚDO */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Joga tudo pro meio */
+            padding-bottom: 60px; /* Ajuste para não colar no fundo */
+        }
+
+        /* 3. BOTÕES PRINCIPAIS MAIORES */
         .main-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -84,13 +75,14 @@
         .btn-large {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 22px;
+            border-radius: 20px;
+            padding: 35px 20px; /* Aumentado o padding vertical */
             display: flex;
+            flex-direction: column; /* Ícone em cima do texto */
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            font-size: 14px;
+            gap: 12px;
+            font-size: 16px; /* Texto maior */
             font-weight: 600;
             color: #fff;
             cursor: pointer;
@@ -98,31 +90,32 @@
         }
 
         .btn-large:active { transform: scale(0.95); background: #1f2937; }
+        .btn-large span { font-size: 28px; } /* Ícone maior */
 
-        /* Seção Destaques */
+        /* 4. DESTAQUES MENORES */
         .highlights-section {
-            padding: 10px 20px;
-            flex-grow: 1;
+            padding: 0 20px;
         }
 
         .highlights-title {
             color: var(--primary);
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+            text-align: center;
         }
 
         .highlights-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            gap: 10px;
         }
 
         .highlight-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            aspect-ratio: 1 / 1;
+            border-radius: 12px;
+            padding: 15px 5px; /* Menor que os principais */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -133,13 +126,12 @@
             cursor: pointer;
         }
 
-        .icon-box {
-            font-size: 24px;
-            margin-bottom: 8px;
+        .icon-small {
+            font-size: 18px;
+            margin-bottom: 5px;
             color: #fff;
         }
 
-        /* Barra de Navegação Android */
         .nav-bar {
             height: 60px;
             display: flex;
@@ -162,30 +154,34 @@
         </div>
 
         <div class="header">
-            <div class="brand-name" id="display-empresa">ZENTRY PDV</div>
-            <div class="cnpj-info" id="display-cnpj">CNPJ: 00.000.000/0001-00</div>
-            <div class="owner-name" id="display-dono">CARREGANDO DADOS...</div>
+            <div class="owner-name" id="display-dono">CARREGANDO...</div>
         </div>
 
-        <div class="main-actions">
-            <button class="btn-large" onclick="location.href='home.html'">🏠 Início</button>
-            <button class="btn-large" onclick="processarCobranca()" style="border-color: var(--primary);">💳 Pagamento</button>
-        </div>
+        <div class="main-content">
+            <div class="main-actions">
+                <button class="btn-large" onclick="location.href='home.html'">
+                    <span>🏠</span> Início
+                </button>
+                <button class="btn-large" onclick="processarCobranca()" style="border-color: var(--primary);">
+                    <span>💳</span> Pagamento
+                </button>
+            </div>
 
-        <div class="highlights-section">
-            <div class="highlights-title">Destaques</div>
-            <div class="highlights-grid">
-                <div class="highlight-card" onclick="alert('Relatórios em breve')">
-                    <span class="icon-box">📋</span>
-                    Relatórios
-                </div>
-                <div class="highlight-card" onclick="processarCobranca()">
-                    <span class="icon-box">💳</span>
-                    Pagamento
-                </div>
-                <div class="highlight-card">
-                    <span class="icon-box">➕</span>
-                    Personalizar
+            <div class="highlights-section">
+                <div class="highlights-title">Outras opções</div>
+                <div class="highlights-grid">
+                    <div class="highlight-card" onclick="alert('Relatórios em breve')">
+                        <span class="icon-small">📋</span>
+                        Relatórios
+                    </div>
+                    <div class="highlight-card" onclick="processarCobranca()">
+                        <span class="icon-small">🔑</span>
+                        Chave Pix
+                    </div>
+                    <div class="highlight-card">
+                        <span class="icon-small">⚙️</span>
+                        Ajustes
+                    </div>
                 </div>
             </div>
         </div>
@@ -203,7 +199,6 @@
 
         const uid = localStorage.getItem("uid");
 
-        // 1. Busca dados do dono para preencher a tela igual à foto
         async function carregarDadosPDV() {
             if (!uid) return;
             const docRef = doc(db, "usuarios", uid);
@@ -211,33 +206,22 @@
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                document.getElementById('display-dono').innerText = `${uid.substring(0,8)} ${data.nome}`.toUpperCase();
-                // Se você tiver CNPJ no banco, pode trocar aqui:
-                // document.getElementById('display-cnpj').innerText = data.cnpj;
+                // Mostra apenas o nome com destaque
+                document.getElementById('display-dono').innerText = data.nome || "USUÁRIO";
             }
         }
 
-        // 2. Função de Cobrança (Aumenta o saldo na Home)
         window.processarCobranca = async () => {
-            const valor = prompt("Digite o valor da venda:", "10.00");
-            
+            const valor = prompt("Digite o valor da venda:", "0.00");
             if (valor && !isNaN(valor)) {
                 const valorNumerico = parseFloat(valor);
-                
                 try {
                     const userRef = doc(db, "usuarios", uid);
-                    
-                    // Adiciona o valor ao saldo atual no Firebase
-                    await updateDoc(userRef, {
-                        saldo: increment(valorNumerico)
-                    });
-
+                    await updateDoc(userRef, { saldo: increment(valorNumerico) });
                     alert(`Venda de R$ ${valorNumerico.toFixed(2)} aprovada!`);
-                    window.location.href = 'home.html'; // Volta para a home com saldo atualizado
-                    
+                    window.location.href = 'home.html';
                 } catch (e) {
-                    alert("Erro ao processar venda.");
-                    console.error(e);
+                    alert("Erro ao processar.");
                 }
             }
         };
