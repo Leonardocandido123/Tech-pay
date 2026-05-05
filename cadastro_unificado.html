@@ -175,6 +175,27 @@
     </div> 
 
     <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+import { 
+  getFirestore, 
+  doc, 
+  setDoc 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_AUTH_DOMAIN",
+  projectId: "SEU_PROJECT_ID",
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
         let currentStep = 0;
         const totalSteps = 6;
         const slider = document.getElementById('main-slider');
@@ -238,23 +259,61 @@
         finishBtn.onclick = async () => {
             finishBtn.disabled = true;
             finishBtn.innerText = "PROCESSANDO...";
-            
-            // Simulação de Sucesso (Aqui você ligará com seu backend depois)
-            setTimeout(() => {
-                showZModal(
-                    "Conta criada com sucesso",
-                    "Sua conta ZENTRY foi configurada. Prepare-se para uma nova experiência financeira.",
-                    "✅"
-                );
+            finishBtn.onclick = async () => {
+    finishBtn.disabled = true;
+    finishBtn.innerText = "PROCESSANDO...";
 
-                // Redireciona após 2.5 segundos
-                setTimeout(() => {
-                    window.location.href = "login.html";
-                }, 2500);
-            }, 1500);
-        };
+    const nome = cad_nome.value.trim();
+    const cpf = cad_cpf.value.trim();
+    const tel = cad_tel.value.trim();
+    const email = cad_email.value.trim();
+    const senha = cad_senha.value.trim();
 
-        document.getElementById('zBtnClose').onclick = () => document.getElementById('zModalGlobal').style.display = 'none';
+    try {
+        // 🔐 cria usuário no Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+        const uid = userCredential.user.uid;
+
+        // 💾 salva dados no Firestore
+        await setDoc(doc(db, "usuarios", uid), {
+            nome,
+            cpf,
+            tel,
+            email,
+            saldo: 0,
+            criadoEm: new Date()
+        });
+
+        // salva local
+        localStorage.setItem("usuarioEmail", email);
+
+        // ✅ sucesso
+        showZModal(
+            "Conta criada com sucesso",
+            "Sua conta ZENTRY foi configurada com segurança.",
+            "✅"
+        );
+
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 2000);
+
+    } catch (e) {
+        console.error(e);
+
+        finishBtn.disabled = false;
+        finishBtn.innerText = "CRIAR MINHA CONTA";
+
+        let msg = "Erro ao criar conta";
+
+        if (e.code === "auth/email-already-in-use") msg = "E-mail já cadastrado";
+        if (e.code === "auth/invalid-email") msg = "E-mail inválido";
+        if (e.code === "auth/weak-password") msg = "Senha deve ter 6 dígitos";
+
+        showZModal("Erro no Cadastro", msg, "⚠️");
+    }
+};
+document.getElementById('zBtnClose').onclick = () => document.getElementById('zModalGlobal').style.display = 'none';
     </script>
 </body>
 </html>
