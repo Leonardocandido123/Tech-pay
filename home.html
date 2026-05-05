@@ -247,114 +247,117 @@ body {
     <button class="nav-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sair</button>
   </nav>
 </div>
-  <script type="module">
-    import { auth, db } from './zentry-core.js'; 
-    import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<script type="module">
 
-    let saldoOculto = false;
-    window.currentSaldo = 0;
+import { auth, db } from './zentry-core.js';
+import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    async function initHome() {
-        try {
-            // 1. Pegamos o ID REAL que o novo login salvou (ex: user_882544)
-            const docID = localStorage.getItem("idUsuarioLogado");
-          // 🔒 VALIDA SE AUTH EXISTE
-            const dadosLocal = localStorage.getItem("dadosUsuario");
-            
-            // Se não tiver o ID ou os dados, expulsa pro login
-            if (!docID || !dadosLocal) {
-                console.log("Acesso negado: ID não encontrado.");
+let saldoOculto = false;
+let unsub = null;
+
+window.currentSaldo = 0;
+
+// 🚀 INICIALIZA HOME
+async function initHome() {
+    try {
+        const uid = localStorage.getItem("uid");
+
+        // 🔒 proteção básica
+        if (!uid) {
+            console.log("Usuário não logado");
+            window.location.href = "login.html";
+            return;
+        }
+
+        // 🔥 escuta tempo real do Firestore
+        unsub = onSnapshot(doc(db, "usuarios", uid), (docSnap) => {
+
+            if (docSnap.exists()) {
+                const d = docSnap.data();
+
+                // 👤 Nome
+                const elNome = document.getElementById("nome-usuario");
+                if (elNome) {
+                    elNome.innerText = (d.nome || "Usuário") + "!";
+                }
+
+                // 💰 Saldo seguro
+                const saldoSeguro = Number(d.saldo);
+                window.currentSaldo = isNaN(saldoSeguro) ? 0 : saldoSeguro;
+
+                renderSaldo();
+                atualizarSaudacao();
+
+            } else {
+                console.log("Usuário não encontrado no banco");
                 window.location.href = "login.html";
-                return;
             }
 
-            // 2. Escuta os dados do banco usando o ID exato do Firestore
-            const unsub = onSnapshot(doc(db, "usuarios", docID), (docSnap) => {
-                if (docSnap.exists()) {
-                    const d = docSnap.data();
-                    
-                    // Atualiza o Nome
-                    const elNome = document.getElementById("nome-usuario");
-                    if (elNome) elNome.innerText = (d.nome || "Usuário") + "!";
-                    
-                    // Atualiza o Saldo (convertendo centavos se necessário)
-                    // Se no seu banco estiver 10000 para representar R$ 100,00, divida por 100
-                    // 🔒 PROTEÇÃO: garante número válido
-const saldoSeguro = Number(d.saldo);
+        }, (error) => {
+            console.error("Erro no Firestore:", error);
+        });
 
-window.currentSaldo = isNaN(saldoSeguro) ? 0 : saldoSeguro;
-                
-
-                    // Aplica Preferências
-                    if (d.preferencias && d.preferencias.modoDiscreto === true) {
-                        if (!sessionStorage.getItem('ja_abriu')) {
-                            saldoOculto = true;
-                            sessionStorage.setItem('ja_abriu', 'true');
-                        }
-                    }
-
-                    renderSaldo();
-                    atualizarSaudacao();
-                } else {
-                    // Se o documento não existir mais no banco
-                    console.log("Documento inexistente no Firestore.");
-                    window.location.href = "login.html";
-                }
-            }, (error) => {
-                // Se der erro de permissão (Regras do Firebase)
-                console.error("Erro no Snapshot:", error);
-                // window.location.href = "login.html"; // Comentei para você conseguir ver o erro no console se der ruim
-            });
-
-        } catch (error) {
-            console.error("Erro ao carregar Home:", error);
-            window.location.href = "login.html";
-        }
+    } catch (error) {
+        console.error("Erro geral:", error);
+        window.location.href = "login.html";
     }
-    window.renderSaldo = () => {
-  const elSaldo = document.getElementById("saldo-home");
+}
 
-  if (!elSaldo) return;
+// 💰 RENDER SALDO
+window.renderSaldo = () => {
+    const elSaldo = document.getElementById("saldo-home");
+    if (!elSaldo) return;
 
-  if (saldoOculto) {
-    elSaldo.style.opacity = 0;
+    if (saldoOculto) {
+        elSaldo.style.opacity = 0;
 
-setTimeout(() => {
-  elSaldo.innerText = window.currentSaldo.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  });
-  elSaldo.style.opacity = 1;
-}, 150);
-    return;
-  }
+        setTimeout(() => {
+            elSaldo.innerText = "••••••";
+            elSaldo.style.opacity = 1;
+        }, 150);
 
-  elSaldo.innerText = window.currentSaldo.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  });
+        return;
+    }
+
+    elSaldo.innerText = window.currentSaldo.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    });
 };
-    window.toggleSaldoHome = () => { 
-        saldoOculto = !saldoOculto; 
-        window.renderSaldo(); 
-    };
 
-    function atualizarSaudacao() {
-        const hora = new Date().getHours();
-        const elGreet = document.getElementById("greeting");
-        if (elGreet) {
-            if (hora >= 5 && hora < 12) elGreet.innerText = "Bom dia,";
-            else if (hora >= 12 && hora < 18) elGreet.innerText = "Boa tarde,";
-            else elGreet.innerText = "Boa noite,";
-        }
-    }
+// 👁️ TOGGLE SALDO
+window.toggleSaldoHome = () => {
+    saldoOculto = !saldoOculto;
+    renderSaldo();
+};
 
-    initHome();
-    window.addEventListener("beforeunload", () => {
-  if (unsub) unsub();
+// 👋 SAUDAÇÃO
+function atualizarSaudacao() {
+    const hora = new Date().getHours();
+    const el = document.getElementById("greeting");
+
+    if (!el) return;
+
+    if (hora >= 5 && hora < 12) el.innerText = "Bom dia,";
+    else if (hora >= 12 && hora < 18) el.innerText = "Boa tarde,";
+    else el.innerText = "Boa noite,";
+}
+
+// 🚪 LOGOUT
+window.logout = () => {
+    localStorage.removeItem("uid");
+    window.location.href = "login.html";
+};
+
+// 🔁 INICIA
+initHome();
+
+// 🔄 limpa listener ao sair
+window.addEventListener("beforeunload", () => {
+    if (unsub) unsub();
 });
+
   </script>
-  
   
 </body>
 </html>
