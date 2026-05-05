@@ -190,84 +190,91 @@
       <a href="cadastro_unificado.html" class="create-acc">Criar conta</a>
     </div>
   </div>
+<script type="module">
+import { auth } from "./zentry-core.js";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+function showZModal(titulo, texto, icon) {
+  document.getElementById('zModalGlobal').style.display = 'flex';
+  document.getElementById('zTitle').innerText = titulo;
+  document.getElementById('zText').innerText = texto;
+  document.getElementById('zIcon').innerText = icon;
+}
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
-      authDomain: "zentry-app-74275.firebaseapp.com",
-      projectId: "zentry-app-74275",
-    };
+document.getElementById('zBtnClose').onclick = () =>
+  document.getElementById('zModalGlobal').style.display = 'none';
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+window.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("senha");
+  const btn = document.getElementById("btnEntrar");
+  const emailBox = document.getElementById("maskedEmail");
 
-    function showZModal(titulo, texto, icon) {
-      document.getElementById('zModalGlobal').style.display = 'flex';
-      document.getElementById('zTitle').innerText = titulo;
-      document.getElementById('zText').innerText = texto;
-      document.getElementById('zIcon').innerText = icon;
+  let emailReal = null;
+
+  // 🔐 PEGA USUÁRIO REAL DO FIREBASE
+  onAuthStateChanged(auth, (user) => {
+
+    if (!user) {
+      // ❌ Sem sessão → volta pro login completo
+      window.location.href = "login_email.html";
+      return;
     }
 
-    document.getElementById('zBtnClose').onclick = () => document.getElementById('zModalGlobal').style.display = 'none';
+    emailReal = user.email;
 
-    window.addEventListener("DOMContentLoaded", () => {
-      const input = document.getElementById("senha");
-      const btn = document.getElementById("btnEntrar");
-      const emailBox = document.getElementById("maskedEmail");
+    // 👁️ mascara email
+    let [userName, domain] = emailReal.split("@");
+    let masked = userName.substring(0, 2) + "*****@" + domain;
 
-      // Máscara de e-mail e exibição
-      const emailSalvo = localStorage.getItem("usuarioEmail");
-      if (emailSalvo) {
-        let [user, domain] = emailSalvo.split("@");
-        let masked = user.substring(0, 2) + "*****@" + domain;
-        emailBox.innerText = masked;
-        emailBox.style.display = "block";
-      }
+    emailBox.innerText = masked;
+    emailBox.style.display = "block";
+  });
 
-      input.addEventListener("input", () => {
-        if (input.value.length > 6) input.value = input.value.slice(0, 6);
-        input.value.length === 6 ? btn.classList.add("active") : btn.classList.remove("active");
-      });
+  input.addEventListener("input", () => {
+    if (input.value.length > 6) input.value = input.value.slice(0, 6);
+    input.value.length === 6
+      ? btn.classList.add("active")
+      : btn.classList.remove("active");
+  });
 
-      window.toggleSenha = function(){
-        const slash = document.getElementById("eyeSlash");
-        if(input.type === "password"){
-          input.type = "text";
-          slash.style.opacity = "0";
-        } else {
-          input.type = "password";
-          slash.style.opacity = "1";
-        }
-      };
+  window.toggleSenha = function(){
+    const slash = document.getElementById("eyeSlash");
+    if(input.type === "password"){
+      input.type = "text";
+      slash.style.opacity = "0";
+    } else {
+      input.type = "password";
+      slash.style.opacity = "1";
+    }
+  };
 
-      window.entrar = async function(){
-        const senhaDigitada = input.value.trim();
-        const emailReal = localStorage.getItem("usuarioEmail");
+  window.entrar = async function(){
 
-        if(!emailReal){
-          showZModal("👤", "E-mail não encontrado", "Por favor, faça o cadastro.");
-          return;
-        }
+    if (!emailReal) {
+      showZModal("Erro", "Sessão inválida", "🔒");
+      return;
+    }
 
-        btn.innerHTML = `<div class="spinner"></div>`;
-        btn.style.pointerEvents = "none";
+    btn.innerHTML = `<div class="spinner"></div>`;
+    btn.style.pointerEvents = "none";
 
-        try {
-          await signInWithEmailAndPassword(auth, emailReal, senhaDigitada);
-          window.location.href = "home.html";
-        } catch (error) {
-          btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
-          btn.style.pointerEvents = "all";
-          showZModal("🔒", "Acesso Negado", "Senha incorreta ou usuário inválido.");
-          input.value = "";
-          btn.classList.remove("active");
-        }
-      };
-    });
-  </script>
+    try {
+      await signInWithEmailAndPassword(auth, emailReal, input.value.trim());
+      window.location.href = "home.html";
+
+    } catch (error) {
+
+      btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+      btn.style.pointerEvents = "all";
+
+      showZModal("Acesso Negado", "Senha incorreta", "🔒");
+
+      input.value = "";
+      btn.classList.remove("active");
+    }
+  };
+});
+</script>
 </body>
   </html>
   
