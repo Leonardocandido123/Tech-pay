@@ -23,10 +23,10 @@
             display: flex;
             justify-content: center;
             height: 100vh;
-            overflow: hidden;
+            overflow: hidden; /* Mantém a tela fixa */
         }
 
-        .screen { width: 100%; max-width: 400px; display: flex; flex-direction: column; position: relative; }
+        .screen { width: 100%; max-width: 400px; display: flex; flex-direction: column; position: relative; height: 100vh; }
 
         /* Navegação */
         #top-navigation { display: none; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border); }
@@ -42,21 +42,39 @@
         .btn-vertical span { font-size: 28px; }
 
         /* Teclado e Valor */
-        #view-payment-flow { display: none; flex-direction: column; flex-grow: 1; padding: 0 20px; }
-        .value-display { padding: 40px 0; }
+        #view-payment-flow { display: none; flex-direction: column; height: 100%; padding: 0 20px; overflow: hidden; }
+        .value-display { padding: 40px 0; flex-shrink: 0; }
         .value-raw { font-size: 56px; font-weight: 700; display: flex; align-items: baseline; }
         .currency { font-size: 28px; margin-right: 10px; color: var(--text-secondary); }
+        
         #sub-view-keyboard { display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 80px; flex-grow: 1; }
         .keyboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
         .key { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 500; cursor: pointer; }
         .key-confirm { background: var(--primary); color: #000; border: none; }
 
-        /* Parcelas e Métodos */
-        #sub-view-methods, #view-credit-installments { display: none; flex-direction: column; gap: 12px; padding-top: 20px; overflow-y: auto; }
+        /* AJUSTE: Scroll das Parcelas */
+        #view-credit-installments { 
+            display: none; 
+            flex-direction: column; 
+            height: 100%; /* Ocupa tudo para rolar */
+            padding-bottom: 100px; /* Evita que o último item fique atrás da barra */
+        }
+        #installments-list { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            overflow-y: auto; /* Habilita o scroll */
+            flex-grow: 1;
+            padding-right: 5px;
+        }
+        /* Esconde barra de scroll no Chrome/Safari */
+        #installments-list::-webkit-scrollbar { display: none; }
+
+        #sub-view-methods { display: none; flex-direction: column; gap: 12px; padding-top: 20px; }
         .method-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 600; cursor: pointer; }
         .method-item span { color: var(--primary); font-size: 24px; }
 
-        /* Animação NFC e Senha */
+        /* NFC e Senha */
         #view-card-processing { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; flex-grow: 1; padding: 20px; }
         .nfc-animation { width: 120px; height: 120px; border-radius: 50%; background: rgba(34, 197, 94, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 30px; animation: pulse-nfc 2s infinite; }
         @keyframes pulse-nfc { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(34, 197, 94, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
@@ -64,7 +82,7 @@
         .dot { width: 15px; height: 15px; border: 2px solid var(--primary); border-radius: 50%; }
         .dot.filled { background: var(--primary); }
 
-        .nav-bar { height: 60px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); background: #000; }
+        .nav-bar { height: 60px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); background: #000; flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -105,7 +123,7 @@
             </div>
 
             <div id="view-credit-installments">
-                <h2 style="text-align: center;">Parcelas</h2>
+                <h2 style="text-align: center; margin-bottom: 20px;">Parcelas</h2>
                 <div id="installments-list"></div>
             </div>
         </div>
@@ -114,7 +132,7 @@
             <div id="nfc-step">
                 <div class="nfc-animation"><span style="font-size: 50px;">🛜</span></div>
                 <h2>Aproxime o cartão</h2>
-                <p id="card-detail-text" style="color: var(--text-secondary);">Processando...</p>
+                <p id="card-detail-text" style="color: var(--text-secondary);"></p>
             </div>
 
             <div id="pinpad-container" style="display: none; width: 100%;">
@@ -149,7 +167,6 @@
         let pinDigitado = "";
         const uid = localStorage.getItem("uid");
 
-        // Nome do Usuário
         (async () => {
             if (!uid) return;
             const docSnap = await getDoc(doc(db, "usuarios", uid));
@@ -164,8 +181,12 @@
         };
 
         window.press = (n) => {
-            if (n === '00') valorCentavos *= 100;
-            else valorCentavos = (valorCentavos * 10) + n;
+            if (n === '00') {
+                if (valorCentavos > 0) valorCentavos *= 100;
+            } else {
+                valorCentavos = (valorCentavos * 10) + n;
+            }
+            if (valorCentavos > 99999999) valorCentavos = 99999999;
             document.getElementById('display-amount').innerText = (valorCentavos / 100).toLocaleString('pt-BR', {minimumFractionDigits:2});
         };
 
@@ -188,14 +209,21 @@
         function showInstallments() {
             document.getElementById('sub-view-methods').style.display = 'none';
             document.getElementById('view-credit-installments').style.display = 'flex';
+            document.getElementById('top-title-text').innerText = "Parcelamento";
             const list = document.getElementById('installments-list');
             list.innerHTML = "";
             const total = valorCentavos / 100;
+
             for (let i = 1; i <= 12; i++) {
-                const p = (total / i).toLocaleString('pt-BR', {minimumFractionDigits:2});
+                // AJUSTE: Força 2 casas decimais para evitar dízimas (como 2,545)
+                const valorParcela = (total / i).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
                 const el = document.createElement('div');
                 el.className = 'method-item';
-                el.innerHTML = `<div>${i}x de R$ ${p}</div><span>&rarr;</span>`;
+                
+                // AJUSTE: Texto "À Vista" na primeira opção
+                const texto = (i === 1) ? `À Vista - R$ ${valorParcela}` : `${i}x de R$ ${valorParcela}`;
+                
+                el.innerHTML = `<div>${texto}</div><span>&rarr;</span>`;
                 el.onclick = () => startNFC('Crédito', i);
                 list.appendChild(el);
             }
@@ -205,7 +233,7 @@
             document.getElementById('view-payment-flow').style.display = 'none';
             document.getElementById('view-card-processing').style.display = 'flex';
             document.getElementById('top-navigation').style.display = 'none';
-            document.getElementById('card-detail-text').innerText = `${metodo} ${parcelas > 1 ? parcelas + 'x' : ''}`;
+            document.getElementById('card-detail-text').innerText = `${metodo} ${parcelas > 1 ? parcelas + 'x' : 'À Vista'}`;
             
             setTimeout(() => {
                 document.getElementById('nfc-step').style.display = 'none';
@@ -237,4 +265,5 @@
         window.backAction = () => location.reload();
     </script>
 </body>
-</html>
+    </html>
+    
