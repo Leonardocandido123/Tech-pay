@@ -165,7 +165,11 @@
         let valorCentavos = 0;
         let flowStep = 'home';
         let pinDigitado = "";
-        const uid = localStorage.getItem("uid");
+        const uid = localStorage.getItem("idUsuarioLogado");
+
+if (!uid) {
+  window.location.href = "login.html";
+}
 
         (async () => {
             if (!uid) return;
