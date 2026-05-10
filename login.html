@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -10,11 +11,11 @@
 <style>
   :root { 
     --accent: #22c55e; 
-    --bg: #000;
+    --bg: #05070A;
     --border: #2A3441;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
   html, body {
     width: 100vw;
@@ -24,61 +25,28 @@
   }
 
   body { 
-    background: radial-gradient(circle at top, #0f172a 0%, #000000 70%); 
+    background: radial-gradient(circle at top, #0f172a, #000); 
     display: flex; 
     flex-direction: column; 
-    justify-content: flex-start;
-    padding: 60px 30px; 
+    justify-content: center; 
+    padding: 30px; 
     color: #fff;
   }
 
-  /* LOADING OVERLAY - evita flash de conteúdo antes do auth verificar */
-  #loadingOverlay {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 9998;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.4s ease;
-  }
-
-  #loadingOverlay.hide {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .loading-logo {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--accent);
-    letter-spacing: 4px;
-  }
-
   .title {
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 700;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     background: linear-gradient(to right, #fff, #9CA3AF);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
   .subtitle {
-    font-size: 16px;
+    font-size: 15px;
     color: #9CA3AF;
-    margin-bottom: 30px;
-    line-height: 1.4;
-  }
-
-  /* EMAIL MASCARADO */
-  .user-display {
-    font-size: 22px;
-    font-weight: 700;
-    color: #fff;
     margin-bottom: 40px;
-    display: none;
+    line-height: 1.4;
   }
 
   .password-container {
@@ -88,29 +56,20 @@
     align-items: center;
     height: 60px;
     transition: 0.3s;
-    margin-bottom: 10px;
   }
 
   .password-container:focus-within { border-bottom-color: var(--accent); }
-
-  .label-senha {
-    font-size: 12px;
-    color: #9CA3AF;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 5px;
-  }
 
   input {
     flex: 1;
     background: none;
     border: none;
     color: #fff;
-    font-size: 24px;
+    font-size: 18px;
     outline: none;
-    letter-spacing: 12px;
+    padding-right: 100px;
+    letter-spacing: 2px;
     width: 100%;
-    padding-bottom: 5px;
   }
 
   .actions {
@@ -118,15 +77,15 @@
     right: 0;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
   }
 
-  .eye { width: 24px; height: 24px; opacity: 0.6; cursor: pointer; }
+  .eye { width: 24px; height: 24px; opacity: 0.4; cursor: pointer; }
 
   .enter-btn {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     background: var(--accent);
     display: flex;
     align-items: center;
@@ -135,8 +94,6 @@
     transform: scale(0.8);
     pointer-events: none;
     transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
-    cursor: pointer;
   }
 
   .enter-btn.active { opacity: 1; transform: scale(1); pointer-events: all; }
@@ -145,98 +102,54 @@
     display: flex;
     justify-content: space-between;
     width: 100%;
-    padding-top: 25px;
+    padding-top: 20px;
   }
 
-  .links a { color: #9CA3AF; text-decoration: none; font-size: 14px; }
+  .links a { color: #9CA3AF; text-decoration: none; font-size: 13px; }
   .links .create-acc { color: var(--accent); font-weight: 700; }
 
-  /* MODAL */
+  /* MODAL DE BLINDAGEM */
   #zModalGlobal { 
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85); 
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    padding: 20px; 
-    backdrop-filter: blur(8px); 
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); 
+    z-index:9999; align-items:center; justify-content:center; padding:20px; 
+    backdrop-filter: blur(6px); 
   }
-
-  #zModalGlobal.show { display: flex; }
-
   .modal-content { 
-    background: #121826;
-    border: 1px solid #2A3441;
-    border-radius: 28px; 
-    width: 100%;
-    max-width: 340px;
-    padding: 30px;
-    text-align: center;
+    background:#121826; border:1px solid #2A3441; border-radius:28px; 
+    width:100%; max-width:340px; padding:30px; text-align:center; 
     animation: pop 0.3s ease;
   }
-
-  @keyframes pop { 
-    from { transform: scale(0.9); opacity: 0; } 
-    to { transform: scale(1); opacity: 1; } 
-  }
-  
-  .spinner {
-    width: 22px;
-    height: 22px;
-    border: 3px solid rgba(0,0,0,0.1);
+  @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0,0,0,0.2);
     border-top-color: #000;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
-
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* TROCAR CONTA */
-  .trocar-conta {
-    margin-top: 40px;
-    text-align: center;
-  }
-
-  .trocar-conta a {
-    color: #4B5563;
-    font-size: 13px;
-    text-decoration: none;
-    border-bottom: 1px solid #2A3441;
-    padding-bottom: 2px;
-    transition: color 0.2s;
-  }
-
-  .trocar-conta a:hover { color: #9CA3AF; }
+                                                                   
 </style>
+
 </head>
 <body>
 
-  <!-- OVERLAY DE LOADING (some após auth verificar) -->
-  <div id="loadingOverlay">
-    <div class="loading-logo">ZENTRY</div>
-  </div>
-
-  <!-- MODAL DE ERRO -->
   <div id="zModalGlobal">
     <div class="modal-content">
       <div id="zIcon" style="font-size:45px; margin-bottom:15px;">🔒</div>
-      <h3 id="zTitle" style="margin-bottom:10px; font-size:18px;">Erro</h3>
+      <h3 id="zTitle" style="margin-bottom:10px; font-size:18px;">Erro de Acesso</h3>
       <p id="zText" style="color:#9CA3AF; font-size:14px; margin-bottom:25px; line-height:1.5;"></p>
-      <button id="zBtnClose" style="width:100%; padding:16px; border-radius:14px; background:var(--accent); border:none; color:#000; font-weight:700; font-size:15px; cursor:pointer;">Entendido</button>
+      <button id="zBtnClose" style="width:100%; padding:16px; border-radius:14px; background:var(--accent); border:none; color:#000; font-weight:700; font-size:15px;">Entendido</button>
     </div>
   </div>
 
   <div class="title">Acesse sua conta</div>
-  <div class="subtitle">Digite sua senha de 6 dígitos.</div>
-
-  <div id="maskedEmail" class="user-display"></div>
+  <div class="subtitle">Digite sua senha ZENTRY para acessar sua conta com segurança</div>
 
   <div class="field-wrapper">
-    <div class="label-senha">Senha</div>
     <div class="password-container">
-      <input type="password" id="senha" placeholder="••••••" inputmode="numeric" maxlength="6" autocomplete="current-password">
+      <input type="password" id="senha" placeholder="Sua senha" autocomplete="new-password" spellcheck="false">
       
       <div class="actions">
         <svg class="eye" id="eyeIcon" onclick="window.toggleSenha()" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
@@ -258,129 +171,45 @@
       <a href="cadastro_unificado.html" class="create-acc">Criar conta</a>
     </div>
   </div>
-
-  <div class="trocar-conta">
-    <a href="login_email.html">Trocar de conta</a>
-  </div>
-
 <script type="module">
-import { auth } from "./zentry-core.js";
-import { 
-  signInWithEmailAndPassword, 
-  onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ============================================================
-// UTILITÁRIOS
-// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
+  authDomain: "zentry-app-74275.firebaseapp.com",
+  projectId: "zentry-app-74275",
+  storageBucket: "zentry-app-74275.appspot.com",
+  messagingSenderId: "571422826071",
+  appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 function showZModal(titulo, texto, icon) {
-  document.getElementById('zModalGlobal').classList.add('show');
+  document.getElementById('zModalGlobal').style.display = 'flex';
   document.getElementById('zTitle').innerText = titulo;
   document.getElementById('zText').innerText = texto;
   document.getElementById('zIcon').innerText = icon;
 }
 
-function hideOverlay() {
-  document.getElementById('loadingOverlay').classList.add('hide');
-}
-
-function maskEmail(email) {
-  const [userName, domain] = email.split("@");
-  return userName.substring(0, 2) + "*****@" + domain;
-}
-
-function setBtnLoading(btn) {
-  btn.innerHTML = `<div class="spinner"></div>`;
-  btn.style.pointerEvents = "none";
-}
-
-function resetBtn(btn) {
-  btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
-  btn.style.pointerEvents = "all";
-}
-
-// ============================================================
-// FECHAR MODAL
-// ============================================================
 document.getElementById('zBtnClose').onclick = () => {
-  document.getElementById('zModalGlobal').classList.remove('show');
+  document.getElementById('zModalGlobal').style.display = 'none';
 };
 
-// ============================================================
-// INICIALIZAÇÃO
-// ============================================================
 window.addEventListener("DOMContentLoaded", () => {
-
   const input = document.getElementById("senha");
   const btn = document.getElementById("btnEntrar");
-  const emailBox = document.getElementById("maskedEmail");
 
-  let emailReal = null;
-  let authPronto = false; // 🔑 FLAG: aguarda Firebase verificar antes de redirecionar
-
-  // ============================================================
-  // 🔐 VERIFICA SESSÃO (com proteção contra redirect prematuro)
-  // ============================================================
-  onAuthStateChanged(auth, (user) => {
-
-    // Só executa UMA VEZ (primeira verificação)
-    if (authPronto) return;
-    authPronto = true;
-
-    if (user) {
-      // Usuário JÁ está logado → vai direto para home
-      localStorage.setItem("uid", user.uid);
-      localStorage.setItem("usuarioEmail", user.email);
-      window.location.href = "home.html";
-      return;
-    }
-
-    // Não está logado → tenta recuperar email salvo
-    const emailSalvo = localStorage.getItem("usuarioEmail");
-
-    if (!emailSalvo) {
-      // Sem email salvo → vai para tela de email
-      window.location.href = "login_email.html";
-      return;
-    }
-
-    // Tem email salvo → mostra tela de senha normalmente
-    emailReal = emailSalvo;
-    emailBox.innerText = maskEmail(emailReal);
-    emailBox.style.display = "block";
-
-    // Remove overlay só agora (auth foi verificado)
-    hideOverlay();
-
-    // Foco automático no campo de senha
-    setTimeout(() => input.focus(), 300);
-  });
-
-  // ============================================================
-  // INPUT: ativa botão com 6 dígitos
-  // ============================================================
   input.addEventListener("input", () => {
-    // Garante apenas números
-    input.value = input.value.replace(/\D/g, "");
-    if (input.value.length > 6) input.value = input.value.slice(0, 6);
-
-    input.value.length === 6
-      ? btn.classList.add("active")
-      : btn.classList.remove("active");
+    if(input.value.length >= 4) btn.classList.add("active");
+    else btn.classList.remove("active");
   });
 
-  // Enter também faz login
-  input.addEventListener("keypress", (e) => {
-    if (e.key === "Enter" && input.value.length === 6) window.entrar();
-  });
-
-  // ============================================================
-  // 👁️ MOSTRAR/OCULTAR SENHA
-  // ============================================================
-  window.toggleSenha = function() {
+  window.toggleSenha = function(){
     const slash = document.getElementById("eyeSlash");
-    if (input.type === "password") {
+    if(input.type === "password"){
       input.type = "text";
       slash.style.opacity = "0";
     } else {
@@ -389,56 +218,70 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // ============================================================
-  // 🔑 LOGIN COM FIREBASE AUTH
-  // ============================================================
-  window.entrar = async function() {
-
-    if (!emailReal) {
-      showZModal("Sessão expirada", "Volte e informe seu e-mail novamente.", "🔒");
+  window.entrar = async function(){
+    const senhaDigitada = input.value;
+    const emailSalvo = localStorage.getItem("usuarioEmail");
+    
+    if(!emailSalvo){
+      showZModal("E-mail não encontrado", "Não identificamos seu e-mail. Volte e crie uma conta.", "👤");
       return;
     }
 
-    if (input.value.length < 6) return;
-
-    setBtnLoading(btn);
-
+    btn.innerHTML = `<div class="spinner"></div>`;
+    btn.style.pointerEvents = "none";
+    
     try {
-      const cred = await signInWithEmailAndPassword(auth, emailReal, input.value.trim());
+      const usuariosRef = collection(db, "usuarios");
+      const q = query(usuariosRef, where("email", "==", emailSalvo));
+      const querySnapshot = await getDocs(q);
 
-      // ✅ Login OK → salva sessão
-      localStorage.setItem("uid", cred.user.uid);
-      localStorage.setItem("usuarioEmail", cred.user.email);
+      if (querySnapshot.empty) {
+        throw new Error("usuario-nao-encontrado");
+      }
 
-      // Transição suave
-      document.body.style.opacity = "0";
-      document.body.style.transition = "0.4s";
-      setTimeout(() => { window.location.href = "home.html"; }, 400);
+      let dadosUsuario = null;
+      let idDocumento = "";
+
+      // PEGA OS DADOS E O ID REAL (EX: user_882544)
+      querySnapshot.forEach((doc) => {
+        dadosUsuario = doc.data();
+        idDocumento = doc.id; 
+      });
+
+      if (dadosUsuario.senha === senhaDigitada) {
+        // --- AQUI ESTÁ O SEGREDO ---
+        // Salva o ID real para a Home usar no onSnapshot
+        localStorage.setItem("idUsuarioLogado", idDocumento);
+        localStorage.setItem("dadosUsuario", JSON.stringify(dadosUsuario));
+
+        document.body.style.opacity = "0";
+        document.body.style.transition = "0.4s";
+        setTimeout(() => { window.location.href = "home.html"; }, 400);
+      } else {
+        throw new Error("senha-incorreta");
+      }
 
     } catch (error) {
-      console.error("Erro login:", error.code);
-
-      resetBtn(btn);
-
-      const msgs = {
-        "auth/wrong-password":      "Senha incorreta. Tente novamente.",
-        "auth/invalid-credential":  "Senha incorreta. Tente novamente.",
-        "auth/user-not-found":      "Usuário não encontrado.",
-        "auth/too-many-requests":   "Muitas tentativas. Aguarde alguns minutos.",
-        "auth/network-request-failed": "Sem conexão. Verifique sua internet.",
-        "auth/user-disabled":       "Conta desativada. Entre em contato com o suporte.",
-      };
-
-      const msg = msgs[error.code] || "Erro ao acessar. Tente novamente.";
+      console.error(error);
+      btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+      btn.style.pointerEvents = "all";
+      
+      let msg = "Erro ao acessar o banco.";
+      if(error.message === 'senha-incorreta') msg = "Senha inválida para este usuário.";
+      if(error.message === 'usuario-nao-encontrado') msg = "Usuário não encontrado no sistema.";
+      
       showZModal("Acesso Negado", msg, "🔒");
-
-      input.value = "";
+      input.value = ""; 
       btn.classList.remove("active");
-      input.focus();
     }
   };
 
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") window.entrar();
+  });
 });
-</script>
+  </script>
+  
+
 </body>
 </html>
