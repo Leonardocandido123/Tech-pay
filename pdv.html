@@ -1,273 +1,234 @@
+
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZENTRY - PDV Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #22c55e;
-            --bg-dark: #000;
-            --bg-card: #111827;
-            --border: rgba(255, 255, 255, 0.1);
-            --text-main: #fff;
-            --text-secondary: #9CA3AF;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zentap Pro</title>
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at 20% 0%, #0f172a, #000 60%);
-            color: var(--text-main);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden; /* Mantém a tela fixa */
-        }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-        .screen { width: 100%; max-width: 400px; display: flex; flex-direction: column; position: relative; height: 100vh; }
-
-        /* Navegação */
-        #top-navigation { display: none; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border); }
-        .back-icon { font-size: 32px; cursor: pointer; color: #fff; margin-right: 15px; display: flex; align-items: center; }
-        .top-title { font-size: 16px; font-weight: 600; }
-
-        /* Home PDV */
-        #view-pdv-home { display: flex; flex-direction: column; height: 100%; padding: 20px; }
-        .header-owner { text-align: center; padding: 40px 0; }
-        .owner-name { font-size: 24px; font-weight: 700; text-transform: uppercase; }
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; gap: 15px; justify-content: center; }
-        .btn-vertical { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; display: flex; align-items: center; gap: 20px; font-size: 18px; font-weight: 600; color: #fff; cursor: pointer; width: 100%; box-sizing: border-box; }
-        .btn-vertical span { font-size: 28px; }
-
-        /* Teclado e Valor */
-        #view-payment-flow { display: none; flex-direction: column; height: 100%; padding: 0 20px; overflow: hidden; }
-        .value-display { padding: 40px 0; flex-shrink: 0; }
-        .value-raw { font-size: 56px; font-weight: 700; display: flex; align-items: baseline; }
-        .currency { font-size: 28px; margin-right: 10px; color: var(--text-secondary); }
-        
-        #sub-view-keyboard { display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 80px; flex-grow: 1; }
-        .keyboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .key { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 500; cursor: pointer; }
-        .key-confirm { background: var(--primary); color: #000; border: none; }
-
-        /* AJUSTE: Scroll das Parcelas */
-        #view-credit-installments { 
-            display: none; 
-            flex-direction: column; 
-            height: 100%; /* Ocupa tudo para rolar */
-            padding-bottom: 100px; /* Evita que o último item fique atrás da barra */
-        }
-        #installments-list { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-            overflow-y: auto; /* Habilita o scroll */
-            flex-grow: 1;
-            padding-right: 5px;
-        }
-        /* Esconde barra de scroll no Chrome/Safari */
-        #installments-list::-webkit-scrollbar { display: none; }
-
-        #sub-view-methods { display: none; flex-direction: column; gap: 12px; padding-top: 20px; }
-        .method-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 600; cursor: pointer; }
-        .method-item span { color: var(--primary); font-size: 24px; }
-
-        /* NFC e Senha */
-        #view-card-processing { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; flex-grow: 1; padding: 20px; }
-        .nfc-animation { width: 120px; height: 120px; border-radius: 50%; background: rgba(34, 197, 94, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 30px; animation: pulse-nfc 2s infinite; }
-        @keyframes pulse-nfc { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(34, 197, 94, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
-        .pin-dots { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
-        .dot { width: 15px; height: 15px; border: 2px solid var(--primary); border-radius: 50%; }
-        .dot.filled { background: var(--primary); }
-
-        .nav-bar { height: 60px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); background: #000; flex-shrink: 0; }
-    </style>
-</head>
-<body>
-
-    <div class="screen">
-        <div id="top-navigation">
-            <div class="back-icon" onclick="backAction()">&#10094;</div>
-            <div class="top-title" id="top-title-text">Valor</div>
-        </div>
-
-        <div id="view-pdv-home">
-            <div class="header-owner"><div class="owner-name" id="display-dono">CARREGANDO...</div></div>
-            <div class="main-content">
-                <button class="btn-vertical" style="border-color: var(--primary);" onclick="startPayment()"><span>💳</span> Pagamento</button>
-                <button class="btn-vertical" onclick="location.href='extrato.html'"><span>📄</span> Extrato</button>
-            </div>
-        </div>
-
-        <div id="view-payment-flow">
-            <div class="value-display">
-                <div class="value-raw"><span class="currency">R$</span><span id="display-amount">0,00</span></div>
-            </div>
-
-            <div id="sub-view-keyboard">
-                <div class="keyboard-grid">
-                    <div class="key" onclick="press(1)">1</div><div class="key" onclick="press(2)">2</div><div class="key" onclick="press(3)">3</div>
-                    <div class="key" onclick="press(4)">4</div><div class="key" onclick="press(5)">5</div><div class="key" onclick="press(6)">6</div>
-                    <div class="key" onclick="press(7)">7</div><div class="key" onclick="press(8)">8</div><div class="key" onclick="press(9)">9</div>
-                    <div class="key" style="font-size:18px;" onclick="press('00')">00</div><div class="key" onclick="press(0)">0</div>
-                    <div class="key key-confirm" onclick="goToMethods()">&rarr;</div>
-                </div>
-            </div>
-
-            <div id="sub-view-methods">
-                <div class="method-item" onclick="finish('Débito')">Débito <span>&rarr;</span></div>
-                <div class="method-item" onclick="finish('Crédito')">Crédito <span>&rarr;</span></div>
-                <div class="method-item" onclick="finish('PIX')">PIX <span>&rarr;</span></div>
-            </div>
-
-            <div id="view-credit-installments">
-                <h2 style="text-align: center; margin-bottom: 20px;">Parcelas</h2>
-                <div id="installments-list"></div>
-            </div>
-        </div>
-
-        <div id="view-card-processing">
-            <div id="nfc-step">
-                <div class="nfc-animation"><span style="font-size: 50px;">🛜</span></div>
-                <h2>Aproxime o cartão</h2>
-                <p id="card-detail-text" style="color: var(--text-secondary);"></p>
-            </div>
-
-            <div id="pinpad-container" style="display: none; width: 100%;">
-                <h2>Digite a senha</h2>
-                <div class="pin-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-                <div class="keyboard-grid">
-                    <div class="key" onclick="typePin(1)">1</div><div class="key" onclick="typePin(2)">2</div><div class="key" onclick="typePin(3)">3</div>
-                    <div class="key" onclick="typePin(4)">4</div><div class="key" onclick="typePin(5)">5</div><div class="key" onclick="typePin(6)">6</div>
-                    <div class="key" onclick="typePin(7)">7</div><div class="key" onclick="typePin(8)">8</div><div class="key" onclick="typePin(9)">9</div>
-                    <div class="key" style="background:transparent; border:none;"></div><div class="key" onclick="typePin(0)">0</div>
-                    <div class="key key-confirm" onclick="confirmPin()">&rarr;</div>
-                </div>
-            </div>
-
-            <div id="success-step" style="display: none;">
-                <div style="font-size: 80px; color: var(--primary); margin-bottom: 20px;">✓</div>
-                <h2>Aprovado!</h2>
-                <p id="final-amount-display" style="font-size: 24px; font-weight: 700;"></p>
-                <button class="btn-vertical" style="margin-top: 30px; justify-content: center;" onclick="location.reload()">Concluir</button>
-            </div>
-        </div>
-
-        <div class="nav-bar"><div></div><div style="width:16px; height:16px; border:2px solid #555; border-radius:50%;"></div><div></div></div>
-    </div>
-
-    <script type="module">
-        import { db } from './zentry-core.js';
-        import { doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-        let valorCentavos = 0;
-        let flowStep = 'home';
-        let pinDigitado = "";
-        const uid = localStorage.getItem("idUsuarioLogado");
-
-if (!uid) {
-  window.location.href = "login.html";
+<style>
+:root{
+  --primary:#22c55e;
+  --bg:#060910;
+  --card:#0f1623;
+  --border:rgba(255,255,255,0.08);
 }
 
-        (async () => {
-            if (!uid) return;
-            const docSnap = await getDoc(doc(db, "usuarios", uid));
-            if (docSnap.exists()) document.getElementById('display-dono').innerText = docSnap.data().nome.toUpperCase();
-        })();
+html, body {
+  height: 100%;
+  width: 100%;
+  background: var(--bg);
+  color: #fff;
+  font-family: sans-serif;
+  overflow: hidden;
+}
 
-        window.startPayment = () => {
-            document.getElementById('view-pdv-home').style.display = 'none';
-            document.getElementById('view-payment-flow').style.display = 'flex';
-            document.getElementById('top-navigation').style.display = 'flex';
-            flowStep = 'valor';
-        };
+.screen {
+  position: fixed;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  padding: 20px;
+}
 
-        window.press = (n) => {
-            if (n === '00') {
-                if (valorCentavos > 0) valorCentavos *= 100;
-            } else {
-                valorCentavos = (valorCentavos * 10) + n;
-            }
-            if (valorCentavos > 99999999) valorCentavos = 99999999;
-            document.getElementById('display-amount').innerText = (valorCentavos / 100).toLocaleString('pt-BR', {minimumFractionDigits:2});
-        };
+.screen.ativa { display: flex; }
 
-        window.goToMethods = () => {
-            if (valorCentavos === 0) return;
-            document.getElementById('sub-view-keyboard').style.display = 'none';
-            document.getElementById('sub-view-methods').style.display = 'flex';
-            document.getElementById('top-title-text').innerText = "Forma de Pagamento";
-            flowStep = 'metodo';
-        };
+.top-bar {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
 
-        window.finish = (metodo) => {
-            if (metodo === 'Crédito') {
-                showInstallments();
-            } else {
-                startNFC(metodo, 1);
-            }
-        };
+.top-bar span { color: var(--primary); }
 
-        function showInstallments() {
-            document.getElementById('sub-view-methods').style.display = 'none';
-            document.getElementById('view-credit-installments').style.display = 'flex';
-            document.getElementById('top-title-text').innerText = "Parcelamento";
-            const list = document.getElementById('installments-list');
-            list.innerHTML = "";
-            const total = valorCentavos / 100;
+.valor {
+  font-size: 60px;
+  text-align: center;
+  margin-top: 40px;
+}
 
-            for (let i = 1; i <= 12; i++) {
-                // AJUSTE: Força 2 casas decimais para evitar dízimas (como 2,545)
-                const valorParcela = (total / i).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-                const el = document.createElement('div');
-                el.className = 'method-item';
-                
-                // AJUSTE: Texto "À Vista" na primeira opção
-                const texto = (i === 1) ? `À Vista - R$ ${valorParcela}` : `${i}x de R$ ${valorParcela}`;
-                
-                el.innerHTML = `<div>${texto}</div><span>&rarr;</span>`;
-                el.onclick = () => startNFC('Crédito', i);
-                list.appendChild(el);
-            }
-        }
+.btn {
+  height: 60px;
+  border-radius: 16px;
+  border: none;
+  margin-top: 20px;
+  font-size: 18px;
+}
 
-        function startNFC(metodo, parcelas) {
-            document.getElementById('view-payment-flow').style.display = 'none';
-            document.getElementById('view-card-processing').style.display = 'flex';
-            document.getElementById('top-navigation').style.display = 'none';
-            document.getElementById('card-detail-text').innerText = `${metodo} ${parcelas > 1 ? parcelas + 'x' : 'À Vista'}`;
-            
-            setTimeout(() => {
-                document.getElementById('nfc-step').style.display = 'none';
-                document.getElementById('pinpad-container').style.display = 'block';
-            }, 3000);
-        }
+.btn-green {
+  background: var(--primary);
+  color: #000;
+}
 
-        window.typePin = (n) => {
-            if (pinDigitado.length < 4) {
-                pinDigitado += n;
-                document.querySelectorAll('.dot')[pinDigitado.length - 1].classList.add('filled');
-            }
-        };
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: #fff;
+}
 
-        window.confirmPin = async () => {
-            if (pinDigitado.length < 4) return;
-            document.getElementById('pinpad-container').innerHTML = "<h2>Processando...</h2>";
-            const total = valorCentavos / 100;
-            try {
-                await updateDoc(doc(db, "usuarios", uid), { saldo: increment(total) });
-                setTimeout(() => {
-                    document.getElementById('pinpad-container').style.display = 'none';
-                    document.getElementById('success-step').style.display = 'block';
-                    document.getElementById('final-amount-display').innerText = `R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
-                }, 2000);
-            } catch (e) { location.reload(); }
-        };
+.metodo {
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--card);
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
 
-        window.backAction = () => location.reload();
-    </script>
+.qr {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.timer {
+  text-align: center;
+  margin-top: 10px;
+  color: #fbbf24;
+}
+
+.status {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.loader {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 4px solid var(--border);
+  border-top: 4px solid var(--primary);
+  animation: spin 1s linear infinite;
+  margin: 30px auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+</style>
+</head>
+
+<body>
+
+<!-- TELA VALOR -->
+<div id="t1" class="screen ativa">
+  <div class="top-bar">ZEN<span>TAP</span></div>
+
+  <div class="valor" id="valor">R$ 10,00</div>
+
+  <button class="btn btn-green" onclick="ir(2)">Continuar</button>
+</div>
+
+<!-- MÉTODO -->
+<div id="t2" class="screen">
+  <h2>Forma de pagamento</h2>
+
+  <div class="metodo" onclick="abrirPix()">⚡ Pix</div>
+
+  <button class="btn btn-outline" onclick="ir(1)">Voltar</button>
+</div>
+
+<!-- PIX -->
+<div id="t3" class="screen">
+  <h2>Pix</h2>
+
+  <div class="qr" id="qr"></div>
+
+  <div class="timer" id="timer">Expira em 05:00</div>
+
+  <div class="status">
+    <div>Aguardando pagamento</div>
+    <div style="opacity:.6">Escaneie o QR Code</div>
+  </div>
+
+  <div class="loader"></div>
+
+  <button class="btn btn-outline" onclick="ir(2)">Voltar</button>
+</div>
+
 </body>
-    </html>
-    
+
+<script>
+let valor = 10.00;
+let txid = null;
+let intervalo = null;
+
+/* NAV */
+function ir(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('ativa'))
+  document.getElementById('t'+n).classList.add('ativa')
+}
+
+/* PIX REAL */
+async function abrirPix(){
+  ir(3);
+
+  try {
+    const res = await fetch("/.netlify/functions/criarPix", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ valor })
+    });
+
+    const data = await res.json();
+
+    txid = data.txid;
+
+    document.getElementById("qr").innerHTML = "";
+
+    new QRCode(document.getElementById("qr"), {
+      text: data.qr,
+      width: 260,
+      height: 260
+    });
+
+    iniciarTimer();
+    verificarPagamento();
+
+  } catch(e){
+    alert("Erro ao gerar Pix");
+    console.error(e);
+  }
+}
+
+/* POLLING (APENAS VISUAL) */
+function verificarPagamento(){
+  intervalo = setInterval(async () => {
+    const res = await fetch(`/.netlify/functions/statusPix?txid=${txid}`);
+    const data = await res.json();
+
+    if(data.pago){
+      clearInterval(intervalo);
+      window.location.href = "comprovante_pdv.html?id=" + txid;
+    }
+  }, 3000);
+}
+
+/* TIMER */
+let t = 300;
+
+function iniciarTimer(){
+  const el = document.getElementById("timer");
+
+  const i = setInterval(()=>{
+    t--;
+
+    let m = Math.floor(t/60);
+    let s = t % 60;
+
+    el.innerText = `Expira em ${m}:${s.toString().padStart(2,'0')}`;
+
+    if(t <= 0){
+      clearInterval(i);
+      clearInterval(intervalo);
+      alert("Pix expirado");
+      ir(2);
+    }
+  },1000);
+}
+</script>
+
+</html>
