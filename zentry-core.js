@@ -26,14 +26,22 @@ export const db   = getFirestore(app);
 
 // ── ZENTRYAUTH ──
 export const ZentryAuth = {
-  exigirLogin() {
-    return new Promise((resolve) => {
-      onAuthStateChanged(auth, (user) => {
-        if (user) resolve(user);
-        else window.location.href = "login.html";
-      });
+exigirLogin() {
+  return new Promise((resolve) => {
+    let verificado = false; // 🔑 flag de proteção
+
+    onAuthStateChanged(auth, (user) => {
+      if (verificado) return; // ignora disparos subsequentes
+      verificado = true;
+
+      if (user) {
+        resolve(user);
+      } else {
+        window.location.href = "login.html";
+      }
     });
-  },
+  });
+},
   redirecionarSeLogado() {
     onAuthStateChanged(auth, (user) => {
       if (user) window.location.href = "home.html";
