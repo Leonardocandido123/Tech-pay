@@ -97,72 +97,57 @@
             color: #000; border: none; border-radius: 16px; font-weight: 700; font-size: 16px;
             box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
         }
-
-        /* MODAL PREMIUM CORRIGIDO */
-        #zModalGlobal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(8px); }
-        .modal-content { background:#121826; border:1px solid #2A3441; border-radius:28px; width:100%; max-width:340px; padding:30px; text-align:center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-        
-        .z-btn-premium {
-            width:100%; padding:16px; border-radius:14px; 
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            border:none; color:#000; font-weight:700; font-size:15px;
-            cursor: pointer; transition: 0.2s;
-        }
-        .z-btn-premium:active { transform: scale(0.96); }
     </style>
 </head>
 <body>
-
-    <div id="zModalGlobal">
-        <div class="modal-content">
-            <div id="zIcon" style="font-size:45px; margin-bottom:15px;">🛡️</div>
-            <h3 id="zTitle" style="margin-bottom:10px; font-size:18px; font-weight: 700;">Aviso</h3>
-            <p id="zText" style="color:#9CA3AF; font-size:14px; margin-bottom:25px; line-height:1.5;"></p>
-            <button id="zBtnClose" class="z-btn-premium">CONTINUAR</button>
-        </div>
-    </div>
 
     <div class="top-nav">
         <div class="progress-container"><div id="p-bar" class="progress-bar"></div></div>
     </div>
 
     <div id="main-slider">
+        <!-- ETAPA 0: Nome -->
         <div class="step-page">
             <div class="title">Seu nome</div>
             <div class="subtitle">Como devemos te chamar na plataforma?</div>
             <div class="input-container"><input type="text" id="cad_nome" placeholder="Nome completo" autocomplete="off"></div>
         </div>
 
+        <!-- ETAPA 1: CPF -->
         <div class="step-page">
             <div class="title">Seu CPF</div>
-            <div class="subtitle">Precisamos dele para validar sua identidade bancária.</div>
+            <div class="subtitle">Precisamos dele para validar sua identidade.</div>
             <div class="input-container"><input type="tel" id="cad_cpf" placeholder="000.000.000-00" maxlength="14"></div>
         </div>
 
+        <!-- ETAPA 2: Celular -->
         <div class="step-page">
             <div class="title">Seu celular</div>
-            <div class="subtitle">Informe seu número com DDD para contato.</div>
+            <div class="subtitle">Informe seu número com DDD.</div>
             <div class="input-container"><input type="tel" id="cad_tel" placeholder="(00) 00000-0000" maxlength="15"></div>
         </div>
 
+        <!-- ETAPA 3: E-mail -->
         <div class="step-page">
             <div class="title">E-mail principal</div>
-            <div class="subtitle">O código de verificação será enviado para este e-mail.</div>
+            <div class="subtitle">Seu e-mail para acesso.</div>
             <div class="input-container"><input type="email" id="cad_email" placeholder="seu@email.com" autocomplete="off"></div>
         </div>
 
+        <!-- ETAPA 4: Senha -->
         <div class="step-page">
             <div class="title">Senha de acesso</div>
             <div class="subtitle">Crie uma senha numérica de 6 dígitos.</div>
-            <div class="input-container"><input type="password" id="cad_senha" style="letter-spacing: 8px;" maxlength="6" placeholder="••••••"></div>
+            <div class="input-container"><input type="password" id="cad_senha" inputmode="numeric" style="letter-spacing: 8px;" maxlength="6" placeholder="••••••"></div>
         </div>
 
+        <!-- ETAPA 5: Termos -->
         <div class="step-page">
             <div class="title">Termos ZENTRY</div>
-            <div class="subtitle">Para finalizar, aceite nossas políticas de segurança.</div>
+            <div class="subtitle">Para finalizar, aceite nossas políticas.</div>
             <label style="display: flex; gap: 15px; color: #9CA3AF; align-items: center; background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
                 <input type="checkbox" id="checkTermo" style="width:22px; height:22px; accent-color: var(--accent);">
-                <span style="font-size: 14px;">Li e concordo com os termos de uso e privacidade.</span>
+                <span style="font-size: 14px;">Li e concordo com os termos.</span>
             </label>
         </div>
     </div>
@@ -173,219 +158,107 @@
         </button>
         <button id="finishBtn" class="finish-btn">CRIAR MINHA CONTA</button>
     </div> 
-<script type="module">
-import { db, ZentryUser, ZentryUI } from './zentry-core.js';
-import { doc, setDoc, updateDoc, getDoc, onSnapshot, increment }
-from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// 🔐 HASH (mantido compatível)
-async function hashSenha(pin) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(pin);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+<script>
+    let etapaAtual = 0;
+    const totalEtapas = 6;
+    const slider = document.getElementById('main-slider');
+    const pBar = document.getElementById('p-bar');
+    const nextBtn = document.getElementById('nextBtn');
+    const finishBtn = document.getElementById('finishBtn');
 
-  return Array.from(new Uint8Array(hashBuffer))
-    .map(b => b.toString(16).padStart(2, "0"))
-    .join("");
-}
+    // --- FUNÇÕES DE MÁSCARA ---
+    const mascaraCPF = (value) => {
+        return value
+            .replace(/\D/g, '') 
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+            .replace(/(-\d{2})\d+?$/, '$1');
+    };
 
-const SENHA_DIGITS = 6;
+    const mascaraTelefone = (value) => {
+        return value
+            .replace(/\D/g, '')
+            .replace(/(\d{2})(\d)/, '($1) $2')
+            .replace(/(\d{5})(\d)/, '$1-$2')
+            .replace(/(-\d{4})\d+?$/, '$1');
+    };
 
-let userDocId = "";
-let saldoAtual = 0;
-let etapa = 0;
-let destinoEncontrado = null;
-let dadosTransacao = null;
-let ultimoTxId = null;
-
-// ---------------- UI ----------------
-function toast(msg, tipo = 'erro') {
-  const el = document.createElement('div');
-  el.className = `toast ${tipo}`;
-  el.textContent = msg;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 3000);
-}
-
-function loading(show) {
-  const el = document.getElementById('loadingOverlay');
-  if (el) el.classList.toggle('visivel', show);
-}
-
-// ---------------- INIT ----------------
-async function init() {
-  userDocId = localStorage.getItem("idUsuarioLogado");
-
-  if (!userDocId) {
-    userDocId = await ZentryUser.obterIdPorEmail();
-  }
-
-  if (!userDocId) {
-    window.location.href = "login.html";
-    return;
-  }
-
-  // 🔥 Atualiza saldo em tempo real
-  onSnapshot(doc(db, "usuarios", userDocId), (snap) => {
-    if (snap.exists()) {
-      saldoAtual = Number(snap.data().saldo || 0);
-
-      const d1 = document.getElementById('displaySaldo');
-      const d2 = document.getElementById('saldoDisp');
-
-      if (d1) d1.innerText = ZentryUI.formatarMoeda(saldoAtual);
-      if (d2) d2.innerText = "Saldo disponível: " + ZentryUI.formatarMoeda(saldoAtual);
-    }
-  });
-
-  const pin = document.getElementById('hiddenPin');
-  if (pin) pin.addEventListener('input', onPin);
-}
-init();
-
-// ---------------- PIN UI ----------------
-function onPin() {
-  const pin = document.getElementById('hiddenPin');
-
-  if (pin.value.length > SENHA_DIGITS) {
-    pin.value = pin.value.slice(0, SENHA_DIGITS);
-  }
-
-  for (let i = 1; i <= SENHA_DIGITS; i++) {
-    const dot = document.getElementById(`p${i}`);
-    if (dot) {
-      dot.className = 'pin-dot' + (i <= pin.value.length ? ' ok' : '');
-    }
-  }
-
-  const btn = document.getElementById('btnMain');
-  if (btn) btn.disabled = pin.value.length < SENHA_DIGITS;
-}
-
-// ---------------- ETAPAS ----------------
-function irPara(n) {
-  document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
-  const tela = document.getElementById(`tela${n}`);
-  if (tela) tela.classList.add('ativa');
-  etapa = n;
-}
-
-// ---------------- PIX ----------------
-window.avancarEtapa = async function () {
-  const btn = document.getElementById('btnMain');
-
-  if (etapa !== 2) return;
-
-  const senhaDigitada = document.getElementById('hiddenPin').value;
-
-  btn.disabled = true;
-  btn.textContent = "Validando...";
-
-  try {
-    const userSnap = await getDoc(doc(db, "usuarios", userDocId));
-    const userData = userSnap.data();
-
-    let senhaValida = false;
-
-    // 🔐 NOVO (hash)
-    if (userData?.senhaHash) {
-      const senhaHashDigitada = await hashSenha(senhaDigitada);
-      senhaValida = senhaHashDigitada === userData.senhaHash;
+    // --- LÓGICA DE INTERAÇÃO ---
+    function atualizarUI() {
+        slider.style.transform = `translateX(-${etapaAtual * 100}%)`;
+        pBar.style.width = `${((etapaAtual + 1) / totalEtapas) * 100}%`;
+        
+        if (etapaAtual === totalEtapas - 1) {
+            nextBtn.style.display = 'none';
+            finishBtn.style.display = 'block';
+        } else {
+            nextBtn.style.display = 'flex';
+            finishBtn.style.display = 'none';
+        }
+        validarInput();
     }
 
-    // 🔓 ANTIGO (fallback)
-    else if (userData?.senha) {
-      senhaValida = senhaDigitada === userData.senha;
+    function validarInput() {
+        const inputs = [
+            document.getElementById('cad_nome'),
+            document.getElementById('cad_cpf'),
+            document.getElementById('cad_tel'),
+            document.getElementById('cad_email'),
+            document.getElementById('cad_senha'),
+            document.getElementById('checkTermo')
+        ];
+        
+        let valRaw = inputs[etapaAtual].value;
+        let valido = false;
+
+        if(etapaAtual === 0) valido = valRaw.trim().length > 3;
+        if(etapaAtual === 1) valido = valRaw.replace(/\D/g, '').length === 11; // CPF 11 dígitos
+        if(etapaAtual === 2) valido = valRaw.replace(/\D/g, '').length >= 10; // Tel 10 ou 11
+        if(etapaAtual === 3) valido = valRaw.includes('@') && valRaw.length > 5;
+        if(etapaAtual === 4) valido = valRaw.length === 6;
+        if(etapaAtual === 5) valido = inputs[5].checked;
+
+        if(valido) nextBtn.classList.add('active');
+        else nextBtn.classList.remove('active');
     }
 
-    if (!senhaValida) {
-      for (let i = 1; i <= 6; i++) {
-        const dot = document.getElementById(`p${i}`);
-        if (dot) dot.className = 'pin-dot err';
-      }
-
-      setTimeout(() => {
-        document.getElementById('hiddenPin').value = '';
-        onPin();
-      }, 600);
-
-      toast("Senha incorreta!");
-      btn.disabled = false;
-      btn.textContent = "Confirmar Pix";
-      return;
-    }
-
-    // 🚀 EXECUTA PIX
-    loading(true);
-    btn.textContent = "Processando...";
-
-    ultimoTxId = "PIX" + Date.now();
-    const agora = new Date();
-
-    const { valor, chave, desc } = dadosTransacao;
-
-    // ❗ PROTEÇÃO BÁSICA
-    if (valor <= 0 || valor > saldoAtual) {
-      toast("Saldo insuficiente");
-      btn.disabled = false;
-      btn.textContent = "Confirmar Pix";
-      loading(false);
-      return;
-    }
-
-    // 🔻 Debita
-    await updateDoc(doc(db, "usuarios", userDocId), {
-      saldo: increment(-valor)
+    // Aplicar máscaras nos inputs específicos
+    document.getElementById('cad_cpf').addEventListener('input', (e) => {
+        e.target.value = mascaraCPF(e.target.value);
+        validarInput();
     });
 
-    // 🧾 Salva transação
-    await setDoc(doc(db, "usuarios", userDocId, "transacoes", ultimoTxId), {
-      tipo: "saida",
-      valor,
-      descricao: "Pix enviado",
-      chavePix: chave,
-      mensagem: desc,
-      timestamp: agora,
-      status: "concluido",
-      id: ultimoTxId
+    document.getElementById('cad_tel').addEventListener('input', (e) => {
+        e.target.value = mascaraTelefone(e.target.value);
+        validarInput();
     });
 
-    // 🔺 Crédito (se interno)
-    if (destinoEncontrado && destinoEncontrado.uid !== 'externo') {
+    // Ouvinte geral para validação
+    document.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('input', validarInput);
+    });
 
-      await updateDoc(doc(db, "usuarios", destinoEncontrado.uid), {
-        saldo: increment(valor)
-      });
+    nextBtn.addEventListener('click', () => {
+        if(etapaAtual < totalEtapas - 1) {
+            etapaAtual++;
+            atualizarUI();
+            // Focar o próximo input automaticamente
+            setTimeout(() => {
+                const proximos = ['cad_nome','cad_cpf','cad_tel','cad_email','cad_senha'];
+                if(proximos[etapaAtual]) document.getElementById(proximos[etapaAtual]).focus();
+            }, 600);
+        }
+    });
 
-      await setDoc(doc(db, "usuarios", destinoEncontrado.uid, "transacoes", ultimoTxId + "R"), {
-        tipo: "entrada",
-        valor,
-        descricao: "Pix recebido",
-        timestamp: agora,
-        status: "concluido",
-        id: ultimoTxId + "R"
-      });
-    }
+    finishBtn.addEventListener('click', () => {
+        // Aqui você insere sua lógica de salvar no Firebase
+        alert("Enviando dados para o Zentry...");
+        window.location.href = "login.html";
+    });
 
-    const sucesso = document.getElementById('sucessoSub');
-    if (sucesso) {
-      sucesso.textContent = ZentryUI.formatarMoeda(valor) + " enviado com sucesso.";
-    }
-
-    irPara(3);
-
-    btn.textContent = "Voltar";
-    btn.disabled = false;
-
-  } catch (e) {
-    console.error(e);
-    toast("Erro ao processar");
-    btn.disabled = false;
-    btn.textContent = "Confirmar Pix";
-  } finally {
-    loading(false);
-  }
-};
+    atualizarUI();
 </script>
 </body>
 </html>
