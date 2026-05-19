@@ -158,6 +158,18 @@
         </button>
         <button id="finishBtn" class="finish-btn">CRIAR MINHA CONTA</button>
     </div> 
+<!-- =========================================================
+SUBSTITUA TODO O <script> DO cadastro_unificado.html
+POR ESTE CÓDIGO COMPLETO.
+ELE:
+1. Mantém as setas verdes.
+2. Remove a etapa de termos.
+3. Na última etapa (senha), mostra o botão "CRIAR MINHA CONTA".
+4. Cria usuário no Firebase Authentication.
+5. Cria documento em /usuarios/{uid}.
+6. Salva dados no localStorage.
+7. Redireciona para home.html.
+========================================================= -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
@@ -171,6 +183,9 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// --------------------------------------------------
+// FIREBASE
+// --------------------------------------------------
 const firebaseConfig = {
   apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
   authDomain: "zentry-app-74275.firebaseapp.com",
@@ -184,7 +199,157 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// --------------------------------------------------
+// CONTROLE DE ETAPAS
+// --------------------------------------------------
+let etapaAtual = 0;
+const totalEtapas = 5; // nome, cpf, telefone, email, senha
+
+const slider = document.getElementById("main-slider");
+const pBar = document.getElementById("p-bar");
+const nextBtn = document.getElementById("nextBtn");
+const finishBtn = document.getElementById("finishBtn");
+
+// Campos
+const campos = [
+  document.getElementById("cad_nome"),
+  document.getElementById("cad_cpf"),
+  document.getElementById("cad_tel"),
+  document.getElementById("cad_email"),
+  document.getElementById("cad_senha")
+];
+
+// --------------------------------------------------
+// MÁSCARAS
+// --------------------------------------------------
+function mascaraCPF(value) {
+  return value
+    .replace(/\D/g, "")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})/, "$1-$2")
+    .replace(/(-\d{2})\d+?$/, "$1");
+}
+
+function mascaraTelefone(value) {
+  return value
+    .replace(/\D/g, "")
+    .replace(/(\d{2})(\d)/, "($1) $2")
+    .replace(/(\d{5})(\d)/, "$1-$2")
+    .replace(/(-\d{4})\d+?$/, "$1");
+}
+
+// --------------------------------------------------
+// VALIDAÇÃO
+// --------------------------------------------------
+function campoValido(index) {
+  const valor = campos[index].value;
+
+  switch (index) {
+    case 0: // nome
+      return valor.trim().length >= 3;
+
+    case 1: // cpf
+      return valor.replace(/\D/g, "").length === 11;
+
+    case 2: // telefone
+      return valor.replace(/\D/g, "").length >= 10;
+
+    case 3: // email
+      return valor.includes("@") && valor.includes(".");
+
+    case 4: // senha
+      return valor.trim().length === 6;
+
+    default:
+      return false;
+  }
+}
+
+function validarInput() {
+  const valido = campoValido(etapaAtual);
+
+  if (etapaAtual === totalEtapas - 1) {
+    finishBtn.disabled = !valido;
+    finishBtn.style.opacity = valido ? "1" : "0.4";
+  } else {
+    if (valido) {
+      nextBtn.classList.add("active");
+    } else {
+      nextBtn.classList.remove("active");
+    }
+  }
+}
+
+// --------------------------------------------------
+// ATUALIZA UI
+// --------------------------------------------------
+function atualizarUI() {
+  slider.style.transform = `translateX(-${etapaAtual * 100}%)`;
+  pBar.style.width = `${((etapaAtual + 1) / totalEtapas) * 100}%`;
+
+  if (etapaAtual === totalEtapas - 1) {
+    nextBtn.style.display = "none";
+    finishBtn.style.display = "block";
+  } else {
+    nextBtn.style.display = "flex";
+    finishBtn.style.display = "none";
+  }
+
+  validarInput();
+
+  setTimeout(() => {
+    campos[etapaAtual]?.focus();
+  }, 300);
+}
+
+// --------------------------------------------------
+// EVENTOS
+// --------------------------------------------------
+document.getElementById("cad_cpf").addEventListener("input", (e) => {
+  e.target.value = mascaraCPF(e.target.value);
+  validarInput();
+});
+
+document.getElementById("cad_tel").addEventListener("input", (e) => {
+  e.target.value = mascaraTelefone(e.target.value);
+  validarInput();
+});
+
+campos.forEach((campo) => {
+  campo.addEventListener("input", validarInput);
+
+  campo.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      if (etapaAtual < totalEtapas - 1 && campoValido(etapaAtual)) {
+        etapaAtual++;
+        atualizarUI();
+      } else if (
+        etapaAtual === totalEtapas - 1 &&
+        campoValido(etapaAtual)
+      ) {
+        finishBtn.click();
+      }
+    }
+  });
+});
+
+// Botão Próximo
+nextBtn.addEventListener("click", () => {
+  if (!campoValido(etapaAtual)) return;
+
+  if (etapaAtual < totalEtapas - 1) {
+    etapaAtual++;
+    atualizarUI();
+  }
+});
+
+// --------------------------------------------------
+// CRIAR CONTA NO FIREBASE
+// --------------------------------------------------
 finishBtn.addEventListener("click", async () => {
+  if (!campoValido(4)) return;
+
   try {
     finishBtn.disabled = true;
     finishBtn.textContent = "Criando conta...";
@@ -195,11 +360,11 @@ finishBtn.addEventListener("click", async () => {
     const email = document.getElementById("cad_email").value.trim().toLowerCase();
     const senha = document.getElementById("cad_senha").value.trim();
 
-    // 1. Criar usuário no Authentication
+    // 1. Cria usuário no Firebase Auth
     const cred = await createUserWithEmailAndPassword(auth, email, senha);
     const uid = cred.user.uid;
 
-    // 2. Criar documento no Firestore
+    // 2. Cria documento no Firestore
     await setDoc(doc(db, "usuarios", uid), {
       uid,
       nome,
@@ -211,37 +376,38 @@ finishBtn.addEventListener("click", async () => {
       criadoEm: serverTimestamp()
     });
 
-    // 3. Salvar dados localmente
+    // 3. Salva dados localmente
     localStorage.setItem("usuarioEmail", email);
     localStorage.setItem("usuarioUid", uid);
     localStorage.setItem("usuarioNome", nome);
 
-    // 4. Ir direto para a home
+    // 4. Redireciona
     window.location.href = "home.html";
 
   } catch (error) {
-    console.error(error);
+    console.error("Erro ao criar conta:", error);
 
     let msg = "Erro ao criar conta.";
 
     if (error.code === "auth/email-already-in-use") {
       msg = "Este e-mail já está cadastrado.";
-    }
-
-    if (error.code === "auth/invalid-email") {
+    } else if (error.code === "auth/invalid-email") {
       msg = "E-mail inválido.";
-    }
-
-    if (error.code === "auth/weak-password") {
+    } else if (error.code === "auth/weak-password") {
       msg = "Senha inválida.";
     }
 
     alert(msg);
-  } finally {
+
     finishBtn.disabled = false;
     finishBtn.textContent = "CRIAR MINHA CONTA";
   }
 });
-    </script>
+
+// --------------------------------------------------
+// INICIALIZA
+// --------------------------------------------------
+atualizarUI();
+          </script>
 </body>
 </html>
