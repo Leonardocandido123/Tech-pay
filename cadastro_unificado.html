@@ -158,107 +158,90 @@
         </button>
         <button id="finishBtn" class="finish-btn">CRIAR MINHA CONTA</button>
     </div> 
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-<script>
-    let etapaAtual = 0;
-    const totalEtapas = 6;
-    const slider = document.getElementById('main-slider');
-    const pBar = document.getElementById('p-bar');
-    const nextBtn = document.getElementById('nextBtn');
-    const finishBtn = document.getElementById('finishBtn');
+const firebaseConfig = {
+  apiKey: "AIzaSyB4U7iIO3OVrrwyWPPI057jTqZWF6V1osU",
+  authDomain: "zentry-app-74275.firebaseapp.com",
+  projectId: "zentry-app-74275",
+  storageBucket: "zentry-app-74275.appspot.com",
+  messagingSenderId: "571422826071",
+  appId: "1:571422826071:web:ba1ca6fea76e360bb80d12"
+};
 
-    // --- FUNÇÕES DE MÁSCARA ---
-    const mascaraCPF = (value) => {
-        return value
-            .replace(/\D/g, '') 
-            .replace(/(\d{3})(\d)/, '$1.$2')
-            .replace(/(\d{3})(\d)/, '$1.$2')
-            .replace(/(\d{3})(\d{1,2})/, '$1-$2')
-            .replace(/(-\d{2})\d+?$/, '$1');
-    };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-    const mascaraTelefone = (value) => {
-        return value
-            .replace(/\D/g, '')
-            .replace(/(\d{2})(\d)/, '($1) $2')
-            .replace(/(\d{5})(\d)/, '$1-$2')
-            .replace(/(-\d{4})\d+?$/, '$1');
-    };
+finishBtn.addEventListener("click", async () => {
+  try {
+    finishBtn.disabled = true;
+    finishBtn.textContent = "Criando conta...";
 
-    // --- LÓGICA DE INTERAÇÃO ---
-    function atualizarUI() {
-        slider.style.transform = `translateX(-${etapaAtual * 100}%)`;
-        pBar.style.width = `${((etapaAtual + 1) / totalEtapas) * 100}%`;
-        
-        if (etapaAtual === totalEtapas - 1) {
-            nextBtn.style.display = 'none';
-            finishBtn.style.display = 'block';
-        } else {
-            nextBtn.style.display = 'flex';
-            finishBtn.style.display = 'none';
-        }
-        validarInput();
+    const nome = document.getElementById("cad_nome").value.trim();
+    const cpf = document.getElementById("cad_cpf").value.replace(/\D/g, "");
+    const telefone = document.getElementById("cad_tel").value.replace(/\D/g, "");
+    const email = document.getElementById("cad_email").value.trim().toLowerCase();
+    const senha = document.getElementById("cad_senha").value.trim();
+
+    // 1. Criar usuário no Authentication
+    const cred = await createUserWithEmailAndPassword(auth, email, senha);
+    const uid = cred.user.uid;
+
+    // 2. Criar documento no Firestore
+    await setDoc(doc(db, "usuarios", uid), {
+      uid,
+      nome,
+      cpf,
+      telefone,
+      email,
+      saldo: 0,
+      status: "ativo",
+      criadoEm: serverTimestamp()
+    });
+
+    // 3. Salvar dados localmente
+    localStorage.setItem("usuarioEmail", email);
+    localStorage.setItem("usuarioUid", uid);
+    localStorage.setItem("usuarioNome", nome);
+
+    // 4. Ir direto para a home
+    window.location.href = "home.html";
+
+  } catch (error) {
+    console.error(error);
+
+    let msg = "Erro ao criar conta.";
+
+    if (error.code === "auth/email-already-in-use") {
+      msg = "Este e-mail já está cadastrado.";
     }
 
-    function validarInput() {
-        const inputs = [
-            document.getElementById('cad_nome'),
-            document.getElementById('cad_cpf'),
-            document.getElementById('cad_tel'),
-            document.getElementById('cad_email'),
-            document.getElementById('cad_senha'),
-            document.getElementById('checkTermo')
-        ];
-        
-        let valRaw = inputs[etapaAtual].value;
-        let valido = false;
-
-        if(etapaAtual === 0) valido = valRaw.trim().length > 3;
-        if(etapaAtual === 1) valido = valRaw.replace(/\D/g, '').length === 11; // CPF 11 dígitos
-        if(etapaAtual === 2) valido = valRaw.replace(/\D/g, '').length >= 10; // Tel 10 ou 11
-        if(etapaAtual === 3) valido = valRaw.includes('@') && valRaw.length > 5;
-        if(etapaAtual === 4) valido = valRaw.length === 6;
-        if(etapaAtual === 5) valido = inputs[5].checked;
-
-        if(valido) nextBtn.classList.add('active');
-        else nextBtn.classList.remove('active');
+    if (error.code === "auth/invalid-email") {
+      msg = "E-mail inválido.";
     }
 
-    // Aplicar máscaras nos inputs específicos
-    document.getElementById('cad_cpf').addEventListener('input', (e) => {
-        e.target.value = mascaraCPF(e.target.value);
-        validarInput();
-    });
+    if (error.code === "auth/weak-password") {
+      msg = "Senha inválida.";
+    }
 
-    document.getElementById('cad_tel').addEventListener('input', (e) => {
-        e.target.value = mascaraTelefone(e.target.value);
-        validarInput();
-    });
-
-    // Ouvinte geral para validação
-    document.querySelectorAll('input').forEach(inp => {
-        inp.addEventListener('input', validarInput);
-    });
-
-    nextBtn.addEventListener('click', () => {
-        if(etapaAtual < totalEtapas - 1) {
-            etapaAtual++;
-            atualizarUI();
-            // Focar o próximo input automaticamente
-            setTimeout(() => {
-                const proximos = ['cad_nome','cad_cpf','cad_tel','cad_email','cad_senha'];
-                if(proximos[etapaAtual]) document.getElementById(proximos[etapaAtual]).focus();
-            }, 600);
-        }
-    });
-
-    finishBtn.addEventListener('click', () => {
-        // Aqui você insere sua lógica de salvar no Firebase
-        alert("Enviando dados para o Zentry...");
-        window.location.href = "login.html";
-    });
-
-    atualizarUI();
-</script>
+    alert(msg);
+  } finally {
+    finishBtn.disabled = false;
+    finishBtn.textContent = "CRIAR MINHA CONTA";
+  }
+});
+    </script>
 </body>
 </html>
