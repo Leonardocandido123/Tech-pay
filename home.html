@@ -3,174 +3,141 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-   <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json">
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <title>ZENTRY- Home Premium</title>
+  <title>ZENTRY - Home Premium</title>
   <style>
-  :root { 
-    --primary: #22c55e; 
-    --bg-card: #111827;
-    --border: rgba(255, 255, 255, 0.15); 
-    --text-secondary: #9CA3AF; 
-}
+    :root { 
+        --primary: #22c55e; 
+        --bg-card: #111827;
+        --border: rgba(255, 255, 255, 0.15); 
+        --text-secondary: #9CA3AF; 
+    }
 
-body { 
-    margin:0; 
-    font-family:'Inter',sans-serif; 
-    background: radial-gradient(circle at 20% 0%, #0f172a, #000 60%); 
-    -webkit-tap-highlight-color: transparent; 
-    overflow-x: hidden; 
-    color: #fff; 
-}
+    body { 
+        margin:0; 
+        font-family:'Inter',sans-serif; 
+        background: radial-gradient(circle at 20% 0%, #0f172a, #000 60%); 
+        -webkit-tap-highlight-color: transparent; 
+        overflow-x: hidden; 
+        color: #fff; 
+    }
 
-.container { padding: 20px 20px 100px 20px; }
+    .container { padding: 20px 20px 120px 20px; }
 
-/* HEADER & AVATAR */
-.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-top: 10px; }
-.user-info h2 { font-size: 20px; margin: 2px 0 0 0; color: #FFF; font-weight: 700; }
-.avatar { width:42px; height:42px; background: var(--bg-card); border-radius:50%; display:flex; align-items:center; justify-content:center; border: 1px solid var(--border); }
+    /* HEADER & AVATAR */
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-top: 10px; }
+    .user-info h2 { font-size: 20px; margin: 2px 0 0 0; color: #FFF; font-weight: 700; }
+    .avatar { width:42px; height:42px; background: var(--bg-card); border-radius:50%; display:flex; align-items:center; justify-content:center; border: 1px solid var(--border); }
 
-/* SALDO CIRCULAR */
-.balance-circle { display: flex; justify-content: center; margin: 30px 0; cursor: pointer; }
-.circle {
-    width: 190px; height: 190px; border-radius: 50%;
-    border: 4px solid var(--primary); display: flex; flex-direction: column; 
-    align-items: center; justify-content: center; background: radial-gradient(circle, #0a0a0a, #000);
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);
-}
-.circle span { font-size: 24px; font-weight: 800; }
+    /* SALDO CIRCULAR */
+    .balance-circle { display: flex; justify-content: center; margin: 25px 0; cursor: pointer; }
+    .circle {
+        width: 180px; height: 180px; border-radius: 50%;
+        border: 4px solid var(--primary); display: flex; flex-direction: column; 
+        align-items: center; justify-content: center; background: radial-gradient(circle, #0a0a0a, #000);
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);
+    }
+    .circle span { font-size: 22px; font-weight: 800; }
+    .circle small { font-size: 11px; opacity: 0.6; margin-top: 4px; }
 
-/* CARDS ESPECIAIS (PIX & ZENTAP) */
-.pix-card { display:flex; justify-content:space-between; align-items:center; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius:20px; padding:16px; margin-bottom:25px; }
-.pix-info b { font-size:14px; color:#fff; }
-.pix-btn { background:#fff; color:#16a34a; padding:8px 14px; border-radius:12px; font-size:12px; font-weight:700; text-decoration:none; }
+    /* CARDS ESPECIAIS (PIX & ZENTAP) */
+    .pix-card { display:flex; justify-content:space-between; align-items:center; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius:20px; padding:16px; margin-bottom:15px; }
+    .pix-info b { font-size:14px; color:#fff; }
+    .pix-btn { background:#fff; color:#16a34a; padding:8px 14px; border-radius:12px; font-size:12px; font-weight:700; text-decoration:none; }
 
-.techtap-card { background: linear-gradient(135deg, #ff5f1f, #ff8c00); border-radius: 20px; padding: 16px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
-.techtap-info b { font-size: 14px; color: #000; }
-.techtap-btn { background: #fff; color: #000; padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: 700; border: none; }
+    .techtap-card { background: linear-gradient(135deg, #ff5f1f, #ff8c00); border-radius: 20px; padding: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .techtap-info b { font-size: 14px; color: #000; }
+    .techtap-btn { background: #fff; color: #000; padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; }
 
-/* GRID DE AÇÕES */
-.actions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 30px; }
-.action-item { text-decoration: none; display: flex; flex-direction: column; align-items: center; }
-.action-icon { width: 54px; height: 54px; background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #FFF; box-shadow: 0 4px 8px rgba(0,0,0,0.25); }
-.action-icon svg { width: 22px; height: 22px; stroke: #fff; stroke-width: 1.8; fill: none; }
-.action-item span { font-size: 11px; font-weight: 500; color: #FFF; margin-top: 6px; opacity: 0.85; }
+    /* GRID DE AÇÕES */
+    .actions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 5px 0 25px 0; }
+    .action-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #fff; font-size: 12px; font-weight: 500; transition: transform 0.2s; }
+    .action-item:active { transform: scale(0.95); }
+    .action-icon { width: 58px; height: 58px; background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.25); }
+    .action-icon svg { width: 24px; height: 24px; stroke: #fff; stroke-width: 2; fill: none; }
+    .action-item span { opacity: 0.85; font-size: 11px; }
 
-
-
-/* BANNERS ROTATIVOS */
-.banner-wrapper { width: 100%; margin: 20px 0 30px 0; position: relative; overflow: hidden; }
-.banner-container { display: flex; transition: transform 0.5s ease-in-out; width: 100%; }
-.smart-banner { min-width: 100%; background: linear-gradient(145deg, #111827, #0a0f1f); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; gap: 10px; min-height: 130px; }
-.smart-banner b { font-size: 15px; color: #fff; }
-.smart-banner p { font-size: 12px; color: #9CA3AF; margin: 0; }
-.banner-dots { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
-.dot { width: 6px; height: 6px; background: #374151; border-radius: 50%; }
-.dot.active { background: var(--primary); width: 18px; border-radius: 10px; }
-
-/* ATIVIDADE RECENTE */
-/* CONTAINER DOS ÍCONES (A GRADE) */
-.actions-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 colunas iguais */
-    gap: 20px;
-    padding: 20px;
-}
-
-/* CADA BOTÃO (Link + Ícone) */
-.action-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    color: #fff; /* Nome do botão em branco */
-    font-size: 13px;
-    font-weight: 500;
-    transition: transform 0.2s;
-}
-
-.action-item:active {
-    transform: scale(0.95); /* Efeito de clique */
-}
-
-/* O QUADRADINHO DO ÍCONE */
-.action-icon {
-    width: 60px;
-    height: 60px;
-    background: #111827;
-    border-radius: 16px; /* Bordas arredondadas estilo iOS/C6 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 8px;
-    color: #fff; /* Cor do ícone interna */
-}
-
-.action-icon svg {
-    width: 28px;
-    height: 28px;
-    stroke: #fff; /* Deixa o desenho do ícone branco */
-}
-
-/* NOME DO BOTÃO */
-.action-item span {
-    opacity: 0.8;
-}
-
-/* REMOVIDO: premium-icon e pulseGlow (Layout Limpo) */
+    /* SEÇÕES E NOVOS CARDS DA HOME */
+    .section-title { font-size: 16px; font-weight: 600; margin: 20px 0 12px 0; color: #FFF; display: flex; align-items: center; gap: 8px; }
     
-/* ========================================= */
-/* NAV BAR CORRIGIDA (ÍCONES & ALINHAMENTO)  */
-/* ========================================= */
-.nav-bar { 
-    position: fixed; 
-    bottom: 0; 
-    left: 0; 
-    right: 0; 
-    background: rgba(10, 10, 10, 0.98); 
-    backdrop-filter: blur(15px); 
-    border-top: 1px solid var(--border); 
-    display: flex; 
-    justify-content: space-around; 
-    align-items: center; 
-    padding: 12px 0 28px; 
-    z-index: 1000; 
-}
-
-.nav-btn { 
-    background: none; 
-    border: none; 
-    color: #9CA3AF; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    gap: 6px; 
-    font-size: 10px; 
-    width: 25%;
-    transition: 0.2s;
-    cursor: pointer;
-}
-
-.nav-btn svg {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor; /* Herda a cor do nav-btn */
-    stroke-width: 2;
-    fill: none;
-}
-
-.nav-btn.active { color: var(--primary); }
-.nav-btn:active { transform: scale(0.9); }
+    .premium-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
     
+    /* Central de Alertas / Insights */
+    .insight-box { display: flex; gap: 12px; align-items: flex-start; background: rgba(34, 197, 94, 0.08); border-left: 3px solid var(--primary); padding: 12px; border-radius: 0 12px 12px 0; margin-bottom: 10px; font-size: 13px; }
+    .insight-box.warning { background: rgba(255, 95, 31, 0.08); border-left-color: #ff5f1f; }
+    
+    /* Resumo do Mês */
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+    .summary-row:last-child { margin-bottom: 0; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1); }
+    .txt-green { color: #22c55e; font-weight: 600; }
+    .txt-red { color: #ef4444; font-weight: 600; }
+
+    /* Últimas Transações */
+    .tx-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+    .tx-item:last-child { border-bottom: none; }
+    .tx-info { display: flex; flex-direction: column; gap: 2px; }
+    .tx-date { font-size: 11px; color: var(--text-secondary); }
+
+    /* Metas */
+    .progress-bar { width: 100%; height: 6px; background: #374151; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--primary); border-radius: 4px; }
+
+    /* Score e Investimentos Split */
+    .split-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Status Tags */
+    .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .status-tag { background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 10px; font-size: 11px; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.03); }
+    .status-dot { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
+
+    /* BANNERS ROTATIVOS */
+    .banner-wrapper { width: 100%; margin: 20px 0; position: relative; overflow: hidden; }
+    .smart-banner { background: linear-gradient(145deg, #111827, #0a0f1f); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .smart-banner b { font-size: 14px; color: #fff; }
+    .smart-banner p { font-size: 12px; color: #9CA3AF; margin: 0; }
+
+    /* NAV BAR */
+    .nav-bar { 
+        position: fixed; 
+        bottom: 0; 
+        left: 0; 
+        right: 0; 
+        background: rgba(10, 10, 10, 0.98); 
+        backdrop-filter: blur(15px); 
+        border-top: 1px solid var(--border); 
+        display: flex; 
+        justify-content: space-around; 
+        align-items: center; 
+        padding: 12px 0 28px; 
+        z-index: 1000; 
+    }
+
+    .nav-btn { 
+        background: none; 
+        border: none; 
+        color: #9CA3AF; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        gap: 6px; 
+        font-size: 10px; 
+        width: 25%;
+        transition: 0.2s;
+        cursor: pointer;
+    }
+
+    .nav-btn svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2; fill: none; }
+    .nav-btn.active { color: var(--primary); }
+    .nav-btn:active { transform: scale(0.9); }
   </style>
-
-
 </head>
 <body>
 
 <div class="container">
+  
+  <!-- TOPO: Saudação + Nome -->
   <header class="header">
     <div class="user-info">
       <div class="greeting" id="greeting">Boa tarde,</div>
@@ -186,6 +153,7 @@ body {
     </div>
   </header>
 
+  <!-- 1. SALDO CIRCULAR -->
   <div class="balance-circle" onclick="location.href='extrato.html'">
     <div class="circle">
         <span id="saldo-home">Carregando...</span>
@@ -193,53 +161,143 @@ body {
     </div>
   </div>
 
-  
+  <!-- ATALHOS RÁPIDOS: Pix rápido & Zentap -->
   <div class="pix-card">
-    <div class="pix-info"><b style="display:flex;align-items:center;gap:6px;">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <path d="M12 2L4 10l8 8 8-8-8-8z" stroke="white" stroke-width="2"/>
-  </svg>
-  Pix rápido
-    </b><br><span style="font-size: 11px; opacity: 0.8;">Receba e envia dinheiro 24h</span></div>
+    <div class="pix-info">
+      <b style="display:flex;align-items:center;gap:6px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 10l8 8 8-8-8-8z" stroke="white" stroke-width="2"/></svg>
+        Pix rápido
+      </b>
+      <span style="font-size: 11px; opacity: 0.8;">Receba e envie dinheiro 24h</span>
+    </div>
     <a href="pix.html" class="pix-btn">Usar Pix</a>
   </div>
 
-  
   <div class="techtap-card">
-    <div class="techtap-info"><b>ZENTAP ⚡</b><br><span>Venda por aproximação</span></div>
+    <div class="techtap-info"><b>ZENTAP ⚡</b><br><span style="font-size: 11px; opacity: 0.9;">Venda por aproximação</span></div>
     <button onclick="window.location.href='pdv.html'" class="techtap-btn">Cobrar</button>
   </div>
   
-
- <section class="actions-grid">
+  <!-- GRID DE AÇÕES (Atalhos secundários) -->
+  <section class="actions-grid">
     <a href="extrato.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2"/></svg></div><span>Extrato</span></a>
-
-    <a href="pagar.html" class="action-item">
-  <div class="action-icon">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-      <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-      <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-      <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-      <line x1="7" y1="12" x2="17" y2="12"></line>
-    </svg>
-  </div>
-  <span>Pagar</span>
-    </a>
-    
+    <a href="pagar.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10"/></svg></div><span>Pagar</span></a>
     <a href="cobrar.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><span>Cobrar</span></a>
     <a href="contas.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><path d="M20 12V8H4v4M2 4h20v16H2V4zm2 4h16v10H4V8z"/></svg></div><span>Contas</span></a>
     <a href="cartao.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><span>Cartão</span></a>
     <a href="recarga.html" class="action-item"><div class="action-icon"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></div><span>Recarga</span></a>
   </section>
 
-
-  <div class="banner-wrapper">
-    <div class="banner-container" id="banner-slider"></div>
-    <div class="banner-dots" id="banner-dots"></div>
+  <!-- 6. CENTRAL DE ALERTAS / 9. INSIGHTS INTELIGENTES -->
+  <div class="premium-card">
+    <div class="insight-box">
+      <span>💡 <b>Insight:</b> Você gastou 18% menos que no mês passado. Bom trabalho!</span>
+    </div>
+    <div class="insight-box warning">
+      <span>🔔 <b>Alerta:</b> Seu maior gasto este mês foi com <b>Alimentação</b>.</span>
+    </div>
   </div>
 
+  <!-- 3. ÚLTIMAS TRANSAÇÕES -->
+  <div class="section-title">⏱️ Últimas Movimentações</div>
+  <div class="premium-card">
+    <div class="tx-item">
+      <div class="tx-info"><b>Pix recebido de João</b><span class="tx-date">Hoje, 14:20</span></div>
+      <span class="txt-green">+ <span class="hide-val">R$ 150,00</span></span>
+    </div>
+    <div class="tx-item">
+      <div class="tx-info"><b>Mercado Livre</b><span class="tx-date">Ontem, 18:05</span></div>
+      <span>- <span class="hide-val">R$ 89,90</span></span>
+    </div>
+    <div class="tx-item">
+      <div class="tx-info"><b>Recarga Celular</b><span class="tx-date">17 Mai</span></div>
+      <span>- <span class="hide-val">R$ 30,00</span></span>
+    </div>
+  </div>
 
+  <!-- 2. RESUMO DO MÊS -->
+  <div class="section-title">📊 Resumo do Mês</div>
+  <div class="premium-card">
+    <div class="summary-row">
+      <span style="color: var(--text-secondary);">Entradas</span>
+      <span class="txt-green" id="resumo-entradas">R$ 4.820,00</span>
+    </div>
+    <div class="summary-row">
+      <span style="color: var(--text-secondary);">Saídas</span>
+      <span class="txt-red" id="resumo-saidas">R$ 2.160,00</span>
+    </div>
+    <div class="summary-row">
+      <b>Economia</b>
+      <span class="txt-green" id="resumo-economia">+ R$ 2.660,00</span>
+    </div>
+  </div>
+
+  <!-- 1. CARD DE LIMITE DE CRÉDITO & 5. PRÓXIMA FATURA -->
+  <div class="section-title">💳 Cartão ZENTRY</div>
+  <div class="premium-card" onclick="location.href='cartao.html'" style="cursor:pointer;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <span style="font-size:12px; opacity:0.5; text-transform: uppercase; letter-spacing: 1px;">Zentry Credit Premium</span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    </div>
+    <div class="summary-row">
+      <span style="color: var(--text-secondary);">Limite Disponível:</span>
+      <b style="color: #fff;" id="cartao-limite">R$ 2.450,00</b>
+    </div>
+    <div class="summary-row" style="margin-bottom: 12px;">
+      <span style="color: var(--text-secondary);">Fatura Atual:</span>
+      <span class="txt-red" id="cartao-fatura">R$ 387,40</span>
+    </div>
+    <div style="font-size:11px; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 10px; display:flex; justify-content: space-between;">
+      <span style="color: var(--text-secondary);">Vencimento: 15/06 (Fecha em 7 dias)</span>
+      <span class="txt-green" style="font-weight:600;">Ver detalhes</span>
+    </div>
+  </div>
+
+  <!-- 4. METAS FINANCEIRAS -->
+  <div class="section-title">🎯 Metas Financeiras</div>
+  <div class="premium-card" onclick="location.href='metas.html'" style="cursor:pointer;">
+    <div style="display:flex; justify-content:space-between; font-size:13px;">
+      <b>Viagem para a praia 🏖️</b>
+      <span style="color: var(--text-secondary);"><span class="hide-val">R$ 1.250</span> de R$ 5.000</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 25%;"></div>
+    </div>
+    <div style="font-size:11px; text-align:right; margin-top:6px; color:var(--primary); font-weight:600;">25% Concluído</div>
+  </div>
+
+  <!-- 7. INVESTIMENTOS & 8. SCORE ZENTRY -->
+  <div class="split-row">
+    <div class="premium-card">
+      <div style="font-size:11px; color:var(--text-secondary); margin-bottom:4px;">🚀 INVESTIMENTOS</div>
+      <div style="font-size:15px; font-weight:700;" id="inv-aplicado">R$ 1.200,00</div>
+      <div style="font-size:11px; color:var(--primary); margin-top:4px;">+R$ 18,42 este mês</div>
+    </div>
+    <div class="premium-card">
+      <div style="font-size:11px; color:var(--text-secondary); margin-bottom:4px;">🏆 SCORE ZENTRY</div>
+      <div style="font-size:16px; font-weight:800; color: #ff8c00;">875</div>
+      <div style="font-size:10px; color:var(--text-secondary); margin-top:5px;">Perfil Excelente</div>
+    </div>
+  </div>
+
+  <!-- 10. STATUS DA CONTA -->
+  <div class="section-title">🛡️ Status da Conta</div>
+  <div class="status-grid">
+    <div class="status-tag"><div class="status-dot"></div> Conta Verificada</div>
+    <div class="status-tag"><div class="status-dot"></div> CPF Validado</div>
+    <div class="status-tag"><div class="status-dot"></div> Chave Pix Ativa</div>
+    <div class="status-tag"><div class="status-dot"></div> Cartão Virtual Ativo</div>
+  </div>
+
+  <!-- BANNERS PROMOCIONAIS -->
+  <div class="banner-wrapper">
+    <div class="smart-banner">
+      <b>Indique amigos e ganhe prêmios 🎁</b>
+      <p>A cada novo cadastro aprovado com seu código, você ganha R$ 20 de limite extra no cartão.</p>
+    </div>
+  </div>
+
+  <!-- MENU INFERIOR -->
   <nav class="nav-bar">
     <button class="nav-btn active" onclick="location.href='home.html'"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Início</button>
     <button class="nav-btn" onclick="location.href='metas.html'"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Metas</button>
@@ -247,8 +305,8 @@ body {
     <button class="nav-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sair</button>
   </nav>
 </div>
-<script type="module">
 
+<script type="module">
 import { auth, db, ZentryAuth } from './zentry-core.js';
 import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -258,88 +316,111 @@ let currentUid = null;
 
 window.currentSaldo = 0;
 
-// 🚀 INICIALIZA HOME (SEGURO)
+// Valores Mockados/Fixos iniciais que reagem ao olho ocultar
+const valoresEstaticos = {
+    entradas: 4820.00,
+    saidas: 2160.00,
+    economia: 2660.00,
+    limite: 2450.00,
+    fatura: 387.40,
+    investimento: 1200.00,
+    metaAtual: 1250.00
+};
+
 async function initHome() {
-
-    // 🔐 PROTEÇÃO REAL (Firebase)
     ZentryAuth.exigirLogin().then((user) => {
-
         currentUid = user.uid;
 
-        // 🔥 ESCUTA DADOS EM TEMPO REAL
         unsub = onSnapshot(doc(db, "usuarios", currentUid), (docSnap) => {
-
             if (docSnap.exists()) {
                 const d = docSnap.data();
 
-                // 👤 Nome
-                document.getElementById("nome-usuario").innerText =
-                    (d.nome || "Usuário") + "!";
+                document.getElementById("nome-usuario").innerText = (d.nome || "Usuário") + "!";
 
-                // 💰 Saldo
                 const saldoSeguro = Number(d.saldo);
                 window.currentSaldo = isNaN(saldoSeguro) ? 0 : saldoSeguro;
 
                 renderSaldo();
                 atualizarSaudacao();
-
             } else {
                 console.log("Usuário não encontrado");
             }
-
         }, (error) => {
             console.error("Erro Firestore:", error);
         });
-
     });
 }
 
-// 💰 RENDER SALDO
+// FORMATADOR PADRÃO REUTILIZÁVEL
+const formatBRL = (val) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+// 💰 RENDERIZAR TODOS OS SALDOS DA TELA
 window.renderSaldo = () => {
     const elSaldo = document.getElementById("saldo-home");
+    const elEntradas = document.getElementById("resumo-entradas");
+    const elSaidas = document.getElementById("resumo-saidas");
+    const elEconomia = document.getElementById("resumo-economia");
+    const elLimite = document.getElementById("cartao-limite");
+    const elFatura = document.getElementById("cartao-fatura");
+    const elInv = document.getElementById("inv-aplicado");
+    const txtOcultos = document.querySelectorAll(".hide-val");
 
     if (saldoOculto) {
         elSaldo.innerText = "••••••";
+        elEntradas.innerText = "••••••";
+        elSaidas.innerText = "••••••";
+        elEconomia.innerText = "••••••";
+        elLimite.innerText = "••••••";
+        elFatura.innerText = "••••••";
+        elInv.innerText = "••••••";
+        txtOcultos.forEach(el => el.dataset.orig = el.innerText);
+        txtOcultos.forEach(el => el.innerText = "••••••");
         return;
     }
 
-    elSaldo.innerText = window.currentSaldo.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-    });
+    // Se estiver visível, renderiza formatado
+    elSaldo.innerText = formatBRL(window.currentSaldo);
+    elEntradas.innerText = formatBRL(valoresEstaticos.entradas);
+    elSaidas.innerText = formatBRL(valoresEstaticos.saidas);
+    elEconomia.innerText = "+ " + formatBRL(valoresEstaticos.economia);
+    elLimite.innerText = formatBRL(valoresEstaticos.limite);
+    elFatura.innerText = formatBRL(valoresEstaticos.fatura);
+    elInv.innerText = formatBRL(valoresEstaticos.investimento);
+    
+    
+    // Restaura textos internos fixos da lista e das metas
+    if(txtOcultos[0] && txtOcultos[0].dataset.orig) {
+        txtOcultos[0].innerText = "R$ 150,00";
+        txtOcultos[1].innerText = "R$ 89,90";
+        txtOcultos[2].innerText = "R$ 30,00";
+        txtOcultos[3].innerText = "R$ 1.250";
+    }
 };
 
-// 👁️ TOGGLE SALDO
+// 👁️ SWITCH VISIBILIDADE
 window.toggleSaldoHome = () => {
     saldoOculto = !saldoOculto;
     renderSaldo();
 };
 
-// 👋 SAUDAÇÃO
 function atualizarSaudacao() {
     const hora = new Date().getHours();
     const el = document.getElementById("greeting");
-
     if (hora >= 5 && hora < 12) el.innerText = "Bom dia,";
     else if (hora >= 12 && hora < 18) el.innerText = "Boa tarde,";
     else el.innerText = "Boa noite,";
 }
 
-// 🚪 LOGOUT REAL
 window.logout = async () => {
     if (unsub) unsub();
-
-    await ZentryAuth.logout(); // já limpa sessão e redireciona
+    await ZentryAuth.logout();
 };
 
-// 🔁 START
 initHome();
 
-// 🔄 LIMPA LISTENER
 window.addEventListener("beforeunload", () => {
     if (unsub) unsub();
 });
-
-                  </script>
+</script>
 </body>
 </html>
