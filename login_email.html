@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ZENTRY - Entrar</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --accent:#22c55e;
+  --bg:#05070A;
+  --border:#2A3441;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Inter',sans-serif;
+}
+
+html,body{
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+  position:fixed;
+}
+
+body{
+  background: radial-gradient(circle at top, #0f172a, #000);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:30px;
+  color:#fff;
+}
+
+.title{
+  font-size:28px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.subtitle{
+  color:#9CA3AF;
+  font-size:15px;
+  margin-bottom:40px;
+  line-height:1.5;
+}
+
+.field{
+  border-bottom:1.5px solid var(--border);
+  height:60px;
+  display:flex;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.field:focus-within{
+  border-bottom-color:var(--accent);
+}
+
+input{
+  width:100%;
+  background:none;
+  border:none;
+  outline:none;
+  color:#fff;
+  font-size:18px;
+}
+
+.btn{
+  width:100%;
+  margin-top:30px;
+  padding:18px;
+  border:none;
+  border-radius:16px;
+  background:var(--accent);
+  color:#000;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.btn:disabled{
+  opacity:0.4;
+}
+
+.link{
+  margin-top:20px;
+  text-align:center;
+}
+
+.link a{
+  color:#9CA3AF;
+  text-decoration:none;
+  font-size:14px;
+}
+</style>
+</head>
+<body>
+
+<div class="title">Entrar no ZENTRY</div>
+<div class="subtitle">Digite seu e-mail e senha para acessar sua conta.</div>
+
+<div class="field">
+  <input type="email" id="email" placeholder="Seu e-mail">
+</div>
+
+<div class="field">
+  <input type="password" id="senha" placeholder="Sua senha">
+</div>
+
+<button class="btn" id="btnEntrar" disabled>Entrar</button>
+
+<div class="link">
+  <a href="cadastro_unificado.html">Criar conta</a>
+</div>
+
+<script type="module">
+import { auth } from './zentry-core.js';
+import {
+  signInWithEmailAndPassword,
+  setPersistence,
+  browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const email = document.getElementById('email');
+const senha = document.getElementById('senha');
+const btn = document.getElementById('btnEntrar');
+
+function validar(){
+  btn.disabled =
+    !email.value.includes('@') ||
+    senha.value.length < 6;
+}
+
+email.addEventListener('input', validar);
+senha.addEventListener('input', validar);
+
+btn.addEventListener('click', async () => {
+  try {
+    btn.textContent = 'Entrando...';
+    btn.disabled = true;
+
+    await setPersistence(auth, browserLocalPersistence);
+
+    await signInWithEmailAndPassword(
+      auth,
+      email.value.trim(),
+      senha.value
+    );
+
+    localStorage.setItem(
+      'usuarioEmail',
+      email.value.trim()
+    );
+
+    window.location.href = 'home.html';
+
+  } catch (error) {
+    alert('E-mail ou senha inválidos.');
+    btn.textContent = 'Entrar';
+    validar();
+    console.error(error);
+  }
+});
+</script>
+
+</body>
+</html>
