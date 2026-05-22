@@ -52,7 +52,20 @@
     .techtap-btn { background: #fff; color: #000; padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; }
 
     /* GRID DE AÇÕES */
-    .actions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 5px 0 25px 0; }
+.actions-wrapper{
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.actions-grid { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 18px; 
+}
     .action-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #fff; font-size: 12px; font-weight: 500; transition: transform 0.2s; }
     .action-item:active { transform: scale(0.95); }
     .action-icon { width: 58px; height: 58px; background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.25); }
