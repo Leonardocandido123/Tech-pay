@@ -1,244 +1,439 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <title>ZENTRY - Área Pix</title>
-  <style>
-    :root {
-      --primary: #22c55e;
-      --primary-glow: rgba(34,197,94,0.2);
-      --bg: #060910;
-      --card: #0f1623;
-      --card2: #161f2e;
-      --border: rgba(255,255,255,0.07);
-      --text-muted: #6b7a99;
-    }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-    body { font-family: 'Sora', sans-serif; background: var(--bg); color: #fff; overflow-x: hidden; min-height: 100vh; }
+<!DOCTYPE html>  
+<html lang="pt-BR">  
+<head>  
+  <meta charset="UTF-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">  
+  <title>ZENTRY - Área Pix</title>  
+  <style>  
+    :root {  
+      --primary: #10b981;  
+      --primary-dark: #059669;
+      --primary-glow: rgba(16, 185, 129, 0.1);  
+      --bg: #f4f7f6;  
+      --card: #ffffff;  
+      --border: #e2e8f0;  
+      --text-main: #0f172a;
+      --text-muted: #64748b;  
+    }  
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }  
+    body { background: var(--bg); color: var(--text-main); overflow-x: hidden; min-height: 100vh; padding-bottom: 40px; }  
+    
+    .btn-touch:active { transform: scale(0.97); opacity: 0.85; }  
+    .btn-touch { transition: 0.2s; cursor: pointer; }  
 
-    .btn-touch:active { transform: scale(0.96); opacity: 0.85; }
-    .btn-touch { transition: 0.2s; cursor: pointer; }
-
-    /* HEADER */
-    .header {
-      padding: 20px 20px 14px;
-      position: sticky; top: 0;
-      background: rgba(6,9,16,0.85);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      z-index: 100;
-    }
-    .nav-top { display: flex; align-items: center; justify-content: space-between; }
-    .back-btn {
-      background: var(--card2); border: 1px solid var(--border);
-      color: white; width: 40px; height: 40px;
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .back-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.5; }
-    .header-info h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
-    .header-badge {
-      color: var(--primary); font-size: 9px;
-      background: var(--primary-glow);
-      padding: 2px 8px; border-radius: 6px;
-      font-weight: 700; text-transform: uppercase;
-      margin-top: 2px; width: fit-content;
-    }
-
-    /* SALDO */
-    .balance-field {
-      margin: 16px 20px;
-      padding: 18px 20px;
-      background: var(--card);
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .balance-small { color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-    .balance-value { font-size: 22px; font-weight: 800; margin-top: 4px; color: var(--primary); }
-    .eye-btn { color: var(--text-muted); }
-    .eye-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; }
-
-    .container { padding: 4px 20px 40px; }
-
-    /* GRID PIX */
-    .pix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
-    .pix-item {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 22px; padding: 22px 16px;
-      display: flex; flex-direction: column; gap: 10px;
-      position: relative; overflow: hidden; transition: 0.2s;
-    }
-    .pix-item::before {
-      content: ''; position: absolute;
-      top: 0; left: 20%; right: 20%; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--primary), transparent);
-    }
-    .pix-item:active { transform: scale(0.97); background: var(--card2); }
-    .icon-wrap {
-      width: 38px; height: 38px; color: var(--primary);
-      display: flex; align-items: center; justify-content: flex-start;
-    }
-    .icon-wrap svg { width: 26px; height: 26px; stroke-width: 2; stroke: currentColor; fill: none; }
-    .pix-item b    { font-size: 15px; color: #fff; font-weight: 700; }
-    .pix-item span { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
-
-    /* SEÇÃO */
-    .section-title {
-      font-size: 11px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 1.2px; margin: 24px 0 14px; color: var(--text-muted);
-      display: flex; align-items: center; gap: 10px;
-    }
-    .section-title::after { content: ''; flex-grow: 1; height: 1px; background: var(--border); }
-
-    /* CONTATOS RECENTES */
-    .recent-list { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
-    .recent-list::-webkit-scrollbar { display: none; }
-    .recent-user { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 60px; }
-    .user-thumb {
-      width: 52px; height: 52px;
-      background: var(--card2); border: 1px solid var(--border);
+    /* HEADER */  
+    .header {  
+      padding: 20px;  
+      position: sticky; 
+      top: 0;  
+      background: rgba(244, 247, 246, 0.85);  
+      backdrop-filter: blur(20px);  
+      z-index: 100;  
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }  
+    .back-btn {  
+      background: var(--card); 
+      border: 1px solid var(--border);  
+      color: var(--text-main); 
+      width: 44px; 
+      height: 44px;  
+      border-radius: 14px;  
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }  
+    .back-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.5; }  
+    
+    .header-info { text-align: center; flex: 1; margin-right: 44px; }
+    .header-info h2 { font-size: 18px; font-weight: 700; color: var(--text-main); }  
+    .header-badge {  
+      color: var(--primary-dark); 
+      font-size: 11px;  
+      background: #e6f4ea;  
+      padding: 3px 10px; 
+      border-radius: 20px;  
+      font-weight: 600; 
+      margin: 4px auto 0; 
+      width: fit-content;  
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }  
+    .header-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: var(--primary);
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 700; color: var(--primary);
     }
-    .recent-user p { font-size: 11px; color: var(--text-muted); }
 
-    /* GERENCIAR */
-    .manage-card { background: var(--card); border-radius: 20px; border: 1px solid var(--border); padding: 0 20px; }
-    .manage-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 16px 0; border-bottom: 1px solid var(--border);
+    /* CARD SALDO ELEGANTE */  
+    .balance-field {  
+      margin: 10px 20px 20px;  
+      padding: 24px;  
+      background: var(--card);  
+      border-radius: 24px;  
+      border: 1px solid rgba(226, 232, 240, 0.8);  
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;  
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+    }  
+    .balance-left { z-index: 2; }
+    .balance-small { color: var(--text-muted); font-size: 13px; font-weight: 500; margin-bottom: 4px; }  
+    .balance-value { font-size: 28px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }  
+    .balance-link { color: var(--primary-dark); font-size: 13px; font-weight: 600; margin-top: 6px; display: flex; align-items: center; gap: 4px; text-decoration: none; }
+    
+    .balance-right { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; z-index: 2; }
+    .eye-btn { 
+      color: var(--primary); 
+      background: var(--primary-glow); 
+      width: 36px; 
+      height: 36px; 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+    }  
+    .eye-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.5; }  
+    
+    /* MARCA D'ÁGUA DO LOGO NO SALDO */
+    .balance-bg-icon {
+      position: absolute;
+      right: -10px;
+      bottom: -15px;
+      color: #f1f5f9;
+      width: 130px;
+      height: 130px;
+      z-index: 1;
+      pointer-events: none;
     }
-    .manage-item:last-child { border: none; }
-    .manage-item b { font-size: 15px; font-weight: 600; }
-    .chevron { color: var(--primary); }
-    .chevron svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; }
-  </style>
-</head>
-<body>
 
-<header class="header">
-  <div class="nav-top">
-    <button class="back-btn btn-touch" onclick="location.href='home.html'">
-      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <div class="header-info">
-      <h2>Área Pix</h2>
-      <div class="header-badge">⚡ Sistema Ativo</div>
-    </div>
-    <div style="width:40px"></div>
-  </div>
-</header>
+    .container { padding: 0 20px; }  
 
-<div class="balance-field btn-touch" onclick="toggleSaldo()">
-  <div>
-    <div class="balance-small">Saldo na conta</div>
-    <div class="balance-value" id="saldo-txt">Carregando...</div>
-  </div>
-  <div class="eye-btn">
-    <svg id="eye-icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-  </div>
-</div>
+    /* GRID PIX ORGANIZADO */  
+    .pix-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 25px; }  
+    @media(min-width: 360px) {
+      .pix-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .pix-item {  
+      background: var(--card); 
+      border: 1px solid rgba(226, 232, 240, 0.8);  
+      border-radius: 20px; 
+      padding: 16px;  
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
+    }  
+    .pix-item-left { display: flex; align-items: center; gap: 14px; }
+    .icon-wrap {  
+      width: 46px; 
+      height: 46px; 
+      color: var(--primary-dark);  
+      background: var(--primary-glow);
+      border-radius: 12px;
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      flex-shrink: 0;
+    }  
+    .icon-wrap svg { width: 22px; height: 22px; stroke-width: 2.5; stroke: currentColor; fill: none; }  
+    .pix-text { display: flex; flex-direction: column; }
+    .pix-item b { font-size: 15px; color: var(--text-main); font-weight: 600; }  
+    .pix-item span { font-size: 12px; color: var(--text-muted); margin-top: 2px; }  
+    .item-chevron { color: var(--primary); display: flex; align-items: center; }
+    .item-chevron svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 3; }
 
-<div class="container">
-  <div class="pix-grid">
-    <div class="pix-item btn-touch" onclick="location.href='transferir.html'">
-      <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 19V5m-7 7l7-7 7 7"/></svg></div>
-      <b>Transferir</b><span>Envie por chave ou dados</span>
-    </div>
-    <div class="pix-item btn-touch" onclick="location.href='copia_cola.html'">
-      <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></div>
-      <b>Copia e Cola</b><span>Pague com código Pix</span>
-    </div>
-    <div class="pix-item btn-touch" onclick="location.href='qrcode.html'">
-      <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2m10 0h2a2 2 0 0 1 2 2v2m0 10v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 7h10v10H7z"/></svg></div>
-      <b>Ler QR Code</b><span>Escaneie para pagar</span>
-    </div>
-    <div class="pix-item btn-touch" onclick="location.href='agendar.html'">
-      <div class="icon-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
-      <b>Programar</b><span>Agende para depois</span>
-    </div>
-  </div>
+    /* SEÇÕES */  
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 24px 0 14px;
+    }
+    .section-title { font-size: 15px; font-weight: 700; color: var(--text-main); }  
+    .section-link { color: var(--primary-dark); font-size: 13px; font-weight: 600; text-decoration: none; }
 
-  <div class="section-title">Contatos Recentes</div>
-  <div class="recent-list" id="recentList">
-    <div class="recent-user"><div class="user-thumb">AM</div><p>Ana</p></div>
-    <div class="recent-user"><div class="user-thumb">JR</div><p>João</p></div>
-    <div class="recent-user"><div class="user-thumb">LC</div><p>Lucas</p></div>
-    <div class="recent-user"><div class="user-thumb">BT</div><p>Bia</p></div>
-    <div class="recent-user"><div class="user-thumb">GL</div><p>Gabi</p></div>
-  </div>
+    /* CONTATOS RECENTES */  
+    .recent-list { display: flex; gap: 14px; overflow-x: auto; padding: 4px 0 12px; scrollbar-width: none; }  
+    .recent-list::-webkit-scrollbar { display: none; }  
+    .recent-user { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 68px; text-align: center; }  
+    .user-thumb {  
+      width: 56px; 
+      height: 56px;  
+      background: #e6f4ea; 
+      border: 2px solid #fff;  
+      border-radius: 50%;  
+      display: flex; 
+      align-items: center; 
+      justify-content: center;  
+      font-size: 15px; 
+      font-weight: 600; 
+      color: var(--primary-dark);  
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }  
+    /* Estrela ativa para o primeiro contato */
+    .user-thumb.starred::after {
+      content: "★";
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 8px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid #fff;
+    }
+    .user-thumb.add-new {
+      background: #fff;
+      border: 2px dashed var(--border);
+      color: var(--primary);
+      font-size: 22px;
+    }
+    .recent-user p { font-size: 12px; color: var(--text-main); font-weight: 500; }  
 
-  <div class="section-title">Gerenciar</div>
-  <div class="manage-card">
-    <div class="manage-item btn-touch" onclick="location.href='pix_chaves.html'">
-      <b>Minhas chaves</b>
-      <div class="chevron"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
-    </div>
-    <div class="manage-item btn-touch" onclick="location.href='pix_limites.html'">
-      <b>Meus limites Pix</b>
-      <div class="chevron"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
-    </div>
+    /* GERENCIAR */  
+    .manage-card { background: var(--card); border-radius: 24px; border: 1px solid rgba(226, 232, 240, 0.8); padding: 0 20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02); margin-bottom: 20px; }  
+    .manage-item {  
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;  
+      padding: 18px 0; 
+      border-bottom: 1px solid var(--border);  
+    }  
+    .manage-item:last-child { border: none; }  
+    .manage-left-side { display: flex; align-items: center; gap: 14px; }
+    .manage-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--primary-glow);
+      color: var(--primary-dark);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .manage-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+    .manage-item b { font-size: 14px; font-weight: 600; color: var(--text-main); }  
+    .chevron { color: var(--primary); display: flex; align-items: center; }  
+    .chevron svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 3; }
+
+    /* CARD DE SEGURANÇA INFERIOR */
+    .security-banner {
+      background: #e6f4ea;
+      border: 1px solid rgba(16, 185, 129, 0.15);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .security-left { display: flex; align-items: center; gap: 12px; }
+    .security-icon-circle {
+      width: 36px;
+      height: 36px;
+      background: #fff;
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.1);
+    }
+    .security-icon-circle svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+    .security-txt b { font-size: 13px; color: var(--text-main); display: block; margin-bottom: 2px; }
+    .security-txt p { font-size: 11px; color: var(--text-muted); line-height: 1.3; }
+    .security-shield-asset {
+      background: var(--primary);
+      color: #fff;
+      width: 36px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+    }
+
+  </style>  
+</head>  
+<body>  
+
+<header class="header">  
+  <button class="back-btn btn-touch" onclick="location.href='home.html'">  
+    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>  
+  </button>  
+  <div class="header-info">  
+    <h2>Área Pix</h2>  
+    <div class="header-badge">Sistema ativo</div>  
+  </div>  
+</header>  
+
+<div class="balance-field btn-touch" onclick="toggleSaldo()">  
+  <div class="balance-left">  
+    <div class="balance-small">Saldo na conta</div>  
+    <div class="balance-value" id="saldo-txt">Carregando...</div>  
+    <a href="extrato.html" class="balance-link" onclick="event.stopPropagation()">Ver extrato →</a>
+  </div>  
+  <div class="balance-right">  
+    <div class="eye-btn">  
+      <svg id="eye-icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>  
+    </div>  
+  </div>  
+  <svg class="balance-bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 2L2 12l10 10 10-10L12 2z"/></svg>
+</div>  
+
+<div class="container">  
+  <div class="pix-grid">  
+    
+    <div class="pix-item btn-touch" onclick="location.href='transferir.html'">  
+      <div class="pix-item-left">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></div>  
+        <div class="pix-text"><b>Transferir</b><span>Envie por chave ou dados</span></div>
+      </div>
+      <div class="item-chevron"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></div>
+    </div>  
+    
+    <div class="pix-item btn-touch" onclick="location.href='copia_cola.html'">  
+      <div class="pix-item-left">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></div>  
+        <div class="pix-text"><b>Copia e Cola</b><span>Cole o código Pix</span></div>
+      </div>
+      <div class="item-chevron"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></div>
+    </div>  
+    
+    <div class="pix-item btn-touch" onclick="location.href='qrcode.html'">  
+      <div class="pix-item-left">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2m10 0h2a2 2 0 0 1 2 2v2m0 10v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 7h10v10H7z"/></svg></div>  
+        <div class="pix-text"><b>Ler QR Code</b><span>Escaneie para pagar</span></div>
+      </div>
+      <div class="item-chevron"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></div>
+    </div>  
+    
+    <div class="pix-item btn-touch" onclick="location.href='agendar.html'">  
+      <div class="pix-item-left">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>  
+        <div class="pix-text"><b>Programar</b><span>Agende um Pix</span></div>
+      </div>
+      <div class="item-chevron"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></div>
+    </div>  
+
+  </div>    
+
+  <div class="section-header">
+    <div class="section-title">Contatos recentes</div>  
+    <a href="contatos.html" class="section-link">Ver todos</a>
   </div>
-</div>
-<script type="module">
-  import { db, ZentryAuth, ZentryUser, ZentryUI } from './zentry-core.js';
-  import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  
+  <div class="recent-list" id="recentList">  
+    <div class="recent-user"><div class="user-thumb starred">AM</div><p>Ana</p></div>  
+    <div class="recent-user"><div class="user-thumb">JR</div><p>João</p></div>  
+    <div class="recent-user"><div class="user-thumb">LC</div><p>Lucas</p></div>  
+    <div class="recent-user"><div class="user-thumb">BT</div><p>Bia</p></div>  
+    <div class="recent-user"><div class="user-thumb">GL</div><p>Gabi</p></div>  
+    <div class="recent-user"><div class="user-thumb add-new">+</div><p>Novo contato</p></div>  
+  </div>    
+
+  <div class="section-header">
+    <div class="section-title">Gerenciar</div>  
+  </div>
+  
+  <div class="manage-card">  
+    <div class="manage-item btn-touch" onclick="location.href='pix_chaves.html'">  
+      <div class="manage-left-side">
+        <div class="manage-icon"><svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5M14 9l1.5-1.5M16.5 6.5L19 4"/></svg></div>
+        <b>Minhas chaves</b>  
+      </div>
+      <div class="chevron"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></div>  
+    </div>  
+    <div class="manage-item btn-touch" onclick="location.href='pix_limites.html'">  
+      <div class="manage-left-side">
+        <div class="manage-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <b>Meus limites Pix</b>  
+      </div>
+      <div class="chevron"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></div>  
+    </div>  
+  </div>  
+
+  <div class="security-banner">
+    <div class="security-left">
+      <div class="security-icon-circle">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="security-txt">
+        <b>Segurança em primeiro lugar</b>
+        <p>Seus dados e transações são protegidos com<br>criptografia de ponta a ponta.</p>
+      </div>
+    </div>
+    <div class="security-shield-asset">✓</div>
+  </div>
+</div>  
+
+<script type="module">  
+  import { db, ZentryAuth, ZentryUser, ZentryUI } from './zentry-core.js';  
+  import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";  
 
   let saldoOculto = false;
   let saldoReal   = 0;
 
   async function init() {
-    // 1. Em vez de exigirLogin (que as vezes buga o redirecionamento), 
-    // pegamos o ID que o Extrato salvou ou buscamos pelo e-mail
     let userDocId = localStorage.getItem("idUsuarioLogado");
 
-    if (!userDocId) {
-       userDocId = await ZentryUser.obterIdPorEmail();
-    }
+    if (!userDocId) {  
+       userDocId = await ZentryUser.obterIdPorEmail();  
+    }  
 
-    if (!userDocId) {
-      console.log("Usuário não identificado, voltando ao login...");
-      window.location.href = "login.html";
-      return;
-    }
+    if (!userDocId) {  
+      console.log("Usuário não identificado, voltando ao login...");  
+      window.location.href = "login.html";  
+      return;  
+    }  
 
-    // 2. Escuta o saldo direto pelo ID correto (Ex: user_914718)
-    onSnapshot(doc(db, "usuarios", userDocId), (snap) => {
-      if (snap.exists()) {
-        const dados = snap.data();
-        saldoReal = Number(dados.saldo || 0);
-        
-        // Atualiza a interface
-        const txt = document.getElementById('saldo-txt');
-        if (!saldoOculto) {
-          txt.innerText = ZentryUI.formatarMoeda(saldoReal);
-        }
-      }
+    onSnapshot(doc(db, "usuarios", userDocId), (snap) => {  
+      if (snap.exists()) {  
+        const dados = snap.data();  
+        saldoReal = Number(dados.saldo || 0);  
+          
+        const txt = document.getElementById('saldo-txt');  
+        if (!saldoOculto) {  
+          txt.innerText = ZentryUI.formatarMoeda(saldoReal);  
+        }  
+      }  
     });
   }
 
-  // Inicializa a página
   init();
 
-  // Função de esconder/mostrar saldo
   window.toggleSaldo = function() {
     saldoOculto = !saldoOculto;
     const txt = document.getElementById('saldo-txt');
     const eye = document.getElementById('eye-icon');
-    
-    if (saldoOculto) {
-      txt.innerText = "••••••••";
-      eye.style.stroke = "#6b7a99"; // Cor de "apagado"
-    } else {
-      txt.innerText = ZentryUI.formatarMoeda(saldoReal);
-      eye.style.stroke = "#22c55e"; // Cor de "ativo"
+
+    if (saldoOculto) {  
+      txt.innerText = "••••••••";  
+      eye.style.stroke = "#64748b";   
+    } else {  
+      txt.innerText = ZentryUI.formatarMoeda(saldoReal);  
+      eye.style.stroke = "#10b981";  
     }
   };
 </script>
-  
-</body>
-</html>
+
+</body>  
+                               </html>
+                               
