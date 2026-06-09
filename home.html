@@ -1,132 +1,170 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="manifest" href="manifest.json">
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <title>ZENTRY - Home Premium</title>
   <style>
     :root { 
-        --primary: #10b981; 
-        --primary-dark: #059669;
-        --bg-main: #f4f7f6;
+        --primary: #22c55e; 
+        --primary-dark: #16a34a;
+        --bg-main: #F7F8FA;
         --bg-card: #ffffff;
-        --border: #f1f5f9; 
+        --border-color: #E5E7EB; 
         --text-main: #0f172a;
         --text-secondary: #64748b; 
     }
 
     body { 
-        margin:0; 
-        font-family:'Inter',sans-serif; 
+        margin: 0; 
+        font-family: 'Inter', sans-serif; 
         background-color: var(--bg-main); 
         -webkit-tap-highlight-color: transparent; 
         overflow-x: hidden; 
         color: var(--text-main); 
     }
 
-    .container { padding: 20px 16px 120px 16px; }
+    .container { padding: 20px 16px 140px 16px; max-width: 600px; margin: 0 auto; }
 
     /* HEADER */
-    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-    .greeting { font-size: 22px; color: var(--text-main); font-weight: 500; }
-    .greeting span { color: var(--primary-dark); font-weight: 700; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .greeting { font-size: 22px; color: var(--text-main); font-weight: 700; line-height: 1.2; }
+    .greeting span { color: var(--primary-dark); }
     .header-actions { display: flex; gap: 12px; align-items: center; }
-    .icon-btn { background: var(--bg-card); border: none; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-main); box-shadow: 0 1px 3px rgba(0,0,0,0.05); cursor: pointer; }
+    .icon-btn { background: var(--bg-card); border: 1px solid var(--border-color); width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.02); cursor: pointer; }
 
-    /* LAYOUT GRID SUPERIOR */
-    .top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
-
-    /* CARD SALDO CIRCULAR */
-    .balance-card { background: var(--bg-card); border-radius: 20px; padding: 20px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-    .balance-card .title { font-size: 12px; color: var(--text-secondary); font-weight: 500; margin-bottom: 12px; text-transform: capitalize; }
-    .circle {
-        width: 130px; height: 130px; border-radius: 50%;
-        border: 2px solid #f1f5f9; display: flex; flex-direction: column; 
-        align-items: center; justify-content: center; background: #fff; position: relative;
+    /* CARDS PREMIUM (BASE) */
+    .premium-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        border-radius: 22px;
+        padding: 20px;
+        margin-bottom: 16px;
+        position: relative;
     }
-    .circle .eye-icon { color: var(--primary); margin-bottom: 4px; }
-    .circle span { font-size: 18px; font-weight: 700; color: var(--text-main); }
-    .circle small { font-size: 11px; color: var(--primary-dark); font-weight: 600; margin-top: 6px; cursor: pointer; display: flex; align-items: center; gap: 2px; }
 
-    /* CARD PIX GREEN */
-    .pix-card { background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; color: #fff; }
-    .pix-header { display: flex; justify-content: space-between; align-items: flex-start; }
-    .pix-title { font-size: 20px; font-weight: 700; }
-    .pix-subtitle { font-size: 11px; opacity: 0.9; margin-top: 2px; max-width: 80%; line-height: 1.3; }
-    .pix-logo-box { background: rgba(255,255,255,0.2); padding: 8px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-    .pix-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 15px; text-align: center; }
-    .pix-action-item { display: flex; flex-direction: column; align-items: center; color: #fff; font-size: 11px; font-weight: 500; text-decoration: none; }
-    .pix-action-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+    /* CARD SALDO HORIZONTAL */
+    .balance-container { display: flex; justify-content: space-between; align-items: flex-start; }
+    .balance-info { display: flex; flex-direction: column; }
+    .balance-info .title { font-size: 13px; color: var(--text-secondary); font-weight: 500; margin-bottom: 6px; }
+    .balance-info .amount { font-size: 32px; font-weight: 700; color: var(--text-main); letter-spacing: -0.5px; margin-bottom: 8px; }
+    .balance-info .link-extrato { font-size: 13px; color: var(--primary-dark); font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 4px; }
+    .eye-toggle { color: var(--text-main); cursor: pointer; padding: 4px; }
 
-    /* ACTIONS GRID HORIZONTAL */
-    .actions-horizontal { background: var(--bg-card); border-radius: 16px; padding: 14px 8px; display: flex; justify-content: space-around; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-    .action-h-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--text-main); font-size: 11px; font-weight: 500; }
-    .action-h-icon { margin-bottom: 6px; color: var(--primary-dark); display: flex; align-items: center; justify-content: center; }
+    /* GRID DOIS COLUNAS (ZENTRY PAY & PIX) */
+    .split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    
+    /* CARD ZENTRY PAY */
+    .zentry-pay-card { border: 1.5px solid var(--primary); background: var(--bg-card); }
+    .zp-tag { background: #E6F4EA; color: var(--primary-dark); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+    .avatar-group { display: flex; align-items: center; gap: 4px; margin-top: 14px; }
+    .avatar-group img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid white; }
+    .avatar-plus { width: 28px; height: 28px; border-radius: 50%; background: #F1F5F9; border: 1.5px dashed var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 14px; font-weight: 600; }
 
-    /* SEÇÕES E CARDS DE CONTEÚDO */
-    .section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-    .premium-card { background: var(--bg-card); border-radius: 20px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); position: relative; }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 14px; font-weight: 600; color: var(--text-main); }
-    .card-header svg { color: var(--text-secondary); }
+    /* LABELS E SUBTITULOS INTERNOS */
+    .card-label { font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+    .card-subtitle { font-size: 11px; color: var(--text-secondary); margin-top: 2px; line-height: 1.3; }
 
-    /* Cartão de Crédito Físico Simulado */
-    .credit-card-shape { background: #0f172a; border-radius: 12px; padding: 16px; color: #fff; position: relative; margin-bottom: 12px; min-height: 75px; display: flex; flex-direction: column; justify-content: space-between; }
-    .cc-brand { display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 700; letter-spacing: 1px; }
-    .cc-chip-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; }
-    .cc-visa { font-style: italic; font-weight: 800; font-size: 16px; }
+    /* ICONES E CONEXÕES INTERNAS DOS GRIDS */
+    .internal-actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 16px; text-align: center; }
+    .internal-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--text-main); font-size: 11px; font-weight: 500; }
+    .internal-icon { width: 40px; height: 40px; background: #F8FAF0; border: 1px solid var(--border-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-main); margin-bottom: 6px; }
+    .internal-icon-pix { width: 36px; height: 36px; background: #F8FAF1; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-main); margin-bottom: 4px; }
+    
+    .btn-card-footer { display: block; text-align: center; width: 100%; padding: 10px 0; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; margin-top: 14px; font-size: 12px; font-weight: 600; color: var(--text-main); text-decoration: none; }
 
-    /* Listas e Resumos */
-    .summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; }
+    /* AÇÕES RÁPIDAS HORIZONTAL */
+    .actions-title { font-size: 14px; font-weight: 700; margin: 20px 0 10px 2px; }
+    .actions-horizontal { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 16px; }
+    .action-h-item { background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,.03); border-radius: 16px; padding: 12px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: var(--text-main); font-size: 11px; font-weight: 500; text-align: center; }
+    .action-h-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--primary-dark); margin-bottom: 4px; }
+
+    /* SEÇÃO MEIO DOIS COLUNAS (CARTÃO E RESUMO) */
+    .mid-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 14px; margin-bottom: 16px; }
+    .clickable-card { cursor: pointer; text-decoration: none; color: inherit; }
+    .card-header-title { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+    
+    /* CARTÃO PRETO PREMIUM */
+    .credit-card-shape { background: #0f172a; border-radius: 18px; padding: 16px; color: #fff; position: relative; min-height: 85px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 20px rgba(0,0,0,.08); margin-bottom: 12px; }
+    .cc-brand { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+    .cc-chip-row { display: flex; justify-content: space-between; align-items: flex-end; }
+    .cc-visa { font-style: italic; font-weight: 800; font-size: 18px; }
+
+    /* LINHAS DE RESUMO FINANCEIRO */
+    .summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; }
     .summary-row:last-child { margin-bottom: 0; }
-    .summary-row.total-row { border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 10px; font-weight: 700; }
-    .txt-green { color: #10b981; font-weight: 600; }
+    .summary-row.total-row { border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px; font-weight: 700; }
+    .txt-green { color: #22c55e; font-weight: 600; }
     .txt-red { color: #ef4444; font-weight: 600; }
     
-    /* Rows de movimentações internas */
-    .tx-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 11px; border-bottom: 1px solid #f8fafc; padding-bottom: 8px; }
-    .tx-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .tx-info { display: flex; flex-direction: column; }
-    .tx-date { font-size: 10px; color: var(--text-secondary); }
+    .btn-light-green { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px 0; background: #E6F4EA; border: none; border-radius: 12px; font-size: 12px; font-weight: 600; color: var(--primary-dark); cursor: pointer; margin-top: 12px; }
 
-    /* Metas Progressão */
-    .meta-progress-box { margin-top: 8px; }
-    .progress-info { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; color: var(--text-secondary); }
-    .progress-bar { width: 100%; height: 6px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
-    .progress-fill { height: 100%; background: var(--primary); border-radius: 4px; }
-    .meta-badge { background: #fef2f2; color: #ef4444; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-top: 12px; }
+    /* SLIDER/CARROSSEL AUTOMÁTICO */
+    .carousel-container { background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,.03); border-radius: 22px; padding: 18px; margin-bottom: 16px; position: relative; overflow: hidden; min-height: 80px; display: flex; flex-direction: column; justify-content: space-between; }
+    .carousel-track { display: flex; transition: transform 0.4s ease-in-out; width: 100%; }
+    .carousel-slide { min-width: 100%; box-sizing: border-box; display: none; }
+    .carousel-slide.active { display: block; }
+    .slide-content { display: flex; justify-content: space-between; align-items: center; }
+    .slide-text { flex: 1; padding-right: 12px; }
+    .slide-tag { font-size: 11px; font-weight: 700; color: #ef4444; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+    .slide-tag.blue { color: var(--primary-dark); }
+    .slide-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--text-main); }
+    .slide-subtitle { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+    .slide-link { font-size: 12px; color: var(--primary-dark); font-weight: 600; text-decoration: none; display: inline-block; }
+    .slide-img { width: 50px; height: 50px; object-fit: contain; }
+    .carousel-dots { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+    .dot { width: 6px; height: 6px; background: #E2E8F0; border-radius: 50%; transition: background 0.3s; }
+    .dot.active { background: var(--primary-dark); width: 14px; border-radius: 4px; }
 
-    /* Sparkline Gráfico Simulado */
-    .sparkline-box { height: 35px; display: flex; align-items: flex-end; gap: 3px; margin-top: 10px; }
-    .spark-bar { flex: 1; background: #e2e8f0; border-radius: 2px; }
-    .spark-bar.active { background: var(--primary); }
+    /* FOOTER BUSINESS BANNER */
+    .business-banner { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 16px; text-decoration: none; color: inherit; box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-top: 8px; }
+    .bb-left { display: flex; gap: 12px; align-items: center; }
+    .bb-icon { width: 40px; height: 40px; background: #F1F5F9; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-main); }
+    .bb-title { font-size: 13px; font-weight: 700; }
+    .bb-desc { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+    .bb-link { font-size: 12px; color: var(--primary-dark); font-weight: 600; display: flex; align-items: center; gap: 2px; }
 
-    /* Split de baixo */
-    .bottom-grid-three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-    .small-card { background: var(--bg-card); border-radius: 16px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-    .small-card .title { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .small-card .val { font-size: 14px; font-weight: 700; }
-    .small-card .subtext { font-size: 9px; margin-top: 2px; }
-
-    /* NAV BAR */
+    /* NAV BAR INFERIOR PREMIUM */
     .nav-bar { 
         position: fixed; 
         bottom: 0; left: 0; right: 0; 
         background: #ffffff; 
         border-top: 1px solid #e2e8f0; 
         display: flex; justify-content: space-around; align-items: center; 
-        padding: 8px 0 24px; z-index: 1000; 
+        padding: 6px 0 24px; z-index: 1000; 
     }
     .nav-btn { 
         background: none; border: none; color: #94a3b8; 
         display: flex; flex-direction: column; align-items: center; 
-        gap: 4px; font-size: 10px; font-weight: 500; cursor: pointer;
+        gap: 4px; font-size: 11px; font-weight: 500; cursor: pointer; width: 60px;
     }
     .nav-btn svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2; fill: none; }
     .nav-btn.active { color: var(--primary-dark); }
+    
+    /* BOTÃO CENTRAL FLUTUANTE EXCLUSIVO */
+    .nav-center-wrapper { position: relative; width: 72px; height: 44px; display: flex; justify-content: center; }
+    .nav-center-btn {
+        position: absolute;
+        top: -36px;
+        width: 68px;
+        height: 68px;
+        background: var(--primary-dark);
+        border-radius: 50%;
+        border: 5px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        box-shadow: 0 8px 25px rgba(34,197,94,0.35);
+        cursor: pointer;
+        z-index: 1010;
+        transition: transform 0.2s;
+    }
+    .nav-center-btn:active { transform: scale(0.95); }
+    .nav-center-btn svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.5; }
   </style>
 </head>
 <body>
@@ -135,8 +173,8 @@
   
   <header class="header">
     <div class="user-info">
-      <div class="greeting" id="greeting">Olá, <span id="nome-usuario">...</span></div>
-      <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Bem-vindo(a) ao Zentry</div>
+      <div class="greeting" id="greeting">Bom dia, <span id="nome-usuario">Leonardo</span></div>
+      <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">Bem-vindo(a) ao Zentry</div>
     </div>
     <div class="header-actions">
       <button class="icon-btn">
@@ -148,150 +186,202 @@
     </div>
   </header>
 
-  <div class="top-grid">
-    <div class="balance-card">
-      <span class="title">Saldo disponível</span>
-      <div class="circle">
-         <div class="eye-icon" onclick="toggleSaldoHome()" style="cursor: pointer;">
-           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-6 11-6 11 6 11 6-4 6-11 6S1 12 1 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-         </div>
-         <span id="saldo-home">...</span>
-         <small onclick="location.href='extrato.html'">Ver extrato &rarr;</small>
+  <div class="premium-card">
+    <div class="balance-container">
+      <div class="balance-info">
+        <span class="title">Saldo disponível</span>
+        <span class="amount" id="saldo-home">R$ 5.280,40</span>
+        <a href="extrato.html" class="link-extrato">Ver extrato &rarr;</a>
       </div>
-    </div>
-
-    <div class="pix-card">
-      <div class="pix-header">
-        <div>
-          <div class="pix-title">Pix</div>
-          <div class="pix-subtitle">Envie, receba e pague com Pix</div>
-        </div>
-        <div class="pix-logo-box">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L4 10l8 8 8-8-8-8z"/></svg>
-        </div>
-      </div>
-      <div class="pix-actions">
-        <a href="pix.html" class="pix-action-item">
-          <div class="pix-action-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 10l7-7 7 7M12 3v18"/></svg></div>
-          Pagar
-        </a>
-        <a href="pix.html" class="pix-action-item">
-          <div class="pix-action-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 14l-7 7-7-7M12 21V3"/></svg></div>
-          Receber
-        </a>
-        <a href="pix.html" class="pix-action-item">
-          <div class="pix-action-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M12 5l7 7-7 7"/></svg></div>
-          Chaves
-        </a>
+      <div class="eye-toggle" onclick="toggleSaldoHome()">
+        <svg id="eye-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-6 11-6 11 6 11 6-4 6-11 6S1 12 1 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>
       </div>
     </div>
   </div>
 
+  <div class="split-grid">
+    
+    <div class="premium-card zentry-pay-card">
+      <div class="card-label">
+        <span>ZENTRY PAY</span>
+        <span class="zp-tag">Novo</span>
+      </div>
+      <div class="card-subtitle">Envie dinheiro para usuários Zentry</div>
+      
+      <div class="internal-actions-grid" style="grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px;">
+        <a href="#" class="internal-item">
+          <div class="internal-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></div>
+          <span style="font-size: 10px;">Enviar</span>
+        </a>
+        <a href="#" class="internal-item">
+          <div class="internal-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+          <span style="font-size: 10px;">Solicitar</span>
+        </a>
+      </div>
+      
+      <div class="avatar-group">
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=60" alt="User">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=60" alt="User">
+        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=60" alt="User">
+        <div class="avatar-plus">+</div>
+      </div>
+      <a href="contatos.html" class="btn-card-footer" style="padding: 6px 0; margin-top: 12px;">Ver contatos</a>
+    </div>
+
+    <div class="premium-card" style="padding: 16px;">
+      <div class="card-label">
+        <span>PIX</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" stroke-width="2"><path d="M12 2L4 10l8 8 8-8-8-8z"/></svg>
+      </div>
+      <div class="card-subtitle">Envie, receba e pague com Pix</div>
+      
+      <div class="internal-actions-grid" style="grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 14px;">
+        <a href="pix.html" class="internal-item">
+          <div class="internal-icon-pix"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></div>
+          <span style="font-size: 10px;">Pagar</span>
+        </a>
+        <a href="pix.html" class="internal-item">
+          <div class="internal-icon-pix"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></div>
+          <span style="font-size: 10px;">Receber</span>
+        </a>
+      </div>
+      <a href="pix.html" class="btn-card-footer" style="padding: 6px 0; margin-top: 24px;">Todas as chaves &rsaquo;</a>
+    </div>
+
+  </div>
+
+  <div class="actions-title">Ações rápidas</div>
   <nav class="actions-horizontal">
     <a href="recarga.html" class="action-h-item"><div class="action-h-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"></rect><path d="M12 18h.01"></path></svg></div><span>Recarga</span></a>
-    <a href="pagar.html" class="action-h-item"><div class="action-h-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg></div><span>Boleto</span></a>
+    <a href="pagar.html" class="action-h-item"><div class="action-h-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg></div><span>Boletos</span></a>
     <a href="cobrar.html" class="action-h-item"><div class="action-h-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div><span>Cobrar</span></a>
-    <a href="contas.html" class="action-h-item"><div class="action-h-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div><span>Transferir</span></a>
-    <a href="home.html" class="action-h-item"><div class="action-h-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div><span>Ver mais</span></a>
+    <a href="contas.html" class="action-h-item"><div class="action-h-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div><span>Transferir</span></a>
+    <a href="pagamentos.html" class="action-h-item"><div class="action-h-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></div><span>Pagam.</span></a>
+    <a href="home.html" class="action-h-item"><div class="action-h-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div><span>Mais</span></a>
   </nav>
 
-  <div class="section-grid">
+  <div class="mid-grid">
     
-    <div class="premium-card" onclick="location.href='cartao.html'" style="cursor:pointer;">
-      <div class="card-header">
+    <a href="cartao.html" class="premium-card clickable-card">
+      <div class="card-header-title">
         <span>Cartão Zentry</span>
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>
       </div>
       <div class="credit-card-shape">
         <div class="cc-brand">
           <span>ZENTRY</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v12M6 12h12"/></svg>
+          <svg width="14" height="14" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </div>
         <div class="cc-chip-row">
-          <svg width="22" height="18" viewBox="0 0 24 20" fill="rgba(255,255,255,0.7)"><rect width="24" height="20" rx="3"/></svg>
+          <svg width="20" height="16" fill="rgba(255,255,255,0.4)" viewBox="0 0 24 20"><rect width="24" height="20" rx="3"/></svg>
           <span class="cc-visa">VISA</span>
         </div>
       </div>
-      <div class="summary-row">
-        <span style="color: var(--text-secondary)">Limite disponível</span>
-      </div>
-      <div style="font-weight: 700; font-size: 14px;" id="cartao-limite">R$ 3.200,00</div>
-    </div>
+      <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 2px;">Limite disponível</div>
+      <div style="font-weight: 700; font-size: 15px;" id="cartao-limite">R$ 3.200,00</div>
+    </a>
 
     <div class="premium-card">
-      <div class="card-header">
-        <span>Resumo financeiro</span>
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>
+      <div class="card-header-title">
+        <span>Resumo</span>
+           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>
       </div>
       <div class="summary-row">
-        <span style="color: var(--text-secondary); display:flex; align-items:center; gap:4px;">
-          <svg width="12" height="12" fill="none" stroke="#10b981" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 14l-7 7-7-7M12 21V3"></path></svg> Entradas
+        <span style="color: var(--text-secondary); display:flex; align-items:center; gap:4px; font-size:12px;">
+          <svg width="12" height="12" fill="none" stroke="#22c55e" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 14l-7 7-7-7M12 21V3"></path></svg> Entradas
         </span>
-        <span class="txt-green" id="resumo-entradas">...</span>
+        <span class="txt-green" id="resumo-entradas">R$ 3.850,00</span>
       </div>
       <div class="summary-row">
-        <span style="color: var(--text-secondary); display:flex; align-items:center; gap:4px;">
+        <span style="color: var(--text-secondary); display:flex; align-items:center; gap:4px; font-size:12px;">
           <svg width="12" height="12" fill="none" stroke="#ef4444" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 10l7-7 7 7M12 3v18"></path></svg> Saídas
         </span>
-        <span class="txt-red" id="resumo-saidas">...</span>
+        <span class="txt-red" id="resumo-saidas">R$ 1.271,60</span>
       </div>
       <div class="summary-row total-row">
-        <span>Economia do mês</span>
-        <span class="txt-green" id="resumo-economia">...</span>
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-size: 11px; color: var(--text-secondary); font-weight: 400;">Economia</span>
+          <span class="txt-green" id="resumo-economia" style="font-size: 14px; margin-top: 2px;">R$ 2.578,40</span>
+        </div>
       </div>
+      <button class="btn-light-green" onclick="location.href='relatorios.html'">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg> Relatório
+      </button>
     </div>
 
   </div>
 
-  <div class="bottom-grid-three">
-    
-    <div class="small-card" onclick="location.href='metas.html'" style="cursor:pointer;">
-      <div class="title">Metas</div>
-      <div style="font-size: 11px; font-weight: 600; margin-top: 6px;">Viagem dos sonhos</div>
-      <div class="meta-progress-box">
-        <div class="progress-info">
-          <span>72%</span>
+  <div class="carousel-container">
+    <div class="carousel-track" id="carouselTrack">
+      
+      <div class="carousel-slide active">
+        <div class="slide-content">
+          <div class="slide-text">
+            <div class="slide-tag">🟢 Fatura em aberto</div>
+            <div class="slide-title">Sua fatura vence em 3 dias</div>
+            <div class="slide-subtitle">Pague agora e evite juros ou encargos.</div>
+            <a href="cartao.html" class="slide-link">Pagar fatura &rarr;</a>
+          </div>
+          <svg class="slide-img" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
         </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: 72%;"></div>
+      </div>
+
+      <div class="carousel-slide">
+        <div class="slide-content">
+          <div class="slide-text">
+            <div class="slide-tag blue">🏪 Zentry Negócios</div>
+            <div class="slide-title">Abra sua conta MEI gratuita</div>
+            <div class="slide-subtitle">Receba Pix ilimitado sem taxas de manutenção.</div>
+            <a href="#" class="slide-link">Saiba mais &rarr;</a>
+          </div>
+          <svg class="slide-img" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </div>
       </div>
-      <div style="font-size: 9px; color: var(--text-secondary); margin-top: 6px;" class="hide-val">R$ 7.200,00 / R$ 10.000,00</div>
-      <div class="meta-badge">★ Foco e disciplina!</div>
-    </div>
 
-    <div class="small-card">
-      <div class="title">Investimentos</div>
-      <div style="font-size: 9px; color: var(--text-secondary); margin-top: 4px;">Patrimônio total</div>
-      <div class="val" style="margin-top: 2px;" id="inv-aplicado">...</div>
-      <div class="subtext txt-green">+8,24% este mês</div>
-      <div class="sparkline-box">
-        <div class="spark-bar" style="height: 30%"></div>
-        <div class="spark-bar" style="height: 45%"></div>
-        <div class="spark-bar" style="height: 35%"></div>
-        <div class="spark-bar" style="height: 60%"></div>
-        <div class="spark-bar" style="height: 50%"></div>
-        <div class="spark-bar active" style="height: 85%"></div>
+      <div class="carousel-slide">
+        <div class="slide-content">
+          <div class="slide-text">
+            <div class="slide-tag blue">💳 Segurança Digital</div>
+            <div class="slide-title">Cadastre seu cartão virtual</div>
+            <div class="slide-subtitle">Mais proteção e praticidade em compras online.</div>
+            <a href="cartao.html" class="slide-link">Criar cartão &rarr;</a>
+          </div>
+          <svg class="slide-img" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+        </div>
       </div>
-    </div>
 
-    <div class="small-card">
-      <div class="title">Insights</div>
-      <div style="margin-top: 6px; width: 28px; height: 28px; background: #e6f4ea; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary-dark)">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18"></path><path d="M17 6h6v6"></path></svg>
-      </div>
-      <div style="font-size: 10px; color: var(--text-secondary); margin-top: 8px;">Você economizou</div>
-      <div class="val" style="color: var(--primary-dark); font-size: 13px;" id="cartao-fatura">...</div>
-      <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; line-height: 1.1;">em comparação ao mês passado</div>
     </div>
-
+    <div class="carousel-dots" id="carouselDots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
   </div>
+
+  <a href="business.html" class="business-banner">
+    <div class="bb-left">
+      <div class="bb-icon">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M9 21V9"></path></svg>
+      </div>
+      <div>
+        <div class="bb-title">Zentry Business</div>
+        <div class="bb-desc">Soluções para receber pagamentos e gerenciar o negócio.</div>
+      </div>
+    </div>
+    <div class="bb-link">Conhecer <span style="font-size:14px;">&rsaquo;</span></div>
+  </a>
 
   <nav class="nav-bar">
     <button class="nav-btn active" onclick="location.href='home.html'"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Início</button>
     <button class="nav-btn" onclick="location.href='pix.html'"><svg viewBox="0 0 24 24"><path d="M12 2L4 10l8 8 8-8-8-8z"/></svg>Pix</button>
+    
+    <div class="nav-center-wrapper">
+      <div class="nav-center-btn" onclick="location.href='pay.html'">
+        <svg viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+      </div>
+    </div>
+
     <button class="nav-btn" onclick="location.href='cartao.html'"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Cartão</button>
-    <button class="nav-btn" onclick="location.href='metas.html'"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Investimentos</button>
     <button class="nav-btn" onclick="logout()"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Menu</button>
   </nav>
 
@@ -305,16 +395,13 @@ let saldoOculto = false;
 let unsub = null;
 let currentUid = null;
 
-window.currentSaldo = 0;
+window.currentSaldo = 5280.40; // Inicial padrão da imagem
 
-// Valores Mockados/Fixos da imagem real anexada
 const valoresEstaticos = {
     entradas: 3850.00,
     saidas: 1271.60,
     economia: 2578.40,
-    limite: 3200.00,
-    fatura: 320.40,
-    investimento: 12650.00
+    limite: 3200.00
 };
 
 async function initHome() {
@@ -324,19 +411,17 @@ async function initHome() {
         unsub = onSnapshot(doc(db, "usuarios", currentUid), (docSnap) => {
             if (docSnap.exists()) {
                 const d = docSnap.data();
-
                 document.getElementById("nome-usuario").innerText = (d.nome || "Leonardo");
 
                 const saldoSeguro = Number(d.saldo);
-                window.currentSaldo = isNaN(saldoSeguro) ? 2578.40 : saldoSeguro;
+                window.currentSaldo = isNaN(saldoSeguro) ? 5280.40 : saldoSeguro;
 
                 renderSaldo();
                 atualizarSaudacao();
-            } else {
-                console.log("Usuário não encontrado");
             }
         }, (error) => {
             console.error("Erro Firestore:", error);
+            renderSaldo(); // Fallback estrutural seguro
         });
     });
 }
@@ -349,32 +434,22 @@ window.renderSaldo = () => {
     const elSaidas = document.getElementById("resumo-saidas");
     const elEconomia = document.getElementById("resumo-economia");
     const elLimite = document.getElementById("cartao-limite");
-    const elFatura = document.getElementById("cartao-fatura");
-      const elInv = document.getElementById("inv-aplicado");
-    const txtOcultos = document.querySelectorAll(".hide-val");
-
+    const eyeIcon = document.getElementById("eye-icon");
+    
     if (saldoOculto) {
         elSaldo.innerText = "••••••";
-        elEntradas.innerText = "••••••";
-        elSaidas.innerText = "••••••";
-        elEconomia.innerText = "••••••";
-        elLimite.innerText = "••••••";
-        elFatura.innerText = "••••••";
-        elInv.innerText = "••••••";
-        txtOcultos.forEach(el => el.innerText = "••••••");
-        return;
-    }
-
-    elSaldo.innerText = formatBRL(window.currentSaldo);
-    elEntradas.innerText = formatBRL(valoresEstaticos.entradas);
-    elSaidas.innerText = formatBRL(valoresEstaticos.saidas);
-    elEconomia.innerText = formatBRL(valoresEstaticos.economia);
-    elLimite.innerText = formatBRL(valoresEstaticos.limite);
-    elFatura.innerText = formatBRL(valoresEstaticos.fatura);
-    elInv.innerText = formatBRL(valoresEstaticos.investimento);
-    
-    if(txtOcultos[0]) {
-        txtOcultos[0].innerText = "R$ 7.200,00 / R$ 10.000,00";
+        elEntradas.innerText = "••••";
+        elSaidas.innerText = "••••";
+        elEconomia.innerText = "••••";
+        elLimite.innerText = "••••";
+        eyeIcon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
+    } else {
+        elSaldo.innerText = formatBRL(window.currentSaldo);
+        elEntradas.innerText = formatBRL(valoresEstaticos.entradas);
+        elSaidas.innerText = formatBRL(valoresEstaticos.saidas);
+        elEconomia.innerText = formatBRL(valoresEstaticos.economia);
+        elLimite.innerText = formatBRL(valoresEstaticos.limite);
+        eyeIcon.innerHTML = `<path d="M1 12s4-6 11-6 11 6 11 6-4 6-11 6S1 12 1 12z"></path><circle cx="12" cy="12" r="3"></circle>`;
     }
 };
 
@@ -393,6 +468,25 @@ function atualizarSaudacao() {
     
     el.innerHTML = `${saudacao} <span id="nome-usuario">${document.getElementById("nome-usuario").innerText}</span>`;
 }
+
+// LOGICA CARROSSEL AUTOMATICO
+let slideIndex = 0;
+function showSlides() {
+    const slides = document.querySelectorAll(".carousel-slide");
+    const dots = document.querySelectorAll(".dot");
+    
+    slides.forEach(slide => slide.classList.remove("active"));
+    dots.forEach(dot => dot.classList.remove("active"));
+    
+    slideIndex++;
+    if (slideIndex > slides.length) { slideIndex = 1; }
+    
+    slides[slideIndex - 1].classList.add("active");
+    dots[slideIndex - 1].classList.add("active");
+    
+    setTimeout(showSlides, 4000); // Roda a cada 4 segundos
+}
+showSlides();
 
 window.logout = async () => {
     if (unsub) unsub();
